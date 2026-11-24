@@ -8,47 +8,46 @@
 <script src="config.js"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="cp-backend.js"></script>
-<style>.privlink{font-size:10.5px;color:var(--side-muted);text-align:center;text-decoration:none}.privlink:hover{text-decoration:underline}@media (min-width:861px){.shell.mini .privlink{display:none}}</style>
+<style>.privlink{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:600 12px/1 serif;color:var(--muted);text-decoration:none;border:1px solid var(--line)}.privlink:hover{color:var(--ink);border-color:var(--ink)}</style>
 <title>Content Plan Indo Group</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* Layout: fixed sidebar (logo, Beranda, brand tabs, Instagram channels, Pengaturan + theme at the bottom)
    + sage workspace. Beranda = pending + one card per brand with its own pillar donut.
    Brand page = colored sheet table (brand header, zebra tint) followed by pending, motif, pillar, campaign, daily recap. */
 :root{
-  --sun:#D93025; --bg:#EEF2EF; --bg-2:#F5F7F6; --side:#FFFFFF; --side-2:#F4F7F5; --side-ink:#1E2B24; --side-muted:#7A8A82;
-  --surface:#FFFFFF; --ink:#1E2B24; --muted:#6F7E77; --line:#E3E9E5; --accent:#2F6B4F; --on-accent:#FFFFFF; --accent-soft:#DDF2D6;
-  --grid:#E2E5E3; --hdr:#F6F8F7; --frz:#C3CEC8;
-  --ok:#2E8B57; --late:#C2452D; --warn:#B7791F;
-  --font:"Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --r:18px;
-  --sh-card:0 1px 0 rgba(255,255,255,.9) inset, 0 1px 2px rgba(30,43,36,.05), 0 10px 24px -10px rgba(30,43,36,.18);
-  --sh-lift:0 1px 0 rgba(255,255,255,.9) inset, 0 4px 8px rgba(30,43,36,.07), 0 20px 36px -12px rgba(30,43,36,.24);
-  --sh-press:0 1px 3px rgba(30,43,36,.2) inset;
-  --sh-side:0 1px 0 #fff inset, 0 2px 4px rgba(30,43,36,.04), 0 14px 32px -14px rgba(30,43,36,.25);
-  --zebra:7%; --tint:26%;
+  --sun:#C8473B; --bg:#E8E5E1; --bg-2:#F1EFEC; --side:#E8E5E1; --side-2:#F1EFEC; --side-ink:#1C1B1A; --side-muted:#8A847D;
+  --surface:#F4F2EF; --raised:#FBFAF8; --ink:#1C1B1A; --muted:#857F78; --line:#E2DED9; --accent:#1C1B1A; --on-accent:#FFFFFF; --accent-soft:rgba(28,27,26,.06);
+  --grid:#E6E2DD; --hdr:#EFECE8; --frz:#CFC9C2;
+  --ok:#2F7A4B; --late:#B3413A; --warn:#9A6A1E; --info:#3F5BD0;
+  --p-blue:#DFE6FB; --p-blue-i:#3F5BD0; --p-green:#DCF0E3; --p-green-i:#2F7A4B; --p-red:#F7DEDB; --p-red-i:#B3413A; --p-amber:#F8EAD2; --p-amber-i:#93631A; --p-gray:#EAE7E3; --p-gray-i:#6A645D;
+  --font:"Outfit", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r:16px;
+  --sh-card:0 1px 2px rgba(40,32,24,.04);
+  --sh-lift:0 6px 20px -6px rgba(40,32,24,.14);
+  --sh-press:0 1px 2px rgba(40,32,24,.12) inset;
+  --sh-side:none;
+  --zebra:5%; --tint:18%;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --sun:#F28B82; --bg:#0E1311; --bg-2:#151C19; --side:#141B18; --side-2:#1A2320; --side-ink:#E6EEE9; --side-muted:#8D9E96;
-  --surface:#18201D; --ink:#E6EEE9; --muted:#93A39C; --line:#26302C; --accent:#7FCB8F; --on-accent:#0E1F14; --accent-soft:rgba(127,203,143,.16);
-  --grid:#2A3430; --hdr:#1D2622; --frz:#3A4741;
-  --ok:#5CC48A; --late:#F07B63; --warn:#E8B04E;
-  --sh-card:0 1px 0 rgba(255,255,255,.04) inset, 0 2px 4px rgba(0,0,0,.35), 0 14px 30px -10px rgba(0,0,0,.6);
-  --sh-lift:0 1px 0 rgba(255,255,255,.05) inset, 0 4px 10px rgba(0,0,0,.4), 0 24px 44px -14px rgba(0,0,0,.75);
-  --sh-press:0 2px 4px rgba(0,0,0,.5) inset; --sh-side:8px 0 30px -10px rgba(0,0,0,.7);
-  --zebra:12%; --tint:30%; color-scheme:dark; } }
+  --sun:#E88A7F; --bg:#171513; --bg-2:#1F1D1B; --side:#171513; --side-2:#1F1D1B; --side-ink:#EDE9E4; --side-muted:#9C958D;
+  --surface:#211F1D; --raised:#2A2725; --ink:#EDE9E4; --muted:#A09991; --line:#302D2A; --accent:#F2EEE8; --on-accent:#171513; --accent-soft:rgba(242,238,232,.08);
+  --grid:#2E2B28; --hdr:#262321; --frz:#46413C;
+  --ok:#7FCB9B; --late:#F08A80; --warn:#E6B66A; --info:#9DB0F5;
+  --p-blue:rgba(110,140,240,.18); --p-blue-i:#AFC0FA; --p-green:rgba(90,190,130,.16); --p-green-i:#9DDCB4; --p-red:rgba(235,110,100,.16); --p-red-i:#F3A79F; --p-amber:rgba(230,175,90,.16); --p-amber-i:#EBC386; --p-gray:rgba(255,255,255,.07); --p-gray-i:#C9C2BA;
+  --sh-card:0 1px 2px rgba(0,0,0,.25); --sh-lift:0 8px 24px -8px rgba(0,0,0,.6); --sh-press:0 1px 3px rgba(0,0,0,.5) inset; --sh-side:none;
+  --zebra:8%; --tint:22%; color-scheme:dark; } }
 :root[data-theme="dark"]{
-  --sun:#F28B82; --bg:#0E1311; --bg-2:#151C19; --side:#141B18; --side-2:#1A2320; --side-ink:#E6EEE9; --side-muted:#8D9E96;
-  --surface:#18201D; --ink:#E6EEE9; --muted:#93A39C; --line:#26302C; --accent:#7FCB8F; --on-accent:#0E1F14; --accent-soft:rgba(127,203,143,.16);
-  --grid:#2A3430; --hdr:#1D2622; --frz:#3A4741;
-  --ok:#5CC48A; --late:#F07B63; --warn:#E8B04E;
-  --sh-card:0 1px 0 rgba(255,255,255,.04) inset, 0 2px 4px rgba(0,0,0,.35), 0 14px 30px -10px rgba(0,0,0,.6);
-  --sh-lift:0 1px 0 rgba(255,255,255,.05) inset, 0 4px 10px rgba(0,0,0,.4), 0 24px 44px -14px rgba(0,0,0,.75);
-  --sh-press:0 2px 4px rgba(0,0,0,.5) inset; --sh-side:8px 0 30px -10px rgba(0,0,0,.7);
-  --zebra:12%; --tint:30%; color-scheme:dark; }
+  --sun:#E88A7F; --bg:#171513; --bg-2:#1F1D1B; --side:#171513; --side-2:#1F1D1B; --side-ink:#EDE9E4; --side-muted:#9C958D;
+  --surface:#211F1D; --raised:#2A2725; --ink:#EDE9E4; --muted:#A09991; --line:#302D2A; --accent:#F2EEE8; --on-accent:#171513; --accent-soft:rgba(242,238,232,.08);
+  --grid:#2E2B28; --hdr:#262321; --frz:#46413C;
+  --ok:#7FCB9B; --late:#F08A80; --warn:#E6B66A; --info:#9DB0F5;
+  --p-blue:rgba(110,140,240,.18); --p-blue-i:#AFC0FA; --p-green:rgba(90,190,130,.16); --p-green-i:#9DDCB4; --p-red:rgba(235,110,100,.16); --p-red-i:#F3A79F; --p-amber:rgba(230,175,90,.16); --p-amber-i:#EBC386; --p-gray:rgba(255,255,255,.07); --p-gray-i:#C9C2BA;
+  --sh-card:0 1px 2px rgba(0,0,0,.25); --sh-lift:0 8px 24px -8px rgba(0,0,0,.6); --sh-press:0 1px 3px rgba(0,0,0,.5) inset; --sh-side:none;
+  --zebra:8%; --tint:22%; color-scheme:dark; }
 
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--ink)}
@@ -593,6 +592,36 @@ table.mlt .cin:focus{border-color:var(--accent);outline:none}
 table.mlt .cin.mono{font-family:var(--mono);font-size:11px}
 table.mlt select.cin{min-width:120px;font-weight:600}
 .linkb{border:0;background:transparent;color:#1a73e8;font-weight:700;font-size:12px;padding:0;cursor:pointer}
+/* ---- Soft slate: calm neutral look, one fixed font (Inter), lighter weights ---- */
+body{font-size:13px;letter-spacing:-.003em}
+.top h1{font-size:18px;font-weight:650;letter-spacing:-.01em}.top h1 small{font-size:12px;font-weight:500}
+.card{border:1px solid var(--line);box-shadow:var(--sh-card);padding:18px}.card.lift:hover{transform:translateY(-2px)}
+.card h2{font-size:14px;font-weight:600;letter-spacing:-.005em}
+.btn{border-radius:8px;font-weight:600;font-size:12px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(16,24,40,.04)}.btn.acc{border-color:transparent}
+.seg{border-radius:9px;border:1px solid var(--line);box-shadow:none}.seg button{border-radius:7px;font-weight:600}
+.side{border-radius:14px}.logo{border-radius:0}.logo b{font-weight:700}
+.navb{font-weight:500;border-radius:8px}.navb[aria-current="page"]{font-weight:600;box-shadow:none;color:color-mix(in srgb,var(--accent) 70%,var(--ink))}
+.navb[aria-current="page"] .nm small{color:var(--muted)}
+.theme,.month,.zoom{border-radius:9px}.theme button,.month button,.zoom button{border-radius:7px}
+.band{border-radius:var(--r);border:1px solid var(--line);border-left:4px solid var(--c);background:var(--surface);padding:16px 18px}
+.band h2{font-size:17px;font-weight:700;letter-spacing:-.01em}.band .lbl{font-weight:600;letter-spacing:.1em}
+.kp div{border:1px solid var(--line);box-shadow:none;border-radius:10px}.kp b{font-weight:650}
+.nums b{font-weight:650}.chip,.st{font-weight:600}
+.sheet-wrap{border-radius:10px;box-shadow:none}
+.sheet th{font-weight:600;letter-spacing:.02em}.sheet td.tgl{font-weight:650}.sheet td.hari{font-weight:550}
+.gbar,.guide,.fbar{border-radius:10px;box-shadow:none;border:1px solid var(--line)}
+.robar{border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));border-radius:10px;box-shadow:none}
+.modal{border-radius:14px}.toast{font-weight:600}
+.aibtn{position:absolute;top:4px;right:4px;z-index:2;border:1px solid var(--line);background:var(--surface);border-radius:7px;width:24px;height:24px;font-size:12px;line-height:1;cursor:pointer;opacity:0;transition:opacity .15s,transform .1s;box-shadow:var(--sh-card)}
+.sheet td:hover .aibtn,.sheet td.cfocus .aibtn,.aibtn:focus-visible{opacity:1}.aibtn:hover{border-color:var(--accent)}.aibtn:active{transform:scale(.9)}
+.sheet td.w-scr textarea.cin{padding-right:30px}
+.sheet td.aiwork{background:color-mix(in srgb,var(--accent) 10%,var(--surface))!important}
+.sheet td.aiwork .aibtn{opacity:1;animation:aipulse 1s ease-in-out infinite}
+@keyframes aipulse{50%{transform:scale(.85);opacity:.5}}
+.gtools .aitb{font-size:11.5px;font-weight:600;padding:0 4px;white-space:nowrap}
+body.ro .aibtn{display:none}
+.sheet .cin::placeholder{color:transparent}
+.sheet td.cfocus .cin::placeholder,.sheet td:hover .cin::placeholder{color:color-mix(in srgb,var(--muted) 75%,transparent)}
 @media (max-width:1180px){.mlists{grid-template-columns:minmax(0,1fr)}}
 /* login box (GitHub Pages version only) */
 .authbox:empty{display:none}
@@ -620,30 +649,185 @@ table.mlt select.cin{min-width:120px;font-weight:600}
 }
 @media (max-width:520px){.bcb{grid-template-columns:minmax(0,1fr);justify-items:center}.kp{flex-wrap:wrap}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
+/* ==== Warm workspace (Planex-like): icon rail, top bar, soft panels, black primary buttons; solid surfaces only ==== */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body{font-size:13px;letter-spacing:0}
+.shell{grid-template-columns:64px minmax(0,1fr);gap:20px;max-width:1560px;padding-block:20px}
+.shell.mini{grid-template-columns:64px minmax(0,1fr)}
+.side,.shell.mini .side{background:transparent;border:0;box-shadow:none;border-radius:0;overflow:visible;top:20px;height:calc((100vh - 40px) / var(--z,1));align-items:center}
+.side .logo,.shell.mini .side .logo{background:transparent;border:0;padding:0 0 14px;flex-direction:column;border-radius:0}
+.side .logo .mark{width:44px;height:44px;border-radius:14px;border:0;box-shadow:var(--sh-card);background:var(--raised)}
+.side-scroll,.shell.mini .side-scroll{padding:6px 0;gap:8px;align-items:center;overflow-y:auto;overflow-x:visible;scrollbar-width:none}
+.side h3,.shell.mini .side h3{font-size:0;height:1px;width:28px;background:var(--line);margin:4px auto;padding:0}
+.navb,.shell.mini .navb{width:44px;height:44px;margin:0;padding:0;justify-content:center;border-radius:14px;background:transparent;box-shadow:none}
+.navb .nm,.navb .ct{display:none!important}
+.navb:hover{background:color-mix(in srgb,var(--raised) 70%,transparent)}
+.navb[aria-current="page"]{background:var(--raised);box-shadow:var(--sh-card)}
+.navb svg{width:19px;height:19px;stroke:var(--muted)}.navb[aria-current="page"] svg{stroke:var(--ink)}
+.navb .dot{width:30px;height:30px;border-radius:50%;font-size:9.5px;box-shadow:none;overflow:hidden}
+.navb[aria-current="page"] .dot{box-shadow:0 0 0 2px var(--raised),0 0 0 3.5px var(--ink)}
+.side-foot,.shell.mini .side-foot{border:0;padding:10px 0 0;align-items:center;flex-direction:column}
+.side-foot .navb{width:44px;height:44px;padding:0;border-radius:50%;background:var(--raised)}
+.content{display:flex;flex-direction:column;gap:20px;min-width:0}
+.topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative}
+.brandname{display:flex;flex-direction:column;line-height:1.1;margin-right:6px}
+.brandname b{font-size:17px;font-weight:600;letter-spacing:-.01em}.brandname small{font-size:11.5px;color:var(--muted)}
+.gsearch{flex:1;min-width:220px;max-width:520px;display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:12px;padding:0 14px;height:42px;position:relative}
+.gsearch svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.8;flex:none}
+.gsearch input{border:0;background:transparent;flex:1;min-width:0;height:100%;font-size:13px;color:var(--ink);outline:none}
+.gsearch:focus-within{box-shadow:0 0 0 2px var(--ink)}
+.topbar .month{background:var(--surface);border-radius:12px;padding:3px;margin:0;height:42px}
+.topbar .month button{color:var(--ink);width:30px;height:34px;border-radius:9px}.topbar .month button:hover{background:var(--raised)}
+.topbar .month span{min-width:120px;font-size:12.5px;font-weight:500;color:var(--ink)}
+.topbar .sync{color:var(--muted);font-size:11px;font-weight:500;padding:0}
+.tbtns{display:flex;align-items:center;gap:8px;margin-left:auto}
+.ibtn{position:relative;width:42px;height:42px;border-radius:50%;border:0;background:var(--raised);display:grid;place-items:center;box-shadow:var(--sh-card);transition:transform .12s}
+.ibtn:active{transform:scale(.93)}.ibtn svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ibtn .badge{position:absolute;top:6px;right:7px;min-width:16px;height:16px;border-radius:999px;background:var(--late);color:#fff;font-size:9.5px;font-style:normal;font-weight:600;display:grid;place-items:center;padding:0 4px;border:2px solid var(--raised)}
+.topbar .theme{background:var(--surface);border-radius:999px;padding:3px;display:flex;gap:2px}
+.topbar .theme button{width:36px;height:36px;padding:0;border-radius:50%;color:var(--muted)}
+.topbar .theme button svg{width:16px;height:16px}
+.topbar .theme button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--sh-card)}
+.topbar .authbox{flex-direction:row;align-items:center}
+.topbar .authme{background:var(--raised);border-radius:999px;padding:4px 10px 4px 4px;box-shadow:var(--sh-card)}
+.topbar .authav{width:32px;height:32px;background:var(--ink);color:var(--raised)}
+.topbar .authtx b{font-size:12.5px;color:var(--ink);font-weight:600}.topbar .authtx small{color:var(--muted)}
+.topbar .authnote{display:none}
+.tpop{position:absolute;z-index:60;top:52px;background:var(--raised);border-radius:14px;box-shadow:var(--sh-lift),0 0 0 1px var(--line);padding:6px;width:min(420px,calc(100vw - 32px));max-height:60vh;overflow:auto}
+.tpop .ti{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:10px;cursor:pointer;border:0;background:transparent;width:100%;text-align:left;color:var(--ink)}
+.tpop .ti:hover,.tpop .ti:focus{background:var(--surface);outline:none}
+.tpop .ti i{width:10px;height:10px;border-radius:50%;flex:none;margin-top:4px}
+.tpop .ti span{flex:1;min-width:0;font-size:12.5px}.tpop .ti small{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpop .th{font-size:11px;font-weight:600;color:var(--muted);padding:6px 10px 4px;letter-spacing:.04em}
+.tpop .empty{padding:18px;text-align:center;color:var(--muted);font-size:12.5px}
+/* surfaces, cards, buttons */
+.card{background:var(--surface);border:0;border-radius:var(--r);box-shadow:none;padding:18px 20px}
+.card.lift:hover{transform:none}
+.card h2{font-size:15px;font-weight:500;letter-spacing:-.005em}
+.sub{color:var(--muted)}
+.btn{background:var(--raised);border:0;border-radius:10px;font-weight:500;box-shadow:var(--sh-card);padding:7px 13px}
+.btn.acc,.btn.dark{background:var(--accent);color:var(--on-accent);box-shadow:none}
+.btn.dark{padding:10px 16px;border-radius:12px;font-size:12.5px}
+.seg{background:transparent;border:0;gap:6px;padding:0;box-shadow:none}
+.seg button{background:var(--surface);border-radius:10px;padding:7px 13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--sh-card)}
+.top h1{font-size:24px;font-weight:500;letter-spacing:-.015em}
+.robar{border-left:0;border-radius:14px;background:var(--surface)}
+.chip{font-weight:500}
+.st{font-weight:500;border-radius:7px;padding:3px 9px}
+.st.late{background:var(--p-red);color:var(--p-red-i)}.st.done{background:var(--p-green);color:var(--p-green-i)}.st.prog{background:var(--p-amber);color:var(--p-amber-i)}
+.pending{border-left:0}
+.band{background:transparent;border:0;padding:0;box-shadow:none;gap:14px}
+.band .av{width:52px;height:52px;border-radius:16px}
+.band h2{font-size:24px;font-weight:500;color:var(--ink)}.band .lbl{font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--muted)}
+.band .meta{font-weight:400}.band .pics span{background:var(--surface);color:var(--ink);font-weight:500}
+.kp div{background:transparent;border:0;box-shadow:none;padding:0 6px}
+/* table keeps a lighter sheet surface */
+.sheet-wrap{--surface:var(--raised);background:var(--raised);border:0;border-radius:14px}
+.gbar,.guide,.fbar{background:var(--surface);border:0;border-radius:14px}
+.gtools{border-bottom-color:var(--line)}
+.sheet thead tr.labels th{background:var(--hdr)!important;color:var(--muted)!important;border-bottom:1px solid var(--grid)!important}
+/* ---- dashboard ---- */
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.hello h1{margin:0;font-size:28px;font-weight:500;letter-spacing:-.02em}
+.hello p{margin:4px 0 0;color:var(--muted)}
+.hello-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.perange{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:12px;padding:4px 8px}
+.perange input{border:0;background:transparent;font-size:12px;color:var(--ink);padding:4px 2px;font-family:inherit}
+.perange span{color:var(--muted);font-size:12px}
+.dash{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.dcol{display:flex;flex-direction:column;gap:20px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:4px 2px}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .si{display:flex;align-items:center;gap:8px}
+.stat .si svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.stat strong{font-size:30px;font-weight:400;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat small{color:var(--muted);font-size:12.5px}
+.stat.bad strong{color:var(--late)}
+.panel{background:var(--surface);border-radius:var(--r);padding:18px 20px;min-width:0}
+.phead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.phead h2{margin:0;font-size:16px;font-weight:500}.phead p{margin:2px 0 0;color:var(--muted);font-size:12px}
+.btbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.btbl th{font-weight:400;color:var(--muted);text-align:left;padding:8px 8px;font-size:12px}
+.btbl td{padding:11px 8px;border-top:1px solid var(--line);vertical-align:middle}
+.btbl tr[data-go]{cursor:pointer}.btbl tr[data-go]:hover td{background:color-mix(in srgb,var(--raised) 60%,transparent)}
+.bnm{display:flex;align-items:center;gap:10px}.bnm .av{width:30px;height:30px;border-radius:50%;font-size:9px}
+.bnm b{font-weight:500;display:block}.bnm small{color:var(--muted);font-size:11.5px}
+.pill{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:7px;white-space:nowrap}
+.pill.blue{background:var(--p-blue);color:var(--p-blue-i)}.pill.green{background:var(--p-green);color:var(--p-green-i)}.pill.red{background:var(--p-red);color:var(--p-red-i)}.pill.amber{background:var(--p-amber);color:var(--p-amber-i)}.pill.gray{background:var(--p-gray);color:var(--p-gray-i)}
+.pbar{display:flex;align-items:center;gap:10px;min-width:130px}
+.pbar i{flex:1;height:5px;border-radius:99px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden;display:block}
+.pbar i b{display:block;height:100%;background:var(--ink);border-radius:99px}
+.pbar span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+.datec{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}.datec svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.7}
+.go{color:var(--muted);font-size:12px;white-space:nowrap}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.bcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.bcol>header{display:flex;align-items:center;justify-content:space-between;background:var(--raised);border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:500;box-shadow:var(--sh-card)}
+.bcol>header span{background:var(--surface);border-radius:7px;padding:1px 7px;font-size:11px;color:var(--muted)}
+.kcard{background:var(--raised);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;cursor:pointer;border:0;text-align:left;color:var(--ink);box-shadow:var(--sh-card);transition:transform .12s}
+.kcard:hover{transform:translateY(-1px)}.kcard:active{transform:scale(.98)}
+.kcard b{font-size:12.5px;font-weight:500;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kcard small{color:var(--muted);font-size:11px}
+.kcard .km{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.kcard .kav{margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:9px;font-weight:600;color:var(--ink)}
+.kmore{font-size:11.5px;color:var(--muted);padding:2px 6px}
+.calw .cgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.calw .dn{font-size:11px;color:var(--muted);text-align:center;padding-bottom:4px}
+.calw .dc{aspect-ratio:1/1;border-radius:9px;background:var(--hdr);border:0;padding:4px 5px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;font-size:10.5px;color:var(--muted);cursor:pointer;min-width:0}
+.calw .dc:hover{box-shadow:0 0 0 1.5px var(--ink) inset}
+.calw .dc.has{color:var(--ink)}
+.calw .dc.today{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:var(--sh-lift)}
+.calw .dc.sel{box-shadow:0 0 0 1.5px var(--ink) inset}
+.calw .dc.blank{background:transparent;cursor:default}
+.calw .dots{display:flex;gap:2px;flex-wrap:wrap}.calw .dots i{width:5px;height:5px;border-radius:50%}
+.calh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calh b{font-size:15px;font-weight:500}
+.calh .mnav{display:flex;gap:6px}.calh .mnav button{width:30px;height:30px;border-radius:50%;border:0;background:var(--raised);color:var(--ink);box-shadow:var(--sh-card)}
+.bcard .bsel{border:0;background:var(--raised);border-radius:9px;padding:5px 8px;font-size:12px;color:var(--ink);font-family:inherit}
+.bcard .big{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));text-align:center;margin:14px 0}
+.bcard .big strong{display:block;font-size:20px;font-weight:400}.bcard .big small{color:var(--muted);font-size:11.5px}
+.bcard .pchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.bcard .full{width:100%;justify-content:center;background:var(--raised)}
+.bdash{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:1180px){.dash,.bdash{grid-template-columns:minmax(0,1fr)}.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{position:static;height:auto;flex-direction:row;align-items:center;gap:8px;overflow-x:auto}
+  .side .logo{padding:0}.side-scroll{flex-direction:row}.side h3{display:none}.side-foot{padding:0}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tbtns{margin-left:0}.gsearch{order:5;max-width:none;flex-basis:100%}
+}
+@media (max-width:560px){.board{grid-template-columns:minmax(0,1fr)}.btbl .hide-s{display:none}}
+body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}</style>
 
 </head>
 <body>
 <div class="shell">
   <aside class="side" aria-label="Navigasi">
-    <div class="logo"><div class="mark" id="logoMark"><span>INDO</span></div><div style="flex:1;min-width:0"><b>CONTENT PLAN<br>INDO GROUP</b>
-      <div class="month" role="group" aria-label="Pilih bulan"><button data-month="-1" aria-label="Bulan sebelumnya">‹</button><span id="monthLbl">November 2026</span><button data-month="1" aria-label="Bulan berikutnya">›</button></div></div>
-      <button class="sidetog" id="sideTog" aria-label="Perkecil sidebar" aria-expanded="true" title="Perkecil sidebar (Ctrl+\)"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+    <div class="logo"><div class="mark" id="logoMark"><span>INDO</span></div><b class="sr">CONTENT PLAN INDO GROUP</b>
+      <button class="sidetog" id="sideTog" hidden aria-hidden="true" tabindex="-1"></button></div>
     <div class="side-scroll" id="nav"></div>
-    <div class="side-foot">
-      <div class="sync wait" id="sync" role="status"><i></i><span>Menghubungkan…</span></div>
-      <div class="authbox" id="authBox"></div><a class="privlink" href="privacy.html">Kebijakan Privasi</a>
-      <div class="zoom" role="group" aria-label="Ukuran tampilan (Ctrl + scroll)"><button data-zoom="-1" aria-label="Perkecil">−</button><button class="zv" data-zoom="0" id="zoomLbl" title="Kembali ke 100%">100%</button><button data-zoom="1" aria-label="Perbesar">+</button></div>
-      <button class="navb" data-go="pengaturan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><span class="nm"><b>Pengaturan</b></span></button>
-      <div class="theme" role="group" aria-label="Tema">
-        <button data-theme-set="light"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Terang</button>
-        <button data-theme-set="dark"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Gelap</button>
-      </div>
+    <div class="side-foot"><a class="privlink" href="privacy.html" title="Kebijakan Privasi" aria-label="Kebijakan Privasi">i</a>
+      <button class="navb" data-go="pengaturan" title="Pengaturan" aria-label="Pengaturan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg><span class="nm"><b>Pengaturan</b></span></button>
     </div>
   </aside>
-  <main class="main" id="main"></main>
+  <div class="content">
+    <header class="topbar">
+      <div class="brandname"><b>Content Plan</b><small>Indo Group</small></div>
+      <div class="gsearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><input id="gsearch" type="search" placeholder="Cari konten, motif, script, brief…" autocomplete="off" aria-label="Cari di semua brand"></div>
+      <div class="month" role="group" aria-label="Pilih bulan"><button data-month="-1" aria-label="Bulan sebelumnya">‹</button><span id="monthLbl">November 2026</span><button data-month="1" aria-label="Bulan berikutnya">›</button></div>
+      <div class="sync wait" id="sync" role="status" title="Status simpan"><i></i><span>Menghubungkan…</span></div>
+      <div class="tbtns">
+        <button class="ibtn" id="bellBtn" aria-label="Pengingat" title="Pengingat konten"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><i class="badge" id="bellBadge" hidden></i></button>
+        <div class="theme" role="group" aria-label="Tema"><button data-theme-set="light" aria-label="Mode terang" title="Mode terang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><button data-theme-set="dark" aria-label="Mode gelap" title="Mode gelap"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div>
+        <button class="ibtn" data-go="pengaturan" aria-label="Pengaturan" title="Pengaturan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
+      </div>
+      <div class="authbox" id="authBox"></div>
+      <span id="zoomLbl" hidden></span>
+    </header>
+    <main class="main" id="main"></main>
+  </div>
 </div>
-
 <script>
 (() => {
 "use strict";
@@ -659,7 +843,7 @@ const pad2=n=>String(n).padStart(2,"0");
 const todayYm=()=>{const t=new Date();return t.getFullYear()+"-"+pad2(t.getMonth()+1)};
 const S={
   view:"beranda",
-  sideColor:"#FFFFFF", accent:"#2F6B4F", promo:"#F2B66D", logo:null, sideCustom:false, accentCustom:false,
+  sideColor:"#FFFFFF", accent:"#5B6BD6", promo:"#F2B66D", logo:null, sideCustom:false, accentCustom:false,
   campaigns:[{name:"11.11",color:"#F4B6BC",kw:"11.11"},{name:"Hari Pahlawan",color:"#F7C9A4",kw:"hari pahlawan"},{name:"Payday",color:"#B7D3F2",kw:"payday"}],
   brands:[
     {code:"OLV",name:"BATIK OLIVER",abbr:"OL",color:"#3D5A80",pics:[],talents:[]},
@@ -731,7 +915,7 @@ function renderNav(){
 const todayISO=()=>{const t=new Date();return t.getFullYear()+"-"+pad2(t.getMonth()+1)+"-"+pad2(t.getDate())};
 const DONE_RE=/^(uploaded|terminated|sudah upload|posted)$/i;
 const isDoneSt=s=>DONE_RE.test(String(s||"").trim());
-function hasContent(r){return !!(r&&(r.pil||(r.motifs&&r.motifs.length)||r.st||r.scr||r.ide||r.brand||r.pic))}
+function hasContent(r){return !!(r&&(r.pil||(r.motifs&&r.motifs.length)||r.st||r.scr||r.ide||r.brief||r.brand||r.pic))}
 function isPendingRow(r,ym){if(!hasContent(r)||isDoneSt(r.st))return false;return String(r.st||"").toUpperCase()==="PENDING"||(ym+"-"+pad2(r.d))<todayISO()}
 function campOf(r){if(!r)return null;if(r.camp){const c=S.campaigns.find(c=>c.name===r.camp);if(c)return c}
   const hay=[r.pil,r.scr,r.ide,r.hook,r.judul,r.note].join(" ").toLowerCase();
@@ -770,16 +954,114 @@ function pendingCard(filter){
   const shown=list.slice(0,8);
   return `<section class="card pending"><div class="head"><div><h2>Catatan: ${list.length} konten pending</h2><p class="sub">Tanggal sudah lewat tapi status belum diganti ke selesai</p></div></div><div class="plist">${shown.map(([b,r])=>{const bb=b.ig?(byCode(r.brand)||b):b;return `<div class="prow"><span class="chip" style="--c:${bb.color}"><i></i>${esc(b.ig?(r.brand||"Instagram")+" · IG":b.name)}</span><span class="num">${esc(shortDate(r.d))}</span><span class="g"><b>${esc(r.pil||"(tanpa pilar)")}</b> · ${esc((r.motifs||[]).join(", ")||"motif belum diisi")}</span><span class="st late">${esc(r.st||"BELUM ADA STATUS")}</span>${r.pic?`<span style="color:var(--muted)">PIC ${esc(r.pic)}</span>`:""}<button class="btn sm press" data-go="${b.code}" data-jump="${r.id}">Buka</button></div>`}).join("")}${list.length>shown.length?`<p class="sub" style="margin:4px 2px 0">dan ${list.length-shown.length} konten pending lainnya.</p>`:""}</div></section>`;
 }
-function beranda(){
-  const tot=all().reduce((a,b)=>a+stats(b)[0],0);
-  let h=`<div class="top"><h1>CONTENT PLAN INDO GROUP<small>Beranda · ${esc(ymLabel(S.ym))} · ${tot} konten · ${S.brands.length} brand TikTok + Instagram</small></h1></div>`;
-  h+=pendingCard();
-  h+=`<section class="bgrid">${all().map(b=>{const [L,V]=pillarsOf(b),[t,dn,pd]=stats(b);const top=L.map((l,i)=>[l,V[i],i]).filter(x=>x[1]).sort((a,c)=>c[1]-a[1]).slice(0,4);
-    return `<article class="card bc lift press" style="--c:${b.color}" data-go="${b.code}" tabindex="0" role="button" aria-label="Buka ${esc(b.name)}"><div class="bch">${av(b)}<div><b>${esc(b.name)}</b><small>${b.ig?esc(b.sub):"TikTok"}${b.pics.length?" · PIC "+esc(b.pics.join(", ")):""}</small></div></div>
-      <div class="bcb">${donut(L,V,120,t)}<div class="nums num"><div><b>${t}</b>total</div><div><b>${dn}</b>selesai</div><div class="${pd?"late":""}"><b>${pd}</b>pending</div><div><b>${t-dn-pd}</b>terjadwal</div></div></div>
-      <div class="mini-leg">${top.map(([l,v,i])=>`<span><i style="background:${pilColor(l,i)}"></i>${esc(l)} ${v}</span>`).join("")||`<span>Belum ada konten</span>`}</div></article>`}).join("")}</section>`;
-  return h;
-}
+/* ===== dashboard (beranda + brand page top): period, stats, brand table, status board, calendar, brand card ===== */
+const ISO=(y,m,d)=>y+"-"+pad2(m)+"-"+pad2(d);
+const isoOf=dt=>ISO(dt.getFullYear(),dt.getMonth()+1,dt.getDate());
+const parseISO=s=>{const [y,m,d]=String(s).split("-").map(Number);return new Date(y,m-1,d)};
+const shortISO=s=>{const d=parseISO(s);return d.getDate()+" "+BULAN[d.getMonth()].slice(0,3)};
+S.per=(()=>{try{const p=JSON.parse(localStorage.getItem("cpig-per")||"null");return p&&p.mode?p:{mode:"month"}}catch(_){return {mode:"month"}}})();
+function savePer(){try{localStorage.setItem("cpig-per",JSON.stringify(S.per))}catch(_){}}
+function perRange(){const t=new Date(),p=S.per||{mode:"month"};
+  if(p.mode==="today"){const s=isoOf(t);return [s,s]}
+  if(p.mode==="week"){const wd=(t.getDay()+6)%7,a=new Date(t);a.setDate(t.getDate()-wd);const b=new Date(a);b.setDate(a.getDate()+6);return [isoOf(a),isoOf(b)]}
+  if(p.mode==="custom"&&/^\d{4}-\d{2}-\d{2}$/.test(p.from||"")&&/^\d{4}-\d{2}-\d{2}$/.test(p.to||""))return p.from<=p.to?[p.from,p.to]:[p.to,p.from];
+  const [y,m]=S.ym.split("-").map(Number);return [ISO(y,m,1),ISO(y,m,daysIn(S.ym))]}
+function perLabel(){const [a,b]=perRange(),m=S.per.mode;return m==="today"?"hari ini":m==="week"?"minggu ini ("+shortISO(a)+" – "+shortISO(b)+")":m==="month"?ymLabel(S.ym):a===b?shortISO(a)+" "+a.slice(0,4):shortISO(a)+" – "+shortISO(b)+" "+b.slice(0,4)}
+function perCtl(){const p=S.per.mode,[a,b]=perRange();return `<div class="seg" role="group" aria-label="Periode">${[["today","Hari ini"],["week","Minggu ini"],["month","Bulan ini"],["custom","Kustom"]].map(([k,l])=>`<button data-per="${k}" aria-pressed="${p===k}">${l}</button>`).join("")}</div>${p==="custom"?`<div class="perange"><input type="date" id="perFrom" value="${a}" aria-label="Dari tanggal"><span>–</span><input type="date" id="perTo" value="${b}" aria-label="Sampai tanggal"></div>`:""}`}
+/* months other than the open one are read once when a period reaches them */
+S.once={};
+async function loadMonthOnce(ym){if(S.data[ym]||S.once[ym]||!DB.db)return;S.once[ym]="loading";
+  try{const q=await DB.db.collection(`months/${ym}/tabs`).get();const byTab={},metaM={};q.docs.forEach(d=>{const v=d.data();if(v.meta)metaM[v.code]=v.meta;(byTab[v.code]=byTab[v.code]||[]).push([v.week,v.rows||[]])});
+    if(!S.data[ym]){const m={};for(const [c,arr] of Object.entries(byTab))m[c]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));S.data[ym]=m;S.meta[ym]=S.meta[ym]||metaM}
+    S.once[ym]=true}catch(_){S.once[ym]="err"}
+  if(!sheetBusy())render()}
+function itemsIn(range,code){const [a,b]=range,out=[];let ym=a.slice(0,7),g=0;
+  while(ym<=b.slice(0,7)&&g++<36){const m=S.data[ym];if(!m&&ym!==S.ym)loadMonthOnce(ym);
+    if(m)for(const bb of all()){if(code&&bb.code!==code)continue;(m[bb.code]||[]).forEach(r=>{if(!hasContent(r))return;const iso=ym+"-"+pad2(r.d);if(iso<a||iso>b)return;out.push({b:bb,r,ym,iso})})}
+    ym=ymAdd(ym,1)}
+  return out.sort((x,y)=>x.iso<y.iso?-1:x.iso>y.iso?1:0)}
+const STAGES=["Ide / brief","Script","Produksi","Upload"];
+function stageOf(r){const s=String(r.st||"").toUpperCase().trim();if(s==="TERMINATED")return -1;
+  if(/UPLOADED|SUDAH UPLOAD|POSTED|UPLOAD SCHEDULED|TERJADWAL/.test(s))return 3;
+  if(/EDITING|PRODUCTION|TINGGAL UPLOAD|DRAFT/.test(s))return 2;
+  return String(r.scr||"").trim()?1:0}
+function titleOf(r){const s=[r.brief,r.ide,r.judul,r.hook,r.pil,(r.motifs||[]).join(", ")].map(x=>String(x||"").trim().replace(/\s+/g," ")).find(Boolean)||"(tanpa judul)";return s.length>80?s.slice(0,78)+"…":s}
+const ICS={doc:'<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg>',check:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',tag:'<svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg>',cal:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>'};
+const sumOf=its=>{const t=its.length,dn=its.filter(x=>isDoneSt(x.r.st)).length,pd=its.filter(x=>isPendingRow(x.r,x.ym)).length;return {t,dn,pd,pc:t?Math.round(dn/t*100):0}};
+function statsHtml(items,brandMode){const s=sumOf(items);
+  const fourth=brandMode?[ICS.tag,new Set(items.map(x=>x.r.pil).filter(Boolean)).size,"Pilar dipakai"]:[ICS.tag,new Set(items.map(x=>x.b.code)).size,"Brand aktif"];
+  return `<div class="stats">${[[ICS.doc,s.t,"Total konten"],[ICS.check,s.dn,"Selesai"],[ICS.clock,s.pd,"Pending",s.pd?"bad":""],fourth].map(([i,n,l,c])=>`<div class="stat ${c||""}"><div class="si">${i}<strong>${n}</strong></div><small>${l}</small></div>`).join("")}</div>`}
+function brandTable(items){const today=todayISO();
+  const rows=all().map(b=>{const its=items.filter(x=>x.b.code===b.code),s=sumOf(its);const pm={};its.forEach(x=>{if(x.r.pil)pm[x.r.pil]=(pm[x.r.pil]||0)+1});const top=Object.entries(pm).sort((a,c)=>c[1]-a[1])[0];
+    const nx=its.find(x=>x.iso>=today&&!isDoneSt(x.r.st));
+    const st=!s.t?`<span class="pill gray">Belum ada</span>`:s.pd?`<span class="pill red">${s.pd} pending</span>`:s.dn===s.t?`<span class="pill green">Selesai</span>`:`<span class="pill blue">Berjalan</span>`;
+    return `<tr data-go="${b.code}"><td><div class="bnm">${av(b)}<div><b>${esc(b.name)}</b><small>${b.ig?"Instagram":"TikTok"} · ${s.t} konten</small></div></div></td><td>${st}</td><td><div class="pbar"><i><b style="width:${s.pc}%"></b></i><span>${s.pc}%</span></div></td><td class="hide-s">${top?`<span class="pill amber">${esc(top[0])}</span>`:`<span class="sub">–</span>`}</td><td class="hide-s">${nx?`<span class="datec">${ICS.cal}${esc(shortISO(nx.iso))}</span>`:`<span class="sub">–</span>`}</td><td class="go">Buka ›</td></tr>`}).join("");
+  return `<article class="panel"><div class="phead"><div><h2>Brand</h2><p>Progress konten ${esc(perLabel())}</p></div></div><div style="overflow-x:auto"><table class="btbl"><thead><tr><th>Brand</th><th>Status</th><th>Progress</th><th class="hide-s">Pilar teratas</th><th class="hide-s">Berikutnya</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></article>`}
+function boardHtml(items){const cols=[[],[],[],[]];items.forEach(x=>{const s=stageOf(x.r);if(s>=0)cols[s].push(x)});
+  const card=x=>{const r=x.r,b=x.b,bb=b.ig?(byCode(r.brand)||b):b,pd=isPendingRow(r,x.ym);return `<button class="kcard" data-go="${b.code}" data-jump="${r.id}" data-jym="${x.ym}"><b>${esc(titleOf(r))}</b><small>${esc(bb.name)}${b.ig?" · Instagram":""}</small><div class="km">${r.pil?`<span class="pill blue">${esc(r.pil)}</span>`:""}<span class="datec">${ICS.cal}${esc(shortISO(x.iso))}</span>${pd?`<span class="pill red">Pending</span>`:""}${r.pic?`<span class="kav" title="PIC ${esc(r.pic)}">${esc(String(r.pic).slice(0,2).toUpperCase())}</span>`:""}</div></button>`};
+  return `<section><div class="phead"><div><h2>Papan status</h2><p>Konten ${esc(perLabel())} per tahap produksi</p></div></div><div class="board">${cols.map((c,i)=>`<div class="bcol"><header>${STAGES[i]}<span>${c.length}</span></header>${c.slice(0,6).map(card).join("")}${c.length>6?`<div class="kmore">+${c.length-6} lainnya</div>`:""}</div>`).join("")}</div></section>`}
+function calHtml(code){const [y,m]=S.ym.split("-").map(Number),nd=daysIn(S.ym),first=(new Date(y,m-1,1).getDay()+6)%7,today=todayISO(),[ra,rb]=perRange();
+  const by={};all().forEach(b=>{if(code&&b.code!==code)return;rowsOf(b.code).forEach(r=>{if(!hasContent(r))return;(by[r.d]=by[r.d]||[]).push(b.ig?(byCode(r.brand)||b).color:b.color)})});
+  let cells=["Sen","Sel","Rab","Kam","Jum","Sab","Min"].map(d=>`<div class="dn">${d}</div>`).join("")+Array.from({length:first},()=>`<span class="dc blank"></span>`).join("");
+  for(let d=1;d<=nd;d++){const iso=S.ym+"-"+pad2(d),c=by[d]||[];cells+=`<button class="dc ${c.length?"has":""} ${iso===today?"today":""} ${S.per.mode!=="month"&&iso>=ra&&iso<=rb?"sel":""}" data-calday="${iso}" title="${d} ${esc(BULAN[m-1])}: ${c.length} konten">${pad2(d)}<span class="dots">${c.slice(0,4).map(x=>`<i style="background:${x}"></i>`).join("")}</span></button>`}
+  return `<article class="panel calw"><div class="calh"><b>Kalender · ${esc(ymLabel(S.ym))}</b><div class="mnav"><button data-month="-1" aria-label="Bulan sebelumnya">‹</button><button data-month="1" aria-label="Bulan berikutnya">›</button></div></div><div class="cgrid">${cells}</div><p class="sub" style="margin:10px 0 0">Klik tanggal untuk melihat konten hari itu.</p></article>`}
+function brandCard(items){const list=all();if(!S.homeBrand||!byCode(S.homeBrand))S.homeBrand=(list.find(b=>items.some(x=>x.b.code===b.code))||list[0]).code;const b=byCode(S.homeBrand);
+  const its=items.filter(x=>x.b.code===b.code),s=sumOf(its),pm={};its.forEach(x=>{if(x.r.pil)pm[x.r.pil]=(pm[x.r.pil]||0)+1});const nx=its.find(x=>x.iso>=todayISO()&&!isDoneSt(x.r.st));
+  return `<article class="panel bcard"><div class="phead"><div><h2>Kartu brand</h2><p>Ringkasan ${esc(perLabel())}</p></div><select class="bsel" id="homeBrand" aria-label="Pilih brand">${list.map(x=>`<option value="${x.code}" ${x.code===b.code?"selected":""}>${esc(x.name)}</option>`).join("")}</select></div>
+    <div class="bnm">${av(b)}<div><b>${esc(b.name)}</b><small>${b.pics.length?"PIC "+esc(b.pics.join(", ")):(b.ig?"Instagram":"TikTok")}</small></div>${s.pd?`<span class="pill red" style="margin-left:auto">${s.pd} pending</span>`:s.t?`<span class="pill green" style="margin-left:auto">Lancar</span>`:""}</div>
+    <div class="pbar" style="margin-top:14px"><i><b style="width:${s.pc}%"></b></i><span>${s.pc}%</span></div>
+    <div class="big"><div><strong>${s.t}</strong><small>Total</small></div><div><strong>${s.dn}</strong><small>Selesai</small></div><div><strong>${s.pd}</strong><small>Pending</small></div></div>
+    <div class="pchips">${Object.entries(pm).sort((a,c)=>c[1]-a[1]).slice(0,4).map(([p,n])=>`<span class="pill amber">${esc(p)} ${n}</span>`).join("")||`<span class="sub">Belum ada pilar</span>`}</div>
+    ${nx?`<p class="sub" style="margin:0 0 12px"><span class="datec">${ICS.cal}Berikutnya ${esc(shortISO(nx.iso))} · ${esc(titleOf(nx.r))}</span></p>`:""}
+    <button class="btn full" data-go="${b.code}">Lihat detail →</button></article>`}
+function displayName(){const me=window.CP_AUTH&&window.CP_AUTH.me;if(me&&me.email)return me.email.split("@")[0].replace(/[._-]+/g," ").replace(/\b\w/g,c=>c.toUpperCase());return "Tim Indo Group"}
+function beranda(){const items=itemsIn(perRange());
+  return `<section class="hello"><div><h1>Selamat datang, ${esc(displayName())}</h1><p>Ringkasan content plan ${esc(perLabel())}.</p></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="">+ Konten baru</button></div></section>
+  <div class="dash"><div class="dcol">${statsHtml(items)}${brandTable(items)}${boardHtml(items)}</div><div class="dcol">${calHtml()}${brandCard(items)}</div></div>`}
+function brandDash(b){const items=itemsIn(perRange(),b.code);
+  return `<section class="hello"><div class="band" style="--c:${b.color}">${av(b)}<div class="tt"><div class="lbl">${b.ig?"CONTENT PLAN INSTAGRAM · SEMUA BRAND":"CONTENT PLAN TIKTOK"}</div><h2>${esc(b.ig?"Instagram":b.name)}</h2><div class="pics">${b.pics.length?b.pics.map(p=>`<span>PIC ${esc(p)}</span>`).join(""):`<span>PIC belum diisi</span>`}</div></div></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="${b.code}">+ Konten baru</button></div></section>
+  <div class="bdash"><div class="dcol">${statsHtml(items,true)}${boardHtml(items)}</div><div class="dcol">${calHtml(b.code)}</div></div>
+  <div class="phead" style="margin:6px 0 -6px"><div><h2>Content plan ${esc(ymLabel(S.ym))}</h2><p>Tabel seperti Google Sheets: klik sel untuk mengisi, klik kanan untuk semua opsi.</p></div></div>`}
+/* + Konten baru: brand, date (any month), pillar, brief */
+async function newContent(code){if(!canWrite())return;const def=(code&&byCode(code)?code:"")||(byCode(S.view)?S.view:S.brands[0].code);const pils=[...new Set([...getList("pil:tt"),...getList("pil:ig")])];
+  const o=await formBox("Konten baru",`<label class="field">Brand / channel<select name="code" class="cin" style="border:1px solid var(--line)">${all().map(b=>`<option value="${b.code}" ${b.code===def?"selected":""}>${esc(b.name)}</option>`).join("")}</select></label>
+    <label class="field" data-showif="code=INSTAGRAM">Brand untuk konten Instagram<select name="brand" class="cin" style="border:1px solid var(--line)"><option value=""></option>${S.brands.map(b=>`<option>${esc(b.name)}</option>`).join("")}</select></label>
+    <label class="field">Tanggal tayang<input type="date" name="date" value="${todayISO()}" required></label>
+    <label class="field">Pilar<input name="pil" list="newcPil" placeholder="Pilih atau ketik pilar" autocomplete="off"><datalist id="newcPil">${pils.map(p=>`<option value="${esc(p)}"></option>`).join("")}</datalist></label>
+    <label class="field">Ide / brief<textarea name="brief" rows="3" class="cin" style="border:1px solid var(--line)" placeholder="Tulis ide konten…"></textarea></label>`,"Tambah");
+  if(!o||!/^\d{4}-\d{2}-\d{2}$/.test(o.date||""))return;const b=byCode(o.code);if(!b)return;const ym=o.date.slice(0,7),d=+o.date.slice(8,10);
+  if(ym!==S.ym&&!S.data[ym]){if(!DB.db){toast("Belum tersambung ke database");return}await loadMonthOnce(ym);if(S.once[ym]==="err"||!S.data[ym]){toast("Data "+ymLabel(ym)+" belum bisa dibuka. Coba lagi.");return}}
+  if(ym===S.ym)pushUndo(true);const m=S.data[ym]||(S.data[ym]={}),rs=m[b.code]||(m[b.code]=[]);
+  const r={id:rid(),d,pil:String(o.pil||"").trim()};const brief=String(o.brief||"").trim();if(b.ig){if(brief)r.ide=brief;if(o.brand)r.brand=o.brand}else if(brief)r.brief=brief;
+  const li=rs.map(x=>x.d).lastIndexOf(d);rs.splice(li<0?rs.length:li+1,0,r);if(r.pil)addToList(b.ig?"pil:ig":"pil:tt",r.pil);
+  if(ym===S.ym)touch();else persistMonth(ym);
+  render();toast(`Konten baru di ${b.ig?"Instagram":b.name}, ${shortISO(o.date)}`,"Buka",()=>{if(ym!==S.ym){S.ym=ym;subMonth(ym)}S.jump=r.id;go(b.code)})}
+document.addEventListener("click",e=>{
+  const nc=e.target.closest("[data-newc]");if(nc){newContent(nc.dataset.newc);return}
+  const pb=e.target.closest("[data-per]");if(pb){const k=pb.dataset.per;if(k==="custom"&&S.per.mode!=="custom"){const [a,b]=perRange();S.per={mode:"custom",from:a,to:b}}else S.per=Object.assign({},S.per,{mode:k});savePer();render();return}
+  const cd=e.target.closest("[data-calday]");if(cd){S.per={mode:"custom",from:cd.dataset.calday,to:cd.dataset.calday};savePer();render();return}});
+document.addEventListener("change",e=>{const t=e.target;
+  if(t.id==="perFrom"||t.id==="perTo"){if(!/^\d{4}-\d{2}-\d{2}$/.test(t.value))return;S.per=Object.assign({mode:"custom"},S.per,{mode:"custom",[t.id==="perFrom"?"from":"to"]:t.value});savePer();render();return}
+  if(t.id==="homeBrand"){S.homeBrand=t.value;render()}});
+/* ---- top bar: search across brands, reminders bell ---- */
+function searchHits(q){q=q.trim().toLowerCase();if(q.length<2)return [];const out=[];
+  for(const b of all())for(const r of rowsOf(b.code)){if(!hasContent(r))continue;const hay=[r.pil,r.brief,r.ide,r.scr,r.judul,r.hook,r.cap,r.note,r.pic,r.brand,(r.motifs||[]).join(" ")].filter(Boolean).join(" · ");const i=hay.toLowerCase().indexOf(q);if(i<0)continue;
+    out.push({b,r,s:hay.slice(Math.max(0,i-24),i+56).replace(/\s+/g," ")});if(out.length>=30)return out}return out}
+function closeTpop(){const p=document.getElementById("tpop");if(p)p.remove()}
+function openTpop(anchor,html,kind){closeTpop();const top=document.querySelector(".topbar");if(!top)return null;const p=document.createElement("div");p.className="tpop";p.id="tpop";p.dataset.k=kind||"";p.setAttribute("role","dialog");p.innerHTML=html;top.appendChild(p);
+  const ar=anchor.getBoundingClientRect(),tr=top.getBoundingClientRect(),sc=tr.width/(top.offsetWidth||tr.width)||1;let left=(ar.left-tr.left)/sc;left=Math.min(left,top.offsetWidth-p.offsetWidth);p.style.left=Math.max(0,left)+"px";p.style.top=((ar.bottom-tr.top)/sc+8)+"px";return p}
+const hitHtml=(b,r,extra)=>{const bb=b.ig?(byCode(r.brand)||b):b;return `<button class="ti" data-go="${b.code}" data-jump="${r.id}"><i style="background:${bb.color}"></i><span><b>${esc(titleOf(r))}</b><small>${esc(bb.name)}${b.ig?" · Instagram":""} · ${esc(shortDate(r.d))}${extra?" · "+esc(extra):""}</small></span></button>`};
+document.addEventListener("input",e=>{if(e.target.id!=="gsearch")return;const q=e.target.value;if(q.trim().length<2){closeTpop();return}const hits=searchHits(q);
+  openTpop(e.target.closest(".gsearch"),`<div class="th">${hits.length?hits.length+(hits.length>=30?"+":"")+" hasil · "+esc(ymLabel(S.ym)):"Hasil pencarian"}</div>${hits.map(h=>hitHtml(h.b,h.r,h.s)).join("")||`<div class="empty">Tidak ada yang cocok di ${esc(ymLabel(S.ym))}.</div>`}`,"search")});
+document.addEventListener("keydown",e=>{if(e.target.id!=="gsearch")return;if(e.key==="Enter"){const f=document.querySelector("#tpop .ti");if(f){e.preventDefault();f.click()}}else if(e.key==="Escape"){closeTpop();e.target.blur()}});
+function bellItems(){const today=todayISO(),out=[];for(const b of all())for(const r of rowsOf(b.code)){if(!hasContent(r)||isDoneSt(r.st))continue;const iso=S.ym+"-"+pad2(r.d);if(iso===today)out.push({b,r,k:"today"});else if(isPendingRow(r,S.ym))out.push({b,r,k:"pend"})}return out}
+function syncBell(){const n=bellItems().length,bd=document.getElementById("bellBadge");if(bd){bd.hidden=!n;bd.textContent=n>99?"99+":String(n)}}
+document.addEventListener("click",e=>{
+  const bell=e.target.closest("#bellBtn");
+  if(bell){const cur=document.getElementById("tpop");if(cur&&cur.dataset.k==="bell"){closeTpop();return}const it=bellItems(),t=it.filter(x=>x.k==="today"),p=it.filter(x=>x.k==="pend");
+    openTpop(bell,`${t.length?`<div class="th">Jadwal hari ini (${t.length})</div>${t.map(x=>hitHtml(x.b,x.r)).join("")}`:""}${p.length?`<div class="th">Pending (${p.length})</div>${p.slice(0,25).map(x=>hitHtml(x.b,x.r,x.r.st||"belum ada status")).join("")}`:""}${it.length?"":`<div class="empty">Tidak ada pengingat. Semua konten aman.</div>`}`,"bell");return}
+  if(e.target.closest("#tpop .ti")){setTimeout(closeTpop,0);return}
+  if(!e.target.closest("#tpop,.gsearch"))closeTpop()});
 /* dropdown lists: every list can grow from the table or from Pengaturan */
 function listRef(k){if(S.lists[k])return S.lists[k];const [t,c]=k.split(":");const b=byCode(c);if(!b)return null;if(t==="tal")return b.talents;if(t==="pic")return b.pics;return null}
 function getList(k){if(k==="brand")return S.brands.map(x=>x.name);if(k.startsWith("mot:")){const b=byCode(k.slice(4));return b?(b.motifLib||[]).map(m=>m.name):[]}return listRef(k)||[]}
@@ -808,8 +1090,8 @@ function promptBox(title,label){return new Promise(res=>{const sc=document.creat
   const done=v=>{sc.remove();m.remove();res(v)};sc.onclick=()=>done(null);m.querySelector("[data-x]").onclick=()=>done(null);m.onsubmit=e=>{e.preventDefault();done(m.querySelector("#pb-in").value.trim()||null)};
   document.body.append(sc,m);m.querySelector("#pb-in").focus()})}
 /* ===== columns per tab: every brand can insert / rename / move / delete columns (types: text, long text, dropdown, checkbox, link, number, date) ===== */
-const BASE_TT=[["TGL","tgl","tgl"],["HARI","hari","hari"],["PILAR UTAMA","pil","dropdown","pil:tt"],["LINK REFERENSI","ref","link"],["TALENT","tal","dropdown","tal:@"],["KERKUN","kerkun","check"],["MOTIF","mot","motif"],["SCRIPT KONTEN","scr","long"],["PIC","pic","dropdown","pic:@"],["CAPTION & HASTAG","cap","long"],["SCREENSHOT","shot","shot"],["STATUS","st","dropdown","st:tt"],["LINK UPLOAD G-DRIVE","gdrive","link"],["LINK UPLOAD TIKTOK","tiktok","link"],["LINK UPLOAD SHOPEE VIDEO","shopee","link"],["LINK UPLOAD YOUTUBE","youtube","link"],["LINK UPLOAD FACEBOOK","facebook","link"],["CATATAN","note","long"]];
-const BASE_IG=[["Tanggal","tgl","tgl"],["Hari","hari","hari"],["Minggu","week","dropdown","minggu"],["Brand","brand","brand"],["Slot","slot","text"],["Jam Tayang","jam","text"],["Tipe","tipe","dropdown","tipe"],["Format","format","dropdown","format"],["Pilar","pil","dropdown","pil:ig"],["PIC","pic","dropdown","pic:@"],["Product ID","pid","text"],["Motif","mot","motif"],["Referensi Konten (opsional)","ref","link"],["Ide / Konsep","ide","long"],["Hook (Opsional)","hook","text"],["Judul","judul","text"],["CTA (Opsional)","cta","text"],["Hashtag","tag","text"],["IG","c_ig","check"],["TikTok","c_tt","check"],["YouTube","c_yt","check"],["Status Upload","st","dropdown","st:ig"],["Link Konten","link","link"],["Catatan","note","long"]];
+const BASE_TT=[["TGL","tgl","tgl"],["HARI","hari","hari"],["PILAR UTAMA","pil","dropdown","pil:tt"],["LINK REFERENSI","ref","link"],["TALENT","tal","dropdown","tal:@"],["KERKUN","kerkun","check"],["MOTIF","mot","motif"],["IDE / BRIEF","brief","long"],["SCRIPT KONTEN","scr","long"],["PIC","pic","dropdown","pic:@"],["CAPTION & HASTAG","cap","long"],["SCREENSHOT","shot","shot"],["STATUS","st","dropdown","st:tt"],["LINK UPLOAD G-DRIVE","gdrive","link"],["LINK UPLOAD TIKTOK","tiktok","link"],["LINK UPLOAD SHOPEE VIDEO","shopee","link"],["LINK UPLOAD YOUTUBE","youtube","link"],["LINK UPLOAD FACEBOOK","facebook","link"],["CATATAN","note","long"]];
+const BASE_IG=[["Tanggal","tgl","tgl"],["Hari","hari","hari"],["Minggu","week","dropdown","minggu"],["Brand","brand","brand"],["Slot","slot","text"],["Jam Tayang","jam","text"],["Tipe","tipe","dropdown","tipe"],["Format","format","dropdown","format"],["Pilar","pil","dropdown","pil:ig"],["PIC","pic","dropdown","pic:@"],["Product ID","pid","text"],["Motif","mot","motif"],["Referensi Konten (opsional)","ref","link"],["Ide / Konsep","ide","long"],["Script (Hook · Body · CTA)","scr","long"],["Hook (Opsional)","hook","text"],["Judul","judul","text"],["CTA (Opsional)","cta","text"],["Hashtag","tag","text"],["IG","c_ig","check"],["TikTok","c_tt","check"],["YouTube","c_yt","check"],["Status Upload","st","dropdown","st:ig"],["Link Konten","link","link"],["Catatan","note","long"]];
 const mkCol=a=>({key:a[1],label:a[0],type:a[2],list:a[3]||""});
 S.cols={};S.frz={};
 function colsOf(b){return S.cols[b.code]||(S.cols[b.code]=(b.ig?BASE_IG:BASE_TT).map(mkCol))}
@@ -864,7 +1146,7 @@ function cellHtml(col,v,ctx){
     case "motif":cls+=" w-mot";inner=motifCell(v,byCode(v.brand)||(b.ig?null:b));break;
     case "shot":cls+=" shot";inner=v.shot?`<a class="thumb" href="${esc(blobUrl(v.shot))}" target="_blank" rel="noopener" title="Buka screenshot"><img src="${esc(blobUrl(v.shot))}" alt="Screenshot"></a><button class="shotx" data-shotdel title="Hapus screenshot" aria-label="Hapus screenshot">✕</button>`:v.id?`<label class="btn sm press">Upload<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-shot hidden></label>`:"";break;
     case "link":cls+=" w-link";inner=TA()+(/^https?:/.test(val)?`<a href="${esc(val)}" target="_blank" rel="noopener" class="lk" aria-label="Buka link">↗</a>`:"");break;
-    case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=TA();break;
+    case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=key==="scr"?TA(`placeholder="Hook · Body · CTA"`)+(v.id?`<button class="aibtn" data-ai title="Buat script dari Ide/Brief dengan AI" aria-label="Buat script dengan AI">✨</button>`:""):TA(key==="brief"||key==="ide"?`placeholder="Tulis ide / brief konten…"`:"");break;
     case "number":inner=TA('inputmode="decimal"',"num");break;
     case "date":inner=`<input class="cin" type="date" ${F} value="${esc(val)}" aria-label="${esc(col.label)}">`;break;
     default:inner=TA();
@@ -994,8 +1276,7 @@ function brandPage(b){
   const table=sheetTable(b,rows,{});
   const [L,V]=pillarsOf(b); const [t,dn,pd]=stats(b,rows);
   const campCount=S.campaigns.map(c=>[c.name,rows.filter(r=>campOf(r)===c).length,c.color]);
-  return `<header class="band" style="--c:${b.color}">${av(b)}<div class="tt"><div class="lbl">CONTENT PLAN TIKTOK</div><h2>${esc(b.name)}</h2><div class="meta">${esc(ymLabel(S.ym).toUpperCase())}</div><div class="pics">${b.pics.length?b.pics.map(p=>`<span>PIC ${esc(p)}</span>`).join(""):`<span>PIC belum diisi, atur di Pengaturan</span>`}</div></div>
-    <div class="kp num"><div><b>${t}</b>konten</div><div><b>${dn}</b>selesai</div><div><b>${pd}</b>pending</div></div></header>
+  return `${brandDash(b)}
   ${table}
   <p class="note">Setiap bulan otomatis berisi semua tanggal dengan nama hari yang benar. Baris paling bawah setiap tanggal adalah baris kosong: isi salah satu kolomnya untuk menambah konten. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
   ${pendingCard(b.code)}
@@ -1012,8 +1293,7 @@ function igPage(b){
   const table=sheetTable(b,rows,{});
   const [L,V]=pillarsOf(b); const [t,dn,pd]=stats(b,rows);
   const perBrand=S.brands.map(x=>[x.name,rows.filter(r=>r.brand===x.name).length]).filter(x=>x[1]);
-  return `<header class="band" style="--c:${b.color}">${av(b)}<div class="tt"><div class="lbl">CONTENT PLAN INSTAGRAM</div><h2>INSTAGRAM · SEMUA BRAND</h2><div class="meta">${esc(ymLabel(S.ym).toUpperCase())} · brand dipilih per baris</div><div class="pics">${b.pics.map(p=>`<span>PIC ${esc(p)}</span>`).join("")}</div></div>
-    <div class="kp num"><div><b>${t}</b>konten</div><div><b>${dn}</b>selesai</div><div><b>${pd}</b>pending</div></div></header>
+  return `${brandDash(b)}
   ${table}
   <p class="note">Kolom awal sama dengan tab INSTAGRAM di Google Sheets. Setiap bulan otomatis berisi semua tanggal. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
   ${pendingCard(b.code)}
@@ -1039,8 +1319,9 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
   ${sheetCard()}
   <section class="sgrid">
     <article class="card"><h2 style="margin-bottom:12px">Logo Indo Group</h2><div class="uplogo"><div class="mark">${logoUrl(S.logo)?`<img src="${logoUrl(S.logo)}" alt="">`:"INDO"}</div><label class="btn press">Upload logo<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" id="upLogo" hidden></label></div></article>
-    <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Warna tema</h2><label class="field">Sidebar${pal("side",S.sideColor,["#FFFFFF","#F4F7F5","#1F3A2E","#3D5A50","#22304F","#3B3F46","#5B4B8A","#741B47"])}</label><label class="field">Aksen (tombol, menu aktif, tanda hari ini)${pal("accent",S.accent,["#2F6B4F","#1F4D36","#4C9A5B","#8BC34A","#D6A92C","#2A8FC4","#D96B5F","#C4507A"])}</label></article>
-    <article class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Font</h2><p class="note">Satu font untuk seluruh dashboard.</p><div class="fonts">${FONTS.map(f=>`<button class="press" data-font="${esc(f)}" aria-pressed="${S.font===f}" style="font-family:'${f}',sans-serif"><b>${esc(f)}</b><span>Content Plan 18 Rabu</span></button>`).join("")}</div></article>
+    ${aiCard()}
+    <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Warna tema</h2><label class="field">Sidebar${pal("side",S.sideColor,["#FFFFFF","#F5F6F8","#1F2430","#2B3140","#22304F","#3B3F46","#3D5A50","#5B4B8A"])}</label><label class="field">Aksen (tombol, menu aktif, tanda hari ini)${pal("accent",S.accent,["#5B6BD6","#4F5BD5","#3E63DD","#2A8FC4","#2D8A6E","#7C5CC4","#C4507A","#D6A92C"])}</label></article>
+    
     <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Campaign & promo</h2><p class="note">Baris yang pilar/script/hook/catatannya memuat kata kunci campaign diberi garis warna campaign.</p>${S.campaigns.map((c,i)=>`<div class="field campf"><div style="display:flex;gap:6px"><input class="cin" data-campf="name" data-ci="${i}" value="${esc(c.name)}" aria-label="Nama campaign" style="border:1px solid var(--line);font-weight:800"><input class="cin" data-campf="kw" data-ci="${i}" value="${esc(c.kw||"")}" placeholder="kata kunci, pisah koma" aria-label="Kata kunci" style="border:1px solid var(--line)"><button class="icon-del" data-campdel="${i}" aria-label="Hapus campaign ${esc(c.name)}">✕</button></div>${pal("camp"+i,c.color,CSW)}</div>`).join("")}<button class="btn sm press" data-campadd style="align-self:flex-start">+ Campaign</button><label class="field">Promo (baris berpilar Promo)${pal("promo",S.promo,CSW)}</label></article>
   </section>
   <h2 style="margin:6px 0 0;font-size:17px">Isi dropdown</h2>
@@ -1072,14 +1353,14 @@ function render(){
   if(S.jump){const tr=document.querySelector(`.sheet tr[data-id="${S.jump}"]`);if(tr){const w=tr.closest(".sheet-wrap"),th=w.querySelector("thead");w.scrollTop=Math.max(0,tr.offsetTop-(th?th.offsetHeight:0)-6);tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),2200);w.scrollIntoView({block:"start"})}S.jump=null}
   maybeSaveSettings();
   paintSel(); if(S.refocus){const rf=S.refocus;S.refocus=null;focusCell(rf.rk,rf.ck,true)}else if(hadF&&S.cs&&rect()){if(rect().n>1){const w=m.querySelector(".sheet-wrap");w&&w.focus({preventScroll:true})}else{const fr=S.fresh;focusCell(S.cs.f.rk,S.cs.f.ck,fr)}}
-  fitTables(); applyFreeze(); autoSize(); if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
+  fitTables(); applyFreeze(); autoSize(); syncBell(); if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
 function go(v){if(v==="pengaturan"&&S.ro)v="beranda";S.view=v;S.cs=null;closeMenus();const h=v==="beranda"?"beranda":v==="pengaturan"?"pengaturan":"b-"+v;if(location.hash.slice(1)!==h)history.replaceState(null,"","#"+h);render();if(!S.jump)window.scrollTo({top:0,behavior:"smooth"})}
 
 /* ---- events ---- */
 document.addEventListener("click",e=>{
-  const g=e.target.closest("[data-go]"); if(g){const el=g;if(el.dataset.jump)S.jump=el.dataset.jump;setTimeout(()=>go(el.dataset.go),g.classList.contains("press")?120:0);return}
+  const g=e.target.closest("[data-go]"); if(g){const el=g;closeTpop();if(el.dataset.jym&&el.dataset.jym!==S.ym){S.ym=el.dataset.jym;S.cs=null;subMonth(S.ym)}if(el.dataset.jump)S.jump=el.dataset.jump;setTimeout(()=>go(el.dataset.go),g.classList.contains("press")?120:0);return}
   const c=e.target.closest("[data-color]"); if(c){setColor(c.dataset.color,c.dataset.c);return}
   const rm=e.target.closest("[data-rm]"); if(rm){removeFromList(rm.dataset.rm,+rm.dataset.i);render();return}
   const ad=e.target.closest("[data-add]"); if(ad){const inp=document.querySelector(`[data-addin="${CSS.escape(ad.dataset.add)}"]`);const v=inp.value.trim();if(v){addToList(ad.dataset.add,v);render();toast("Pilihan "+v+" ditambahkan")}return}
@@ -1461,6 +1742,7 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
       <button data-cm="pal:fc" class="fcb" title="Warna teks" aria-label="Warna teks"><span>A</span><i style="background:${f.fc||"var(--ink)"}"></i></button><button data-cm="pal:bg" class="fcb" title="Warna sel" aria-label="Warna sel">${ICON_FILL}<i style="background:${f.bg||"transparent"};box-shadow:inset 0 0 0 1px var(--line)"></i></button>
       ${["left","center","right"].map(a=>`<button data-cm="fmt:ta:${a}" aria-pressed="${f.ta===a}" title="Rata ${a==="left"?"kiri":a==="center"?"tengah":"kanan"}">${ICON_AL[a]}</button>`).join("")}
       <button data-cm="fmt:clear" title="Hapus format" style="width:auto;padding:0 8px;font-size:11px">Hapus</button></div></div>`+MS+
+    MI("ai","✨ Buat script dari Ide/Brief","",!r)+MS+
     MI("mg:all","Gabungkan sel","",R.n<2||!rows.length)+MI("mg:un","Pisahkan sel")+MS+
     MI("link",r&&r.lk&&r.lk[S.cs.f.ck]?"Edit link":"Sisipkan link","Ctrl+K",!r)+MI("note",r&&r.notes&&r.notes[S.cs.f.ck]?"Edit catatan sel":"Catatan sel","",!r)+
     (col&&(col.type==="dropdown"||col.type==="motif")?MI("tolist",col.type==="motif"?"Tambah motif ke daftar motif & PID":`Tambah "${esc(r&&r[col.key]||"")}" ke daftar dropdown`,"",!canList):"");
@@ -1530,6 +1812,7 @@ document.addEventListener("click",async e=>{
     case "link":cellLink();break;
     case "note":cellNote();break;
     case "tolist":addCellToList();break;
+    case "ai":genScript();break;
     case "hasc":sortBy(hk,1);break;
     case "hdesc":sortBy(hk,-1);break;
     case "hfilt":{lsSet("cpig-fon-"+b.code,"1");render();setTimeout(()=>{const fb=document.querySelector(`.fbtn[data-filt="${CSS.escape(hk)}"]`);if(fb)openFilter(hk,fb)},30);break}
@@ -1615,7 +1898,7 @@ function gbar(){return `<div class="gbar"><div class="gtools" role="toolbar" ari
   ${TB("pop:border","Border",IC.border,"edit caret")}${TB("pop:merge","Gabungkan sel",IC.merge,"edit caret")}<span class="sep edit"></span>
   ${TB("pop:halign","Rata horizontal",ICON_AL.left,"edit caret")}${TB("pop:valign","Rata vertikal",IC.vtop,"edit caret")}${TB("pop:wrap","Pengemasan teks",IC.wrap,"edit caret")}<span class="sep edit"></span>
   ${TB("link","Sisipkan link (Ctrl+K)",IC.link,"edit")}${TB("note","Catatan sel",IC.note,"edit")}${TB("filter","Buat / matikan filter",IC.filter)}${TB("pop:fn","Fungsi (rumus)",IC.sigma,"edit caret")}<span class="sep"></span>
-  ${TB("find","Cari & ganti (Ctrl+F)",IC.find)}${TB("pop:freeze","Bekukan kolom",IC.freeze,"caret")}
+  ${TB("ai","Buat script dari Ide/Brief (AI)",'<span class="aitb">✨ Script</span>',"edit")}<span class="sep edit"></span>${TB("find","Cari & ganti (Ctrl+F)",IC.find)}${TB("pop:freeze","Bekukan kolom",IC.freeze,"caret")}
   </div><div class="fxrow"><span class="fxref" id="fxRef" title="Alamat sel"></span><span class="fxi" aria-hidden="true">fx</span><textarea class="fxin" id="fxIn" rows="1" spellcheck="false" aria-label="Bar rumus: isi sel terpilih"></textarea><span class="fxstat" id="fxStat"></span></div></div>`}
 function fmtBar(){return gbar()}
 function fmtTargets(){const R=rect();if(!R)return [];const out=[];for(const rk of R.rows){const r=rowById(rk);if(!r)continue;R.cols.forEach(c=>out.push({r,key:c.key}))}return out}
@@ -1696,10 +1979,52 @@ document.addEventListener("click",e=>{const t=e.target.closest(".gtools [data-tb
   if(a.startsWith("pal:"))return openPal(a.slice(4),rc.left,rc.bottom+6);
   if(a.startsWith("pop:"))return toolPop(a.slice(4),rc.left,rc.bottom+6);
   if(a==="find")return openFind(false);
+  if(a==="ai")return genScript();
   if(a==="filter"&&b){const on=filterOn(b.code)||Object.keys(activeFilters(b.code)).length>0;lsSet("cpig-fon-"+b.code,on?"0":"1");if(on)setFilters(b.code,{});render();return}
   if(!rect()){toast("Pilih sel dulu");return}
   if(a==="link")return cellLink();if(a==="note")return cellNote()});
 
+/* ---- ✨ AI script from Ide/Brief: GitHub version → Gemini through Apps Script, Claude version → Claude (sample) ---- */
+S.aiTone="Santai";S.aiBusy={};
+const AI_TONES=["Santai","Semi formal","Formal"];
+async function aiNS(){if(DB.ai!==undefined&&DB.ai)return DB.ai;DB.ai=null;if(!(window.claude&&typeof window.claude.use==="function"))return null;
+  try{const g=await window.claude.use("ai");if(g&&g.script){DB.ai=g;return g}}catch(_){}
+  try{const s=await window.claude.use("sample");if(s&&typeof s.json==="function"){DB.ai={script:async prompt=>s.json(prompt,{modelTier:"default"})};return DB.ai}}catch(_){}
+  return null}
+function aiPrompt(i){return `Kamu copywriter konten video pendek untuk brand batik Indonesia.
+Buat satu script ${i.platform} berbahasa Indonesia dengan gaya bahasa ${i.gaya.toLowerCase()}.
+Brand: ${i.brand||"-"}
+Pilar konten: ${i.pilar||"-"}
+Motif batik: ${i.motif||"-"}
+Ide / brief: ${i.brief}
+Struktur:
+- hook: 1–2 kalimat pembuka yang menahan penonton di 3 detik pertama.
+- body: isi utama, 3–6 baris pendek (satu gagasan per baris), sebut motif bila ada, sertakan arahan visual singkat dalam kurung bila membantu.
+- cta: ajakan bertindak singkat${i.platform==="TikTok"?" (misalnya cek keranjang kuning)":""}.
+Jawab HANYA dengan JSON: {"hook":"...","body":"...","cta":"..."}`}
+const fmtScript=o=>`HOOK:\n${String(o.hook||"").trim()}\n\nBODY:\n${String(o.body||"").trim()}\n\nCTA:\n${String(o.cta||"").trim()}`;
+function briefOf(b,r){const k=b.ig?"ide":"brief";let s=String(r[k]||"").trim();if(!s){const c=colsOf(b).find(c=>c.type!=="dropdown"&&/ide|brief|konsep/i.test(c.label)&&String(r[c.key]||"").trim());if(c)s=String(r[c.key]).trim()}return s}
+async function genScript(rowId){if(!canWrite())return;const b=curB();if(!b)return;const id=rowId||(S.cs&&S.cs.f.rk);const r=id&&rowById(id);
+  if(!r){toast("Pilih baris konten dulu, lalu klik ✨");return}
+  if(!colsOf(b).some(c=>c.key==="scr")){toast("Kolom script tidak ada di tabel ini. Kembalikan lewat klik kanan judul kolom → Kembalikan kolom bawaan");return}
+  const brief=briefOf(b,r);if(!brief){toast(`Tulis ${b.ig?"Ide / Konsep":"IDE / BRIEF"} di baris ini dulu, lalu klik ✨`);return}
+  if(S.aiBusy[r.id])return;
+  if(String(r.scr||"").trim()&&!(await confirmBox("Ganti script yang sudah ada?","Script di baris ini diganti dengan hasil baru dari AI. Bisa diurungkan dengan Ctrl+Z.","Buat ulang")))return;
+  const ai=await aiNS();if(!ai){toast(window.CP_CONFIG?"AI belum tersambung. Isi kunci Gemini di Apps Script (menu Content Plan → Atur kunci AI).":"AI tidak tersedia di tampilan ini.");return}
+  const br=b.ig?byCode(r.brand||""):b;
+  const info={platform:b.ig?"Instagram Reels":"TikTok",gaya:S.aiTone||"Santai",brand:br?br.name:(r.brand||""),pilar:r.pil||"",motif:(r.motifs||[]).filter(Boolean).join(", "),brief};
+  S.aiBusy[r.id]=true;const td=cellTd(r.id,"scr");if(td)td.classList.add("aiwork");toast("Membuat script…");
+  try{const o=await ai.script(aiPrompt(info));if(!o||!(o.hook||o.body||o.cta))throw {message:"jawaban AI kosong"};
+    const rr=rowById(r.id)||r;pushUndo(true);rr.scr=fmtScript(o);if(b.ig){if(!String(rr.hook||"").trim())rr.hook=String(o.hook||"").trim();if(!String(rr.cta||"").trim())rr.cta=String(o.cta||"").trim()}
+    touch();render();toast("Script dibuat. Silakan edit bila perlu","Urungkan",undo)}
+  catch(e){toast("Gagal membuat script: "+(e&&(e.message||e.code)||"coba lagi"))}
+  finally{delete S.aiBusy[r.id];const t2=cellTd(r.id,"scr");if(t2)t2.classList.remove("aiwork")}}
+document.addEventListener("mousedown",e=>{if(e.target.closest("[data-ai]"))e.preventDefault()},true);
+document.addEventListener("click",e=>{const x=e.target.closest(".sheet [data-ai]");if(!x)return;const tr=x.closest("tr");if(tr&&tr.dataset.id)genScript(tr.dataset.id)});
+document.addEventListener("change",e=>{if(e.target.id==="aiTone"){S.aiTone=e.target.value;toast("Gaya bahasa AI: "+S.aiTone)}});
+function aiCard(){return `<article class="card" style="display:flex;flex-direction:column;gap:10px"><h2>✨ Script AI</h2><p class="note">Klik ✨ di sel script (atau tombol ✨ Script di toolbar). AI membuat Hook, Body dan CTA dari ${"IDE / BRIEF"}, pilar, motif dan nama brand. Hasilnya bisa diedit langsung.</p>
+  <label class="field">Gaya bahasa<select id="aiTone" class="cin" style="border:1px solid var(--line)">${AI_TONES.map(t=>`<option ${t===S.aiTone?"selected":""}>${t}</option>`).join("")}</select></label>
+  <p class="note">${window.CP_CONFIG?"Memakai Google Gemini lewat server Apps Script. Kunci API diisi lewat menu spreadsheet Content Plan → Atur kunci AI Gemini.":"Memakai Claude di dashboard ini."}</p></article>`}
 /* ---- formulas: =SUM(H2:H9), =COUNTIF(L:L;"UPLOADED"), =A2&" "&B2 … cell addresses use the column letters and row numbers ---- */
 const isFml=s=>typeof s==="string"&&s.length>1&&s[0]==="=";
 function colLetter(i){let s="";i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
@@ -1989,7 +2314,7 @@ async function migrateLegacy(ym){
 function settingsObj(){return {brands:S.brands.map(b=>({code:b.code,name:b.name,abbr:b.abbr,color:b.color,pics:b.pics||[],talents:b.talents||[],motifLib:b.motifLib||[],logo:b.logo||null})),
   channels:S.channels.map(c=>({code:c.code,name:c.name,abbr:c.abbr,sub:c.sub,color:c.color,pics:c.pics||[],logo:c.logo||null})),
   lists:S.lists,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
-  logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,theme2:true}}
+  logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,theme2:true,theme3:true,aiTone:S.aiTone}}
 let lastSettings="",setT=null;
 function applySettings(d){
   if(!d)return;
@@ -2002,8 +2327,14 @@ function applySettings(d){
   if(d.cols&&typeof d.cols==="object")S.cols=JSON.parse(JSON.stringify(d.cols));
   if(d.sharedFilters&&typeof d.sharedFilters==="object")S.sharedFilters=JSON.parse(JSON.stringify(d.sharedFilters));
   ["promo","sideColor","accent","sideCustom","accentCustom","logo","font","migrated"].forEach(k=>{if(d[k]!==undefined)S[k]=d[k]});
-  if(!d.theme2){S.sideCustom=false;S.accentCustom=false;S.sideColor="#FFFFFF";S.accent="#2F6B4F"} /* new green look replaces the old custom colors once */
+  if(!d.theme3){S.sideCustom=false;S.accentCustom=false;S.sideColor="#FFFFFF";S.accent="#5B6BD6"} /* the Soft slate look replaces old custom colors once */
   if(d.frz&&typeof d.frz==="object")S.frz=Object.assign({},d.frz);
+  if(d.aiTone)S.aiTone=d.aiTone;
+  /* once: saved column layouts get the new built-in IDE / BRIEF (TikTok) and Script (Instagram) columns */
+  if(!(S.migrated||{}).briefCol){Object.keys(S.cols).forEach(code=>{const b=byCode(code),cols=S.cols[code];if(!b||!Array.isArray(cols))return;
+      if(b.ig){if(!cols.some(c=>c.key==="scr")){const i=cols.findIndex(c=>c.key==="ide");cols.splice(i<0?cols.length:i+1,0,mkCol(["Script (Hook · Body · CTA)","scr","long"]))}}
+      else if(!cols.some(c=>c.key==="brief")){const i=cols.findIndex(c=>c.key==="scr");cols.splice(i<0?cols.length:i,0,mkCol(["IDE / BRIEF","brief","long"]))}});
+    S.migrated=Object.assign({},S.migrated,{briefCol:true})}
   if(d.sheet)S.sheet=Object.assign({spreadsheetId:"",lastBackup:"",lastImport:""},d.sheet);
   applyFont();applyColW();
 }
@@ -2200,8 +2531,8 @@ document.addEventListener("dblclick",e=>{const rz=e.target.closest(".rz");if(!rz
 document.addEventListener("click",e=>{const b=e.target.closest("[data-colreset]");if(!b)return;S.colW[b.dataset.colreset]={};applyColW();fitTables();toast("Semua lebar kolom kembali ke ukuran awal")});
 /* ---- font choice ---- */
 const FONTS=["Plus Jakarta Sans","Poppins","Inter","Montserrat","DM Sans","Nunito"];
-S.font="Plus Jakarta Sans";
-function applyFont(){document.documentElement.style.setProperty("--font",`"${S.font}", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`)}
+S.font="Inter";
+function applyFont(){S.font="Inter";document.documentElement.style.removeProperty("--font")}
 document.addEventListener("click",e=>{const f=e.target.closest("[data-font]");if(!f)return;S.font=f.dataset.font;try{localStorage.setItem("cpig-font",S.font)}catch(_){}applyFont();render();toast("Font diganti ke "+S.font)});
 /* ---- option colors from Pengaturan ---- */
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||t.dataset.optc===undefined)return;const k=t.dataset.optc;S.optColor[k]=S.optColor[k]||{};S.optColor[k][t.dataset.opt]=t.value;render();toast("Warna "+t.dataset.opt+" disimpan")});

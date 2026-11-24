@@ -173,7 +173,16 @@
     }
   };
 
-  const NS = { db, user, assets, mcp };
+  /* ---------- ✨ script AI (Gemini di server Apps Script) ---------- */
+  const ai = {
+    script: async prompt => {
+      if (!auth || !auth.canEdit) throw mkErr("not_editor", "Masuk sebagai Editor untuk memakai AI");
+      const j = await api("ai", { prompt });
+      return j.result;
+    }
+  };
+
+  const NS = { db, user, assets, mcp, ai };
   window.claude = { use: name => Promise.resolve(NS[name] || null) };
   window.CP_AUTH = { login: promptLogin, logout, get me() { return auth; } };
 })();
