@@ -845,7 +845,47 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .fscopebox{display:flex;flex-direction:column;gap:6px;padding:2px 16px 8px;font-size:12px;color:var(--muted)}
 .fscopebox .seg button{padding:5px 11px;font-size:12px}.sheet input.cin[type=time]::-webkit-calendar-picker-indicator{opacity:0;cursor:pointer}
 .sheet td:hover input.cin[type=time]::-webkit-calendar-picker-indicator,.sheet td.cfocus input.cin[type=time]::-webkit-calendar-picker-indicator{opacity:.55}
-.sheet td:not(.cfocus):not(:hover) input.cin.tempty{color:transparent}</style>
+.sheet td:not(.cfocus):not(:hover) input.cin.tempty{color:transparent}/* ==== row numbers in brown, stronger Sunday, full-cell dropdown colors, PID copy, time picker, scroll bars ==== */
+.sheet td.rn,.sheet thead th.rn{background:var(--th-bg)!important;color:var(--th-ink)!important;border-right-color:var(--th-line)!important;border-bottom-color:var(--th-line)!important}
+.sheet tr.ghost td.rn{opacity:1}
+.sheet td.rn.rsel{background:color-mix(in srgb,var(--th-bg) 72%,#ffffff)!important;color:#fff!important}
+.sheet tr.minggu td.rn,.sheet tr.sun td.rn{color:#FFC9C2!important}
+:root{--sun-ink:#9B2C22}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sun-ink:#FF9C90}}
+:root[data-theme="dark"]{--sun-ink:#FF9C90}
+.sheet tr.sun{--rowbg:color-mix(in srgb,var(--sun) 15%,var(--raised))}
+.sheet tr.sun td.tgl,.sheet tr.sun td.hari{background:color-mix(in srgb,var(--sun) 30%,var(--raised));color:var(--sun-ink);font-weight:700}
+.sheet tr.minggu td{background:color-mix(in srgb,var(--sun) 18%,var(--raised));color:var(--sun-ink);font-weight:700}
+.sheet tr.minggu td.tgl,.sheet tr.minggu td.hari{background:color-mix(in srgb,var(--sun) 30%,var(--raised))}
+.sheet td.occ{background:color-mix(in srgb,var(--oc) 32%,var(--raised))!important}
+.sheet td.occ.csel{background:color-mix(in srgb,var(--ink) 10%,color-mix(in srgb,var(--oc) 32%,var(--raised)))!important}
+.sheet td.occ[data-bg]{background:var(--cbg)!important}
+.sheet td.occ select.cin,.sheet td.occ select.cin.oc{background-color:transparent!important;color:color-mix(in srgb,var(--oc) 58%,#111);font-weight:600;border-radius:6px;margin:4px 3px;width:calc(100% - 6px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sheet td.occ{background:color-mix(in srgb,var(--oc) 40%,var(--raised))!important}:root:not([data-theme="light"]) .sheet td.occ select.cin{color:color-mix(in srgb,var(--oc) 35%,#fff)}}
+:root[data-theme="dark"] .sheet td.occ{background:color-mix(in srgb,var(--oc) 40%,var(--raised))!important}
+:root[data-theme="dark"] .sheet td.occ select.cin{color:color-mix(in srgb,var(--oc) 35%,#fff)}
+.sheet td.occ .bdot i{display:none}
+.pidw{display:inline-flex;align-items:center;gap:2px;max-width:100%}
+.pidcp{border:0;background:transparent;color:var(--muted);width:20px;height:20px;border-radius:5px;font-size:12px;line-height:1;cursor:pointer;flex:none}
+.pidcp:hover{background:var(--surface);color:var(--ink)}
+.pidcp.done{color:var(--ok)}
+.sheet input.cin.tpick{cursor:pointer;font-variant-numeric:tabular-nums}
+.tpk{min-width:0;width:230px;padding:6px 0 8px}
+.tpk .mhead b{font-size:15px;font-variant-numeric:tabular-nums}
+.tpk .tcols{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 12px}
+.tpk .tcolw span{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+.tpk .tcol{max-height:196px;overflow:auto;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);border-radius:8px;padding:3px}
+.tpk .tcol button{border:0;background:transparent;border-radius:6px;padding:5px;font-variant-numeric:tabular-nums;color:var(--ink);cursor:pointer;font-size:13px}
+.tpk .tcol button:hover{background:var(--surface)}
+.tpk .tcol button[aria-pressed="true"]{background:var(--ink);color:var(--raised)}
+.tpk .acts{display:flex;gap:6px;padding:8px 12px 2px}
+.hbar{position:sticky;bottom:0;z-index:7;overflow-x:auto;overflow-y:hidden;height:16px;margin-top:-16px;background:color-mix(in srgb,var(--bg) 85%,transparent);border-radius:0 0 10px 10px}
+.hbar>div{height:1px}
+.sheet-wrap,.hbar{scrollbar-width:auto;scrollbar-color:color-mix(in srgb,var(--ink) 38%,transparent) transparent}
+.sheet-wrap::-webkit-scrollbar,.hbar::-webkit-scrollbar{height:14px;width:14px}
+.sheet-wrap::-webkit-scrollbar-thumb,.hbar::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 34%,transparent);border-radius:99px;border:3px solid transparent;background-clip:padding-box}
+.sheet-wrap::-webkit-scrollbar-thumb:hover,.hbar::-webkit-scrollbar-thumb:hover{background-color:color-mix(in srgb,var(--ink) 55%,transparent)}
+.sheet-wrap::-webkit-scrollbar-track,.hbar::-webkit-scrollbar-track{background:color-mix(in srgb,var(--ink) 6%,transparent)}</style>
 
 </head>
 <body>
@@ -1129,7 +1169,9 @@ S.optColor={
 };
 const optColor=(key,v)=>v&&S.optColor[key]&&S.optColor[key][v]||"";
 function colorStyle(key,v){const c=optColor(key,v);return c?`style="--oc:${c}"`:""}
-function selHtml(key,val,cls="",f=""){const o=[...new Set([...(val?[val]:[]),...getList(key)])];return `<select class="cin ${cls} ${optColor(key,val)?"oc":""} ${val?"has":""}" ${colorStyle(key,val)} ${f?`data-f="${f}"`:""} data-list="${esc(key)}" aria-label="${esc(labelOf(key))}"><option value=""></option>${o.map(x=>`<option ${x===val?"selected":""}>${esc(x)}</option>`).join("")}<option value="__add">+ Tambah pilihan…</option></select>`}
+const AUTO_COL=["#5B6BD6","#2D8A6E","#C4507A","#C9961E","#2A8FC4","#8A6FB8","#E08A2E","#3D8B8B","#B5523B","#6E8B3D","#7C6A55","#A33B6B"];
+function cellColor(key,v){if(!v)return "";if(key==="brand"){const b=byCode(v);return b?b.color:""}const c=optColor(key,v);if(c)return c;let h=0;for(const ch of String(v))h=(h*31+ch.charCodeAt(0))>>>0;return AUTO_COL[h%AUTO_COL.length]}
+function selHtml(key,val,cls="",f=""){const o=[...new Set([...(val?[val]:[]),...getList(key)])],cc=cellColor(key,val);return `<select class="cin ${cls} ${cc?"oc":""} ${val?"has":""}" ${cc?`style="--oc:${cc}"`:""} ${f?`data-f="${f}"`:""} data-list="${esc(key)}" aria-label="${esc(labelOf(key))}"><option value=""></option>${o.map(x=>`<option ${x===val?"selected":""}>${esc(x)}</option>`).join("")}<option value="__add">+ Tambah pilihan…</option></select>`}
 function toast(m,act,fn){document.querySelectorAll(".toast").forEach(x=>x.remove());const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=m;
   if(act){const b=document.createElement("button");b.textContent=act;b.className="tact";b.onclick=()=>{t.remove();fn()};t.appendChild(b)}
   document.body.appendChild(t);setTimeout(()=>t.remove(),act?5000:2400)}
@@ -1139,7 +1181,7 @@ function promptBox(title,label){return new Promise(res=>{const sc=document.creat
   document.body.append(sc,m);m.querySelector("#pb-in").focus()})}
 /* ===== columns per tab: every brand can insert / rename / move / delete columns (types: text, long text, dropdown, checkbox, link, number, date) ===== */
 const BASE_TT=[["TGL","tgl","tgl"],["HARI","hari","hari"],["SLOT","slot","dropdown","slot"],["JAM TAYANG","jam","time"],["PILAR UTAMA","pil","dropdown","pil:tt"],["LINK REFERENSI","ref","link"],["TALENT","tal","dropdown","tal:@"],["KERKUN","kerkun","check"],["MOTIF","mot","motif"],["IDE / BRIEF","brief","long"],["SCRIPT KONTEN","scr","long"],["PIC","pic","dropdown","pic:@"],["CAPTION & HASTAG","cap","long"],["SCREENSHOT","shot","shot"],["STATUS","st","dropdown","st:tt"],["LINK UPLOAD G-DRIVE","gdrive","link"],["LINK UPLOAD TIKTOK","tiktok","link"],["LINK UPLOAD SHOPEE VIDEO","shopee","link"],["LINK UPLOAD YOUTUBE","youtube","link"],["LINK UPLOAD FACEBOOK","facebook","link"],["CATATAN","note","long"]];
-const BASE_IG=[["Tanggal","tgl","tgl"],["Hari","hari","hari"],["Minggu","week","dropdown","minggu"],["Brand","brand","brand"],["Slot","slot","text"],["Jam Tayang","jam","text"],["Tipe","tipe","dropdown","tipe"],["Format","format","dropdown","format"],["Pilar","pil","dropdown","pil:ig"],["PIC","pic","dropdown","pic:@"],["Product ID","pid","text"],["Motif","mot","motif"],["Referensi Konten (opsional)","ref","link"],["Ide / Konsep","ide","long"],["Script (Hook · Body · CTA)","scr","long"],["Hook (Opsional)","hook","text"],["Judul","judul","text"],["CTA (Opsional)","cta","text"],["Hashtag","tag","text"],["IG","c_ig","check"],["TikTok","c_tt","check"],["YouTube","c_yt","check"],["Status Upload","st","dropdown","st:ig"],["Link Konten","link","link"],["Catatan","note","long"]];
+const BASE_IG=[["Tanggal","tgl","tgl"],["Hari","hari","hari"],["Minggu","week","dropdown","minggu"],["Brand","brand","brand"],["Slot","slot","dropdown","slot"],["Jam Tayang","jam","time"],["Tipe","tipe","dropdown","tipe"],["Format","format","dropdown","format"],["Pilar","pil","dropdown","pil:ig"],["PIC","pic","dropdown","pic:@"],["Product ID","pid","text"],["Motif","mot","motif"],["Referensi Konten (opsional)","ref","link"],["Ide / Konsep","ide","long"],["Script (Hook · Body · CTA)","scr","long"],["Hook (Opsional)","hook","text"],["Judul","judul","text"],["CTA (Opsional)","cta","text"],["Hashtag","tag","text"],["IG","c_ig","check"],["TikTok","c_tt","check"],["YouTube","c_yt","check"],["Status Upload","st","dropdown","st:ig"],["Link Konten","link","link"],["Catatan","note","long"]];
 const mkCol=a=>({key:a[1],label:a[0],type:a[2],list:a[3]||""});
 S.cols={};S.frz={};
 function colsOf(b){return S.cols[b.code]||(S.cols[b.code]=(b.ig?BASE_IG:BASE_TT).map(mkCol))}
@@ -1198,11 +1240,12 @@ function cellHtml(col,v,ctx){
     case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=key==="scr"?TA(`placeholder="Hook · Body · CTA"`)+(v.id?`<button class="aibtn" data-ai title="Buat script dari Ide/Brief dengan AI" aria-label="Buat script dengan AI">✨</button>`:""):TA(key==="brief"||key==="ide"?`placeholder="Tulis ide / brief konten…"`:"");break;
     case "number":inner=TA('inputmode="decimal"',"num");break;
     case "date":inner=`<input class="cin" type="date" ${F} value="${esc(val)}" aria-label="${esc(col.label)}">`;break;
-    case "time":{const tv=/^\d{2}:\d{2}$/.test(val)?val:"";inner=`<input class="cin ${tv?"":"tempty"}" type="time" ${F} value="${esc(tv)}" aria-label="${esc(col.label)}">`;break}
+    case "time":{const tv=/^\d{2}:\d{2}$/.test(val)?val:String(val||"");inner=`<input class="cin tpick" readonly ${F} value="${esc(tv)}" placeholder="--:--" aria-label="${esc(col.label)} (klik untuk memilih jam)">`;break}
     default:inner=TA();
   }
   const note=v.notes&&v.notes[key],lk=v.lk&&v.lk[key];
-  return `<td data-col="${key}" data-k="${key}" class="${cls}" ${ctx.span||""} ${fmtAttr(v,key)} ${note?`title="Catatan: ${esc(note)}"`:""}>${inner}${lk?`<a class="celllink" href="${esc(lk)}" target="_blank" rel="noopener" title="${esc(lk)}" aria-label="Buka link sel">↗</a>`:""}${note?`<i class="notetri" aria-hidden="true"></i>`:""}</td>`;
+  const occ=col.type==="dropdown"?cellColor(colList(col,b),val):col.type==="brand"?cellColor("brand",val):"";let fa=fmtAttr(v,key);if(occ){cls+=" occ";fa=fa.includes('style="')?fa.replace('style="','style="--oc:'+occ+';'):fa+' style="--oc:'+occ+'"'}
+  return `<td data-col="${key}" data-k="${key}" class="${cls}" ${ctx.span||""} ${fa} ${note?`title="Catatan: ${esc(note)}"`:""}>${inner}${lk?`<a class="celllink" href="${esc(lk)}" target="_blank" rel="noopener" title="${esc(lk)}" aria-label="Buka link sel">↗</a>`:""}${note?`<i class="notetri" aria-hidden="true"></i>`:""}</td>`;
 }
 /* MOTIF cell: type a motif, suggestions come from that brand's list; a match shows its PIDs. Up to 3 motifs per content. */
 function motifCell(v,br){
@@ -1211,7 +1254,7 @@ function motifCell(v,br){
     const m=br&&name?findMotif(br.code,name):null;
     const pid=m?[m.ih&&"IH "+m.ih,m.lv&&"LV "+m.lv,m.af&&"AF "+m.af,m.kl&&"KL "+m.kl].filter(Boolean).join(" · "):"";
     const use=(v.pidUse&&v.pidUse[m?m.name:""])||[];
-    const info=!name?"":m?(pid?`<div class="pids" title="Centang PID yang dipakai untuk konten ini">${["ih","lv","af","kl"].filter(k=>m[k]).map(k=>{const on=use.includes(k);return `<label class="pidc ${on?"on":""}"><input type="checkbox" data-pidk="${k}" data-pidm="${esc(m.name)}" ${on?"checked":""} ${v.id?"":"disabled"} aria-label="Pakai PID ${k.toUpperCase()} ${esc(m[k])}"><b>${k.toUpperCase()}</b>${esc(m[k])}</label>`}).join("")}</div>`:`<small class="pid">PID belum diisi di daftar ${esc(br.name)}</small>`)
+    const info=!name?"":m?(pid?`<div class="pids" title="Centang PID yang dipakai untuk konten ini">${["ih","lv","af","kl"].filter(k=>m[k]).map(k=>{const on=use.includes(k);return `<span class="pidw"><label class="pidc ${on?"on":""}"><input type="checkbox" data-pidk="${k}" data-pidm="${esc(m.name)}" ${on?"checked":""} ${v.id?"":"disabled"} aria-label="Pakai PID ${k.toUpperCase()} ${esc(m[k])}"><b>${k.toUpperCase()}</b>${esc(m[k])}</label><button type="button" class="pidcp" data-copy="${esc(m[k])}" data-copyk="${k.toUpperCase()}" title="Salin PID ${k.toUpperCase()}" aria-label="Salin PID ${k.toUpperCase()} ${esc(m[k])}">⧉</button></span>`}).join("")}</div>`:`<small class="pid">PID belum diisi di daftar ${esc(br.name)}</small>`)
       :br?`<small class="pid miss">Belum ada di daftar ${esc(br.name)} <button class="addmot" data-addmot="${br.code}" data-name="${esc(name)}">+ Tambahkan ke daftar</button></small>`:`<small class="pid">Pilih Brand dulu agar PID terdeteksi</small>`;
     return `<div class="mslot"><input class="cin min" list="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ motif "+(i+1):"Ketik motif…"}" autocomplete="off" aria-label="Motif ${i+1}">${info}</div>`}).join("")}</div>`;
 }
@@ -1274,7 +1317,7 @@ function sheetTable(b,rows,ctx){
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
     <div class="seg" role="group" aria-label="Ukuran tabel">${[["normal","Normal"],["dense","Ringkas"],["fit","Muat layar"]].map(([k,l])=>`<button data-density="${k}" aria-pressed="${dn===k}">${l}</button>`).join("")}</div></div></div>
   ${fon?`<div class="fbar"><b>Filter</b>${fchips||`<span class="sub">Klik ▾ di judul kolom untuk memfilter atau mengurutkan.</span>`}<span style="flex:1"></span><span class="sub">Berlaku untuk:</span><div class="seg" role="group" aria-label="Filter berlaku untuk"><button data-fscope="me" aria-pressed="${scope==="me"}">Saya saja</button><button data-fscope="all" aria-pressed="${scope==="all"}">Semua tim</button></div>${filtering?`<button class="btn sm press" data-fclear>Hapus semua filter</button>`:""}</div>`:""}
-  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code])}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div></div>`;
+  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code])}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
 }
 /* rekap motif TikTok: keranjang kuning vs non keranjang */
 function motifKKTable(b){
@@ -1364,6 +1407,33 @@ function accessCardGs(){const me=window.CP_AUTH&&window.CP_AUTH.me;return `<arti
   <ol class="steps"><li>Buka spreadsheet database dashboard ini.</li><li>Di tab <b>AKSES</b>, tulis email di kolom A dan pilih <b>Editor</b> di kolom B.</li><li>Orang itu membuka link dashboard, lalu klik <b>Sign in with Google</b> di kiri bawah.</li><li>Untuk mencabut, ubah perannya ke Viewer atau hapus barisnya.</li></ol>
   <p class="note">Hak ubah dijaga oleh server Apps Script: setiap perubahan dicek emailnya, jadi Viewer tidak bisa mengubah data meskipun mencoba lewat cara lain.</p></article>`}
 window.addEventListener("cp-gis",()=>{if(S.ro)render()});
+/* ---- time picker with OK (Jam Tayang, TikTok and Instagram) ---- */
+function openTpick(inp){if(!inp||!canWrite())return;closeMenus();const cur=/^(\d{2}):(\d{2})$/.exec(inp.value||"");let h=cur?cur[1]:"",m=cur?cur[2]:"";
+  const p=document.createElement("div");p.className="cmenu tpk";p.setAttribute("role","dialog");p.setAttribute("aria-label","Pilih jam tayang");
+  const col=(n,sel,kind,lab)=>`<div class="tcolw"><span>${lab}</span><div class="tcol" data-kind="${kind}">${Array.from({length:n},(_,i)=>pad2(i)).map(x=>`<button type="button" data-v="${x}" aria-pressed="${x===sel}">${x}</button>`).join("")}</div></div>`;
+  p.innerHTML=`<div class="mhead">Jam tayang <b id="tpkVal">${h&&m?h+":"+m:"--:--"}</b></div><div class="tcols">${col(24,h,"h","Jam")}${col(60,m,"m","Menit")}</div><div class="acts"><button type="button" class="btn sm" data-tk="clear">Kosongkan</button><span style="flex:1"></span><button type="button" class="btn sm" data-tk="cancel">Batal</button><button type="button" class="btn sm acc" data-tk="ok">OK</button></div>`;
+  const r=(inp.closest("td")||inp).getBoundingClientRect();placeMenu(p,r.left,r.bottom+4);
+  p.querySelectorAll(".tcol").forEach(c=>{const s=c.querySelector('[aria-pressed="true"]');if(s)c.scrollTop=s.offsetTop-c.clientHeight/2+s.offsetHeight/2});
+  const upd=()=>{p.querySelector("#tpkVal").textContent=(h||"--")+":"+(m||"--")};
+  p.addEventListener("click",e=>{const bt=e.target.closest(".tcol button");if(bt){const c=bt.parentElement;c.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===bt)));if(c.dataset.kind==="h"){h=bt.dataset.v;if(!m)m="00"}else{m=bt.dataset.v;if(!h)h="00"}upd();return}
+    const tk=e.target.closest("[data-tk]");if(!tk)return;if(tk.dataset.tk==="cancel"){closeMenus();return}
+    if(tk.dataset.tk==="ok"&&!(h&&m))return;const val=tk.dataset.tk==="clear"?"":h+":"+m;closeMenus();if(inp.value===val)return;inp.value=val;saveField(inp);render()});
+  p.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();closeMenus()}else if(e.key==="Enter"){e.preventDefault();p.querySelector('[data-tk="ok"]').click()}})}
+document.addEventListener("keydown",e=>{const a=e.target;if(!a||!a.classList||!a.classList.contains("tpick"))return;if(e.key==="Enter"||e.key==="F2"||e.key===" "){e.preventDefault();e.stopPropagation();openTpick(a)}},true);
+/* old Slot / Jam values become the new formats once (Slot 1, 19:00) */
+function normalizeRows(ym){let ch=false;for(const rs of Object.values(S.data[ym]||{}))(rs||[]).forEach(r=>{
+    if(r.jam&&!/^\d{2}:\d{2}$/.test(r.jam)){const mm=String(r.jam).match(/(\d{1,2})\s*[:.]\s*(\d{2})/);if(mm&&+mm[1]<24&&+mm[2]<60){r.jam=pad2(+mm[1])+":"+mm[2];ch=true}}
+    if(r.slot&&/^\d+$/.test(String(r.slot).trim())){r.slot="Slot "+String(r.slot).trim();ch=true}});return ch}
+/* ---- copy a PID number ---- */
+async function copyText(s){try{await navigator.clipboard.writeText(s);return true}catch(_){const ta=document.createElement("textarea");ta.value=s;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();return ok}}
+document.addEventListener("click",e=>{const b=e.target.closest(".pidcp");if(!b)return;e.preventDefault();e.stopPropagation();copyText(b.dataset.copy).then(ok=>{toast(ok?`PID ${b.dataset.copyk} disalin: ${b.dataset.copy}`:"Tidak bisa menyalin otomatis. Blok angkanya lalu Ctrl+C");if(ok){b.classList.add("done");setTimeout(()=>b.classList.remove("done"),1200)}})});
+/* ---- horizontal scroll bar that stays on screen (like Google Sheets) ---- */
+function syncHbar(){document.querySelectorAll(".hbar").forEach(h=>{const w=h.previousElementSibling;if(!w||!w.classList.contains("sheet-wrap"))return;const over=w.scrollWidth>w.clientWidth+2;h.hidden=!over;h.firstElementChild.style.width=w.scrollWidth+"px";if(Math.abs(h.scrollLeft-w.scrollLeft)>1)h.scrollLeft=w.scrollLeft;h.style.visibility=w.getBoundingClientRect().bottom<=innerHeight+1?"hidden":"visible"})}
+window.addEventListener("scroll",()=>{if(document.querySelector(".hbar:not([hidden])"))syncHbar()},{passive:true});
+document.addEventListener("scroll",e=>{const el=e.target;if(!el||!el.classList)return;
+  if(el.classList.contains("hbar")){const w=el.previousElementSibling;if(w&&Math.abs(w.scrollLeft-el.scrollLeft)>1)w.scrollLeft=el.scrollLeft}
+  else if(el.classList.contains("sheet-wrap")){const h=el.nextElementSibling;if(h&&h.classList.contains("hbar")&&Math.abs(h.scrollLeft-el.scrollLeft)>1)h.scrollLeft=el.scrollLeft}},true);
+window.addEventListener("resize",()=>setTimeout(syncHbar,150));
 document.addEventListener("input",e=>{const x=e.target;if(x&&x.type==="time"&&x.classList)x.classList.toggle("tempty",!x.value)});
 document.addEventListener("click",e=>{if(e.target.closest("[data-cplogin]")&&window.CP_AUTH)window.CP_AUTH.login()});
 window.addEventListener("cp-auth",async()=>{if(!DB.user)return;try{S.isOwner=await DB.user.isOwner();S.ro=!(await DB.user.canEdit())}catch(_){S.ro=true}S.roUnknown=false;applyRO();render()});
@@ -1406,7 +1476,7 @@ function render(){
   if(S.jump){const tr=document.querySelector(`.sheet tr[data-id="${S.jump}"]`);if(tr){const w=tr.closest(".sheet-wrap"),th=w.querySelector("thead");w.scrollTop=Math.max(0,tr.offsetTop-(th?th.offsetHeight:0)-6);tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),2200);w.scrollIntoView({block:"start"})}S.jump=null}
   maybeSaveSettings();
   paintSel(); if(S.refocus){const rf=S.refocus;S.refocus=null;focusCell(rf.rk,rf.ck,true)}else if(hadF&&S.cs&&rect()){if(rect().n>1){const w=m.querySelector(".sheet-wrap");w&&w.focus({preventScroll:true})}else{const fr=S.fresh;focusCell(S.cs.f.rk,S.cs.f.ck,fr)}}
-  fitTables(); applyFreeze(); autoSize(); syncBell();
+  fitTables(); applyFreeze(); autoSize(); syncBell(); syncHbar();
   const rl=document.getElementById("roLogin");if(rl&&window.CP_AUTH&&window.CP_AUTH.mountButton&&!window.CP_AUTH.mountButton(rl))rl.innerHTML="<button class='btn dark' data-cplogin>Masuk dengan Google</button>"; if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
@@ -1449,7 +1519,7 @@ function saveField(el){if(S.ro){canWrite();render();return}
   const tr=el.closest("tr"), rs=curRows(); if(!tr||!rs)return;
   const f=el.dataset.f, v=el.type==="checkbox"?el.checked:el.value;
   if(el.dataset.raw!==undefined&&(el.value===el.dataset.disp||el.value===el.dataset.raw))return;
-  if(el.dataset.list){const c=optColor(el.dataset.list,v);el.classList.toggle("oc",!!c);el.classList.toggle("has",!!v);c?el.style.setProperty("--oc",c):el.style.removeProperty("--oc")}
+  if(el.dataset.list){const c=cellColor(el.dataset.list,v);el.classList.toggle("oc",!!c);el.classList.toggle("has",!!v);c?el.style.setProperty("--oc",c):el.style.removeProperty("--oc");const tdc=el.closest("td");if(tdc){tdc.classList.toggle("occ",!!c);c?tdc.style.setProperty("--oc",c):tdc.style.removeProperty("--oc")}}
   if(tr.dataset.id){const r=rowById(tr.dataset.id);if(!r)return;if((r[f]??"")===v)return;pushUndo(true);r[f]=v;
     if(f==="st")el.className=el.className.replace(/st-\w+/,"st-"+stClass(v));
     touch(); if(f==="pil"||f==="brand"||S.hasF||String(v)[0]==="=")render();else syncFx(); return}
@@ -1561,6 +1631,7 @@ document.addEventListener("mousedown",e=>{
   /* like Google Sheets: one click selects the cell (typing replaces it), double click / F2 / Enter edits inside it */
   const c=ctrlOf(td),editing=c&&document.activeElement===c&&!S.fresh;
   setSel(k,k);S.drag=true;
+  if(c&&c.classList.contains("tpick")){e.preventDefault();S.drag=false;focusCell(k.rk,k.ck,false);openTpick(c);return}
   if(c&&isText(c)&&!editing&&!td.querySelector(".mcell")&&!/^(date|time)$/.test(c.type)){e.preventDefault();focusCell(k.rk,k.ck,true);return}
   S.fresh=false;
   if(!c){e.preventDefault();td.closest(".sheet-wrap").focus({preventScroll:true})}
@@ -2349,7 +2420,7 @@ function subMonth(ym){
     if(!q.metadata.fromCache){S.loaded[ym]=true;clearTimeout(monthTimer);if(!persistT&&!persisting)setSync("ok","Tersimpan")}else if(q.size)S.loaded[ym]=true;
     if((persistT||persisting)&&!first)return; /* local edits waiting to be saved win */
     const m={};for(const [code,arr] of Object.entries(byTab))m[code]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));
-    S.data[ym]=m;S.meta[ym]=metaM;
+    S.data[ym]=m;S.meta[ym]=metaM;if(!S.ro&&!S.roUnknown&&normalizeRows(ym))setTimeout(()=>{if(!S.ro)persistMonth(ym)},900);
     if(first&&S.loaded[ym])migrateLegacy(ym);
     if(ym===S.ym){if(sheetBusy())S.needRender=true;else render()}
   },err=>{S.err=dbErr(err);S.loaded[ym]=true;setSync("bad","Tidak tersambung");render()});
@@ -2399,6 +2470,8 @@ function applySettings(d){
       const h=cols.findIndex(c=>c.key==="hari");let at=h<0?2:h+1;if(!cols.some(c=>c.key==="slot"))cols.splice(at++,0,mkCol(["SLOT","slot","dropdown","slot"]));else at=cols.findIndex(c=>c.key==="slot")+1;
       if(!cols.some(c=>c.key==="jam"))cols.splice(at,0,mkCol(["JAM TAYANG","jam","time"]))});
     S.migrated=Object.assign({},S.migrated,{slotCol:true})}
+  /* once: Instagram Slot and Jam Tayang become dropdown / time picker */
+  if(!(S.migrated||{}).igSlot){const cols=S.cols.INSTAGRAM;if(Array.isArray(cols))cols.forEach(c=>{if(c.key==="slot"&&c.type==="text"){c.type="dropdown";c.list="slot"}if(c.key==="jam"&&c.type==="text")c.type="time"});S.migrated=Object.assign({},S.migrated,{igSlot:true})}
   if(d.sheet)S.sheet=Object.assign({spreadsheetId:"",lastBackup:"",lastImport:""},d.sheet);
   applyFont();applyColW();
 }
@@ -2584,7 +2657,7 @@ const colStyle=document.createElement("style");document.head.appendChild(colStyl
 /* fixed column widths like Google Sheets: the <colgroup> carries each width, text wraps inside */
 function applyColW(){colStyle.textContent="";const w=document.querySelector(".sheet-wrap[data-kind]"),b=curB();if(!w||!b)return;const kind=w.dataset.kind,dense=w.classList.contains("dense"),cols=colsOf(b);let tot=COLRN;
   w.querySelectorAll("colgroup col[data-col]").forEach(c=>{const col=cols.find(x=>x.key===c.dataset.col);const px=col?colW(kind,col,dense):100;c.style.width=px+"px";tot+=px});
-  const t=w.querySelector("table.sheet");if(t)t.style.width=tot+"px";applyFreeze()}
+  const t=w.querySelector("table.sheet");if(t)t.style.width=tot+"px";applyFreeze();syncHbar()}
 document.addEventListener("pointerdown",e=>{const rz=e.target.closest(".rz");if(!rz)return;e.preventDefault();e.stopPropagation();
   const th=rz.closest("th"),kind=th.closest(".sheet-wrap").dataset.kind,key=rz.dataset.rz,r0=th.getBoundingClientRect(),scale=r0.width/th.offsetWidth,x0=e.clientX;
   rz.setPointerCapture(e.pointerId);rz.classList.add("on");
