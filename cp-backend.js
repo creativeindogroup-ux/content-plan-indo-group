@@ -40,18 +40,22 @@
     const tmp = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: p.email || "", role: "Viewer", canEdit: false };
     auth = tmp;
     try { const me = await api("me"); setAuth(Object.assign(tmp, { email: me.email, role: me.role, canEdit: !!me.canEdit })); toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)"); }
-    catch (e) { setAuth(null); toastMsg("Gagal masuk: " + (e.message || e.code)); }
+    catch (e) { setAuth(null); toastMsg("Gagal masuk: " + (e.message || e.code), 9000); }
   }
   function promptLogin() { try { if (window.google && google.accounts && google.accounts.id) google.accounts.id.prompt(); } catch (_) {} }
   function logout() { try { google.accounts.id.disableAutoSelect(); } catch (_) {} setAuth(null); toastMsg("Anda sudah keluar"); }
-  function toastMsg(m) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = m; document.querySelectorAll(".toast").forEach(x => x.remove()); document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+  function toastMsg(m, ms) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = m; t.style.maxWidth = "min(560px, calc(100vw - 32px))"; t.style.borderRadius = "14px"; document.querySelectorAll(".toast").forEach(x => x.remove()); document.body.appendChild(t); setTimeout(() => t.remove(), ms || 3200); }
+  /* tombol login Google di tempat lain (misalnya banner "Mode baca saja") */
+  function mountButton(el) { if (!el || !gisReady || !CFG.CLIENT_ID) return false; try { el.innerHTML = ""; google.accounts.id.renderButton(el, { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "id" }); return true; } catch (_) { return false; } }
+  /* sesi login Google berlaku ±1 jam: minta masuk ulang sebelum habis, dan beri tahu saat habis */
+  setInterval(() => { if (!auth) return; const left = auth.exp * 1000 - Date.now(); if (left < 0) { setAuth(null); toastMsg("Sesi login berakhir. Klik Masuk dengan Google untuk lanjut mengedit.", 7000); } else if (left < 150000) promptLogin(); }, 60000);
 
   let gisReady = false;
   function initGis() {
     if (gisReady || !(window.google && google.accounts && google.accounts.id)) return false;
     if (!CFG.CLIENT_ID) { renderAuth(); return true; }
     google.accounts.id.initialize({ client_id: CFG.CLIENT_ID, callback: onCredential, auto_select: true, cancel_on_tap_outside: true, use_fedcm_for_prompt: true });
-    gisReady = true; renderAuth(); if (!auth) promptLogin(); return true;
+    gisReady = true; renderAuth(); window.dispatchEvent(new Event("cp-gis")); if (!auth) promptLogin(); return true;
   }
   (function waitGis(n) { if (!initGis() && n < 100) setTimeout(() => waitGis(n + 1), 150); })(0);
 
@@ -184,5 +188,5 @@
 
   const NS = { db, user, assets, mcp, ai };
   window.claude = { use: name => Promise.resolve(NS[name] || null) };
-  window.CP_AUTH = { login: promptLogin, logout, get me() { return auth; } };
+  window.CP_AUTH = { login: promptLogin, logout, mountButton, get me() { return auth; }, get ready() { return gisReady; } };
 })();

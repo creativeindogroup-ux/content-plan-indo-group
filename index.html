@@ -798,7 +798,41 @@ body{font-size:13px;letter-spacing:0}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tbtns{margin-left:0}.gsearch{order:5;max-width:none;flex-basis:100%}
 }
 @media (max-width:560px){.board{grid-template-columns:minmax(0,1fr)}.btbl .hide-s{display:none}}
-body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}</style>
+body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ==== table in the workspace palette: warm neutral stripes, brand only as a thin edge, ink selection ==== */
+.rologin{margin-left:auto;min-height:40px;display:flex;align-items:center}
+.sheet-wrap{border-left:3px solid var(--c)}
+.sheet td{background:var(--rowbg,var(--raised))}
+.sheet tr.alt{--rowbg:color-mix(in srgb,var(--ink) 3.5%,var(--raised))}
+.sheet td.tgl,.sheet td.hari{background:var(--raised);color:var(--ink)}
+.sheet tr.alt td.tgl,.sheet tr.alt td.hari{background:color-mix(in srgb,var(--ink) 6%,var(--raised))}
+.sheet td.tgl{color:var(--ink)}
+.sheet tr.daystart td{border-top:1.5px solid color-mix(in srgb,var(--ink) 14%,var(--grid))}
+.sheet th,.sheet thead tr.labels th{background:var(--hdr)!important;color:var(--muted)!important;border-right-color:var(--grid)!important}
+.sheet thead tr.labels th{border-bottom:1px solid color-mix(in srgb,var(--ink) 12%,var(--grid))!important;font-weight:500}
+.sheet tr.sun{--rowbg:color-mix(in srgb,var(--sun) 8%,var(--raised))}
+.sheet tr.sun td.tgl,.sheet tr.sun td.hari{background:color-mix(in srgb,var(--sun) 16%,var(--raised));color:var(--sun)}
+.sheet tr.minggu td{background:color-mix(in srgb,var(--sun) 9%,var(--raised));color:var(--sun)}
+.sheet td.tgl.today,.sheet td.hari.today{background:var(--accent)!important;color:var(--on-accent)!important}
+/* selection in ink instead of Google blue */
+.sheet td.csel{background:color-mix(in srgb,var(--ink) 9%,var(--rowbg,var(--raised)))!important}
+.sheet td.cfocus{box-shadow:inset 0 0 0 2px var(--ink)}
+.sheet td.cclip{outline:1.5px dashed var(--ink)}
+.sheet th.chsel,.sheet td.rn.rsel{background:color-mix(in srgb,var(--ink) 12%,var(--hdr))!important;color:var(--ink)!important}
+.fillh{background:var(--ink);border-color:var(--raised)}
+.sheet td.cfill{outline-color:var(--ink)}
+.rrz:hover,.rrz.on{background:var(--ink)}
+.sheet th .rz.on::after,.sheet th .rz::after{background:var(--ink)}
+.fbtn.on{background:var(--ink);color:var(--raised)}
+.fchip{background:var(--surface)}
+.fpop .fall button{color:var(--ink);text-decoration:underline}
+.fpop .flist input,.pidc input,.sheet td.ctr input{accent-color:var(--ink)}
+.fxin:focus{box-shadow:inset 0 -2px 0 var(--ink)}
+.findp input[type=text]:focus{border-color:var(--ink)}.findp .flink{color:var(--ink)}
+.cpal .pgrid button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--raised),0 0 0 4px var(--ink)}
+/* dropdown options keep their Pengaturan colors, softer */
+.sheet select.cin.oc{background-color:color-mix(in srgb,var(--oc) 10%,var(--raised));color:color-mix(in srgb,var(--oc) 62%,var(--ink));box-shadow:none}
+.sheet select.cin.has:not(.oc){background-color:var(--surface)}
+.camp-tag{background:color-mix(in srgb,var(--stripe,var(--ink)) 18%,var(--raised))}</style>
 
 </head>
 <body>
@@ -1313,6 +1347,8 @@ function accessCardGs(){const me=window.CP_AUTH&&window.CP_AUTH.me;return `<arti
   <div class="roles"><div><b>Editor</b><span>Email yang terdaftar di tab AKSES dengan peran Editor. Masuk dengan akun Google itu untuk mengisi, mengubah, menghapus konten dan membuka Pengaturan.</span></div><div><b>Viewer</b><span>Siapa saja yang Anda kirimi link dashboard. Hanya bisa melihat, menyalin dan memfilter content plan. Pengaturan disembunyikan.</span></div></div>
   <ol class="steps"><li>Buka spreadsheet database dashboard ini.</li><li>Di tab <b>AKSES</b>, tulis email di kolom A dan pilih <b>Editor</b> di kolom B.</li><li>Orang itu membuka link dashboard, lalu klik <b>Sign in with Google</b> di kiri bawah.</li><li>Untuk mencabut, ubah perannya ke Viewer atau hapus barisnya.</li></ol>
   <p class="note">Hak ubah dijaga oleh server Apps Script: setiap perubahan dicek emailnya, jadi Viewer tidak bisa mengubah data meskipun mencoba lewat cara lain.</p></article>`}
+window.addEventListener("cp-gis",()=>{if(S.ro)render()});
+document.addEventListener("click",e=>{if(e.target.closest("[data-cplogin]")&&window.CP_AUTH)window.CP_AUTH.login()});
 window.addEventListener("cp-auth",async()=>{if(!DB.user)return;try{S.isOwner=await DB.user.isOwner();S.ro=!(await DB.user.canEdit())}catch(_){S.ro=true}S.roUnknown=false;applyRO();render()});
 function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua perubahan langsung tersimpan untuk seluruh tim.</small></h1></div>
   ${accessCard()}
@@ -1345,7 +1381,7 @@ function render(){
   const w0=m.querySelector(".sheet-wrap"), keep=w0?[w0.scrollTop,w0.scrollLeft,S.lastView===S.view]:null;
   const waiting=()=>`<div class="top"><h1>CONTENT PLAN INDO GROUP<small>${esc(ymLabel(S.ym))}</small></h1></div><section class="card empty"><b>${S.err?"Data belum bisa dimuat":"Memuat content plan…"}</b><p>${esc(S.err||"Mengambil data "+ymLabel(S.ym)+" dari database.")}</p></section>`;
   if(S.ro&&S.view==="pengaturan")S.view="beranda";
-  m.innerHTML=(S.ro?`<div class="robar" role="status"><b>Mode baca saja</b><span>Anda bisa melihat, menyalin dan memfilter. ${window.CP_CONFIG?"Untuk mengedit, masuk dengan akun Google yang terdaftar sebagai Editor (tombol di kiri bawah).":"Untuk mengubah content plan, minta pemilik menambahkan email Anda sebagai Editor."}</span></div>`:"")+(S.view==="pengaturan"&&S.settingsReady?settings():(S.err||!S.settingsReady||(DB.db&&!S.loaded[S.ym]))?waiting():S.view==="beranda"&&!hasData()?empty():S.view==="beranda"?beranda():b?(b.ig?igPage(b):brandPage(b)):beranda());
+  m.innerHTML=(S.ro?`<div class="robar" role="status"><b>Mode baca saja</b><span>Anda bisa melihat, menyalin dan memfilter. ${window.CP_CONFIG?"Untuk mengedit, masuk dengan akun Google yang terdaftar sebagai Editor di tab AKSES.":"Untuk mengubah content plan, minta pemilik menambahkan email Anda sebagai Editor."}</span>${window.CP_CONFIG&&!(window.CP_AUTH&&window.CP_AUTH.me)?`<div id="roLogin" class="rologin"></div>`:""}</div>`:"")+(S.view==="pengaturan"&&S.settingsReady?settings():(S.err||!S.settingsReady||(DB.db&&!S.loaded[S.ym]))?waiting():S.view==="beranda"&&!hasData()?empty():S.view==="beranda"?beranda():b?(b.ig?igPage(b):brandPage(b)):beranda());
   if(S.ro)m.querySelectorAll(".sheet input.cin,.sheet textarea.cin").forEach(x=>x.readOnly=true);
   S.lastView=S.view;
   if(keep&&keep[2]){const w=m.querySelector(".sheet-wrap");if(w){w.scrollTop=keep[0];w.scrollLeft=keep[1]}}
@@ -1353,7 +1389,8 @@ function render(){
   if(S.jump){const tr=document.querySelector(`.sheet tr[data-id="${S.jump}"]`);if(tr){const w=tr.closest(".sheet-wrap"),th=w.querySelector("thead");w.scrollTop=Math.max(0,tr.offsetTop-(th?th.offsetHeight:0)-6);tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),2200);w.scrollIntoView({block:"start"})}S.jump=null}
   maybeSaveSettings();
   paintSel(); if(S.refocus){const rf=S.refocus;S.refocus=null;focusCell(rf.rk,rf.ck,true)}else if(hadF&&S.cs&&rect()){if(rect().n>1){const w=m.querySelector(".sheet-wrap");w&&w.focus({preventScroll:true})}else{const fr=S.fresh;focusCell(S.cs.f.rk,S.cs.f.ck,fr)}}
-  fitTables(); applyFreeze(); autoSize(); syncBell(); if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
+  fitTables(); applyFreeze(); autoSize(); syncBell();
+  const rl=document.getElementById("roLogin");if(rl&&window.CP_AUTH&&window.CP_AUTH.mountButton&&!window.CP_AUTH.mountButton(rl))rl.innerHTML="<button class='btn dark' data-cplogin>Masuk dengan Google</button>"; if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
 function go(v){if(v==="pengaturan"&&S.ro)v="beranda";S.view=v;S.cs=null;closeMenus();const h=v==="beranda"?"beranda":v==="pengaturan"?"pengaturan":"b-"+v;if(location.hash.slice(1)!==h)history.replaceState(null,"","#"+h);render();if(!S.jump)window.scrollTo({top:0,behavior:"smooth"})}
