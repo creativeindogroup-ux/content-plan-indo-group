@@ -39,7 +39,7 @@
     const p = jwtPayload(token);
     const tmp = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: p.email || "", role: "Viewer", canEdit: false };
     auth = tmp;
-    try { const me = await api("me"); setAuth(Object.assign(tmp, { email: me.email, role: me.role, canEdit: !!me.canEdit })); toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)"); }
+    try { const me = await api("me"); setAuth(Object.assign(tmp, { email: me.email, role: me.role, canEdit: !!me.canEdit, nick: me.nick || "" })); toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)"); }
     catch (e) { setAuth(null); toastMsg("Gagal masuk: " + (e.message || e.code), 9000); }
   }
   function promptLogin() { try { if (window.google && google.accounts && google.accounts.id) google.accounts.id.prompt(); } catch (_) {} }
@@ -186,7 +186,17 @@
     }
   };
 
-  const NS = { db, user, assets, mcp, ai };
+  /* ---------- tim: nama panggilan, siapa yang online, catatan aktivitas ---------- */
+  let gid = ""; try { gid = localStorage.getItem("cp-gid") || ""; if (!gid) { gid = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem("cp-gid", gid); } } catch (_) { gid = "t" + Math.random().toString(36).slice(2); }
+  const team = {
+    kind: "server",
+    me: () => auth,
+    ping: (page, since) => api("ping", { gid, page, since }),
+    setNick: async nick => { const j = await api("nick", { nick }); if (auth) { auth.nick = j.nick; setAuth(auth); } return j.nick; },
+    log: items => api("log", { items })
+  };
+
+  const NS = { db, user, assets, mcp, ai, team };
   window.claude = { use: name => Promise.resolve(NS[name] || null) };
   window.CP_AUTH = { login: promptLogin, logout, mountButton, get me() { return auth; }, get ready() { return gisReady; } };
 })();
