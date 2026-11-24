@@ -885,7 +885,8 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .sheet-wrap::-webkit-scrollbar,.hbar::-webkit-scrollbar{height:14px;width:14px}
 .sheet-wrap::-webkit-scrollbar-thumb,.hbar::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 34%,transparent);border-radius:99px;border:3px solid transparent;background-clip:padding-box}
 .sheet-wrap::-webkit-scrollbar-thumb:hover,.hbar::-webkit-scrollbar-thumb:hover{background-color:color-mix(in srgb,var(--ink) 55%,transparent)}
-.sheet-wrap::-webkit-scrollbar-track,.hbar::-webkit-scrollbar-track{background:color-mix(in srgb,var(--ink) 6%,transparent)}</style>
+.sheet-wrap::-webkit-scrollbar-track,.hbar::-webkit-scrollbar-track{background:color-mix(in srgb,var(--ink) 6%,transparent)}.selcount{position:fixed;z-index:30;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(28px + env(safe-area-inset-bottom,0px));background:var(--raised);color:var(--muted);border-radius:10px;padding:7px 12px;font-size:12px;box-shadow:var(--sh-lift),0 0 0 1px var(--line);font-variant-numeric:tabular-nums;pointer-events:auto}
+.selcount b{color:var(--ink);font-weight:600}.selcount span{margin:0 2px;opacity:.6}</style>
 
 </head>
 <body>
@@ -1480,7 +1481,7 @@ function render(){
   const rl=document.getElementById("roLogin");if(rl&&window.CP_AUTH&&window.CP_AUTH.mountButton&&!window.CP_AUTH.mountButton(rl))rl.innerHTML="<button class='btn dark' data-cplogin>Masuk dengan Google</button>"; if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
-function go(v){if(v==="pengaturan"&&S.ro)v="beranda";S.view=v;S.cs=null;closeMenus();const h=v==="beranda"?"beranda":v==="pengaturan"?"pengaturan":"b-"+v;if(location.hash.slice(1)!==h)history.replaceState(null,"","#"+h);render();if(!S.jump)window.scrollTo({top:0,behavior:"smooth"})}
+function go(v){const sc=document.getElementById("selCount");if(sc)sc.hidden=true;if(v==="pengaturan"&&S.ro)v="beranda";S.view=v;S.cs=null;closeMenus();const h=v==="beranda"?"beranda":v==="pengaturan"?"pengaturan":"b-"+v;if(location.hash.slice(1)!==h)history.replaceState(null,"","#"+h);render();if(!S.jump)window.scrollTo({top:0,behavior:"smooth"})}
 
 /* ---- events ---- */
 document.addEventListener("click",e=>{
@@ -2037,7 +2038,14 @@ function syncFmtBar(){const bar=document.querySelector(".gtools");if(bar){const 
     const fs=document.getElementById("fcSwatch"),bs=document.getElementById("bgSwatch");if(fs)fs.style.background=f.fc||"var(--ink)";if(bs)bs.style.background=f.bg||"transparent";
     const al=bar.querySelector('[data-tb="pop:halign"]');if(al)al.innerHTML=ICON_AL[f.ta||"left"];const va=bar.querySelector('[data-tb="pop:valign"]');if(va)va.innerHTML=IC[{top:"vtop",middle:"vmid",bottom:"vbot"}[f.va||"top"]];const wr=bar.querySelector('[data-tb="pop:wrap"]');if(wr)wr.innerHTML=f.wr==="clip"?IC.clip:IC.wrap;
     const fl=bar.querySelector('[data-tb="filter"]'),b=curB();if(fl&&b)fl.setAttribute("aria-pressed",String(filterOn(b.code)||Object.keys(activeFilters(b.code)).length>0))}
-  syncFx()}
+  syncFx();syncSelCount()}
+/* count chip at the bottom-right of the screen (like Google Sheets): filled cells and content rows in the selection; only rows visible after filtering count */
+function syncSelCount(){let el=document.getElementById("selCount");const R=curB()?rect():null;
+  if(!R||R.n<2){if(el)el.hidden=true;return}
+  if(!el){el=document.createElement("div");el.id="selCount";el.className="selcount";el.setAttribute("role","status");el.setAttribute("aria-live","polite");document.body.appendChild(el)}
+  let cells=0;const rows=new Set();
+  R.rows.forEach(rk=>{const r=rowById(rk);if(!r)return;R.cols.forEach(c=>{const t=cellText(r,c);if(c.type==="check"?t==="TRUE":String(t).trim()!==""){cells++;rows.add(rk)}})});
+  el.innerHTML=`<b>${cells}</b> terisi <span>·</span> <b>${rows.size}</b> baris`;el.title=`${cells} sel terisi dari ${R.n} sel terpilih, di ${rows.size} baris konten`;el.hidden=false}
 function applyFmt(prop,val){if(!canWrite())return;
   const t=fmtTargets();if(!t.length){toast("Pilih sel yang berisi konten dulu, lalu pilih format");return}
   pushUndo(true);const first=fmtOf(t[0].r,t[0].key);
