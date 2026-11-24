@@ -886,7 +886,17 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .sheet-wrap::-webkit-scrollbar-thumb,.hbar::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--ink) 34%,transparent);border-radius:99px;border:3px solid transparent;background-clip:padding-box}
 .sheet-wrap::-webkit-scrollbar-thumb:hover,.hbar::-webkit-scrollbar-thumb:hover{background-color:color-mix(in srgb,var(--ink) 55%,transparent)}
 .sheet-wrap::-webkit-scrollbar-track,.hbar::-webkit-scrollbar-track{background:color-mix(in srgb,var(--ink) 6%,transparent)}.selcount{position:fixed;z-index:30;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(28px + env(safe-area-inset-bottom,0px));background:var(--raised);color:var(--muted);border-radius:10px;padding:7px 12px;font-size:12px;box-shadow:var(--sh-lift),0 0 0 1px var(--line);font-variant-numeric:tabular-nums;pointer-events:auto}
-.selcount b{color:var(--ink);font-weight:600}.selcount span{margin:0 2px;opacity:.6}</style>
+.selcount b{color:var(--ink);font-weight:600}.selcount span{margin:0 2px;opacity:.6}/* live links */
+:root{--link:#1a73e8}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--link:#8AB4F8}}
+:root[data-theme="dark"]{--link:#8AB4F8}
+.sheet td.haslink .lnk{display:block;padding:6px 8px;color:var(--link);text-decoration:underline;text-underline-offset:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;line-height:1.45;cursor:pointer}
+.sheet-wrap.dense td.haslink .lnk{padding:3px 6px;font-size:11.5px}
+.sheet td.haslink .lnk:hover{text-decoration-thickness:2px}
+.sheet td.haslink textarea.cin{position:absolute;inset:0;opacity:0;pointer-events:none;height:100%!important}
+.sheet-wrap:not(.fresh) td.haslink.cfocus textarea.cin{position:static;opacity:1;pointer-events:auto;height:auto!important}
+.sheet-wrap:not(.fresh) td.haslink.cfocus .lnk{display:none}
+.sheet td.w-link .cin{padding-right:8px}</style>
 
 </head>
 <body>
@@ -1170,6 +1180,9 @@ S.optColor={
 };
 const optColor=(key,v)=>v&&S.optColor[key]&&S.optColor[key][v]||"";
 function colorStyle(key,v){const c=optColor(key,v);return c?`style="--oc:${c}"`:""}
+/* links: a full web address shows as a blue, clickable, shortened link */
+function linkUrl(v){const s=String(v||"").trim();if(!/^(https?:\/\/|www\.)\S+$/i.test(s))return "";return /^www\./i.test(s)?"https://"+s:s}
+function shortUrl(u){let s=u;try{const x=new URL(u);s=x.hostname.replace(/^www\./,"")+(x.pathname!=="/"?x.pathname:"")+(x.search?"?…":"")}catch(_){s=u.replace(/^https?:\/\//,"")}return s.length>38?s.slice(0,36)+"…":s}
 const AUTO_COL=["#5B6BD6","#2D8A6E","#C4507A","#C9961E","#2A8FC4","#8A6FB8","#E08A2E","#3D8B8B","#B5523B","#6E8B3D","#7C6A55","#A33B6B"];
 function cellColor(key,v){if(!v)return "";if(key==="brand"){const b=byCode(v);return b?b.color:""}const c=optColor(key,v);if(c)return c;let h=0;for(const ch of String(v))h=(h*31+ch.charCodeAt(0))>>>0;return AUTO_COL[h%AUTO_COL.length]}
 function selHtml(key,val,cls="",f=""){const o=[...new Set([...(val?[val]:[]),...getList(key)])],cc=cellColor(key,val);return `<select class="cin ${cls} ${cc?"oc":""} ${val?"has":""}" ${cc?`style="--oc:${cc}"`:""} ${f?`data-f="${f}"`:""} data-list="${esc(key)}" aria-label="${esc(labelOf(key))}"><option value=""></option>${o.map(x=>`<option ${x===val?"selected":""}>${esc(x)}</option>`).join("")}<option value="__add">+ Tambah pilihan…</option></select>`}
@@ -1237,7 +1250,7 @@ function cellHtml(col,v,ctx){
     case "brand":{const br=byCode(val);inner=`<span class="bdot" style="--bc:${br?br.color:"var(--line)"}"><i></i>${selHtml("brand",val,"",key)}</span>`;break}
     case "motif":cls+=" w-mot";inner=motifCell(v,byCode(v.brand)||(b.ig?null:b));break;
     case "shot":cls+=" shot";inner=v.shot?`<a class="thumb" href="${esc(blobUrl(v.shot))}" target="_blank" rel="noopener" title="Buka screenshot"><img src="${esc(blobUrl(v.shot))}" alt="Screenshot"></a><button class="shotx" data-shotdel title="Hapus screenshot" aria-label="Hapus screenshot">✕</button>`:v.id?`<label class="btn sm press">Upload<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-shot hidden></label>`:"";break;
-    case "link":cls+=" w-link";inner=TA()+(/^https?:/.test(val)?`<a href="${esc(val)}" target="_blank" rel="noopener" class="lk" aria-label="Buka link">↗</a>`:"");break;
+    case "link":{cls+=" w-link";const url=linkUrl(val);if(url)cls+=" haslink";inner=TA()+(url?`<a class="lnk" href="${esc(url)}" target="_blank" rel="noopener" title="${esc(url)}">${esc(shortUrl(url))}</a>`:"");break}
     case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=key==="scr"?TA(`placeholder="Hook · Body · CTA"`)+(v.id?`<button class="aibtn" data-ai title="Buat script dari Ide/Brief dengan AI" aria-label="Buat script dengan AI">✨</button>`:""):TA(key==="brief"||key==="ide"?`placeholder="Tulis ide / brief konten…"`:"");break;
     case "number":inner=TA('inputmode="decimal"',"num");break;
     case "date":inner=`<input class="cin" type="date" ${F} value="${esc(val)}" aria-label="${esc(col.label)}">`;break;
@@ -1523,7 +1536,7 @@ function saveField(el){if(S.ro){canWrite();render();return}
   if(el.dataset.list){const c=cellColor(el.dataset.list,v);el.classList.toggle("oc",!!c);el.classList.toggle("has",!!v);c?el.style.setProperty("--oc",c):el.style.removeProperty("--oc");const tdc=el.closest("td");if(tdc){tdc.classList.toggle("occ",!!c);c?tdc.style.setProperty("--oc",c):tdc.style.removeProperty("--oc")}}
   if(tr.dataset.id){const r=rowById(tr.dataset.id);if(!r)return;if((r[f]??"")===v)return;pushUndo(true);r[f]=v;
     if(f==="st")el.className=el.className.replace(/st-\w+/,"st-"+stClass(v));
-    touch(); if(f==="pil"||f==="brand"||S.hasF||String(v)[0]==="=")render();else syncFx(); return}
+    touch(); if(f==="pil"||f==="brand"||S.hasF||String(v)[0]==="="||el.closest("td.w-link"))render();else syncFx(); return}
   if(v===""||v===false)return;
   pushUndo(true); const nr={id:rid(),d:+tr.dataset.date,[f]:v}; rs.push(nr); remapGhost(nr.d,nr.id);
   toast("Konten baru ditambahkan di tanggal "+tr.dataset.date); render();
@@ -1627,6 +1640,7 @@ document.addEventListener("mousedown",e=>{
   const td=e.target.closest(".sheet tbody td[data-col]");if(!td)return;
   const k=keyOfTd(td),R=rect();
   if(e.button===2){if(R&&R.rows.includes(k.rk)&&R.cols.some(c=>c.key===k.ck)){e.preventDefault();return}setSel(k,k);return}
+  if(e.target.closest(".lnk")){setSel(k,k);S.fresh=true;return}
   if(e.target.closest("a,button,label.btn"))return setSel(k,k);
   if(e.shiftKey&&S.cs){e.preventDefault();S.cs.f=k;paintSel();if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();td.closest(".sheet-wrap").focus({preventScroll:true});return}
   /* like Google Sheets: one click selects the cell (typing replaces it), double click / F2 / Enter edits inside it */
