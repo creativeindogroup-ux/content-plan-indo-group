@@ -1314,7 +1314,7 @@ function listRef(k){if(S.lists[k])return S.lists[k];const [t,c]=k.split(":");con
 function getList(k){if(k==="brand")return S.brands.map(x=>x.name);if(k.startsWith("mot:")){const b=byCode(k.slice(4));return b?(b.motifLib||[]).map(m=>m.name):[]}return listRef(k)||[]}
 function labelOf(k){if(LIST_LABEL[k])return LIST_LABEL[k];if(k.startsWith("cx:")){const [,c,key]=k.split(":");const b=byCode(c),col=b&&(S.cols[c]||[]).find(x=>x.key===key);return (col?col.label:key)+(b?" · "+b.name:"")}if(k==="brand")return "brand";const [t,c]=k.split(":");const b=byCode(c);return ({tal:"talent",pic:"PIC",mot:"motif"}[t]||t)+(b?" "+b.name:"")}
 function addToList(k,v){
-  if(k==="brand"){const name=v.toUpperCase();if(!S.brands.some(b=>b.name===name))S.brands.push({code:"B"+Date.now().toString(36).toUpperCase(),name,abbr:name.replace(/^BATIK\s*/,"").slice(0,3),color:SWATCH[S.brands.length%SWATCH.length],pics:[],talents:[],total:0,done:0,pending:0,pil:S.lists["pil:tt"].map(()=>0),motifs:[]});renderNav();return name}
+  if(k==="brand"){const name=v.toUpperCase();if(!S.brands.some(b=>b.name===name)){const code="B"+Date.now().toString(36).toUpperCase();setTimeout(()=>{if(S.tpl){applyTemplate(code);toast("Brand "+name+" memakai template format tabel dari "+S.tpl.from)}},0);S.brands.push({code,name,abbr:name.replace(/^BATIK\s*/,"").slice(0,3),color:SWATCH[S.brands.length%SWATCH.length],pics:[],talents:[],total:0,done:0,pending:0,pil:S.lists["pil:tt"].map(()=>0),motifs:[]})}renderNav();return name}
   if(k.startsWith("mot:")){const b=byCode(k.slice(4));if(b){b.motifLib=b.motifLib||[];if(!b.motifLib.some(m=>m.name.toLowerCase()===v.toLowerCase()))b.motifLib.push({name:v,ih:"",lv:"",af:""})}return v}
   const l=listRef(k);if(l&&!l.includes(v))l.push(v);return v;
 }
@@ -1717,9 +1717,9 @@ function formBox(title,html,ok){return new Promise(res=>{const sc=document.creat
 
 /* ---- undo ---- */
 S.undo=[]; S.redo=[]; S.guideOpen=false; S.gclip=null;
-const snapOf=ym=>({ym,snap:JSON.stringify(S.data[ym]||{}),cols:JSON.stringify(S.cols),meta:JSON.stringify(S.meta[ym]||{}),cf:JSON.stringify(S.cf||{}),frzR:JSON.stringify(S.frzR||{})});
+const snapOf=ym=>({ym,snap:JSON.stringify(S.data[ym]||{}),cols:JSON.stringify(S.cols),meta:JSON.stringify(S.meta[ym]||{}),cf:JSON.stringify(S.cf||{}),frzR:JSON.stringify(S.frzR||{}),frz:JSON.stringify(S.frz||{}),lists:JSON.stringify(S.lists),bc:JSON.stringify(all().map(b=>[b.code,b.color,!!b.thOn]))});
 function pushUndo(quiet){S.undo.push(snapOf(S.ym));if(S.undo.length>60)S.undo.shift();S.redo=[];if(!quiet)touch()}
-function restoreSnap(u){S.data[u.ym]=JSON.parse(u.snap);if(u.cols)S.cols=JSON.parse(u.cols);if(u.meta)S.meta[u.ym]=JSON.parse(u.meta);if(u.cf)S.cf=JSON.parse(u.cf);if(u.frzR)S.frzR=JSON.parse(u.frzR);if(u.ym!==S.ym){S.ym=u.ym;subMonth(S.ym)}touch();render()}
+function restoreSnap(u){S.data[u.ym]=JSON.parse(u.snap);if(u.cols)S.cols=JSON.parse(u.cols);if(u.meta)S.meta[u.ym]=JSON.parse(u.meta);if(u.cf)S.cf=JSON.parse(u.cf);if(u.frzR)S.frzR=JSON.parse(u.frzR);if(u.frz)S.frz=JSON.parse(u.frz);if(u.lists)Object.assign(S.lists,JSON.parse(u.lists));if(u.bc)JSON.parse(u.bc).forEach(([c,col,th])=>{const b=byCode(c);if(b){b.color=col;b.thOn=th}});if(u.ym!==S.ym){S.ym=u.ym;subMonth(S.ym)}touch();render()}
 function undo(){if(!canWrite())return;const u=S.undo.pop();if(!u){toast("Tidak ada perubahan yang bisa diurungkan");return}S.redo.push(snapOf(u.ym));restoreSnap(u);toast("Perubahan terakhir diurungkan","Ulangi",redo)}
 function redo(){if(!canWrite())return;const u=S.redo.pop();if(!u){toast("Tidak ada perubahan yang bisa diulangi");return}S.undo.push(snapOf(u.ym));restoreSnap(u);toast("Perubahan diulangi")}
 
@@ -1887,7 +1887,8 @@ function parseTSV(txt){txt=String(txt).replace(/\r\n?/g,"\n");if(txt.endsWith("\
 function buildClip(){const R=rect();if(!R)return null;const b=curB(),full=colsOf(b);
   const cells=R.rows.map(rk=>{const r=rowById(rk),rn=slotNum(rk);return R.cols.map(col=>{const v=r?(col.type==="motif"?(r.motifs||[]).slice():r[col.key]):"";const t=cellText(r,col),fm=r&&r.fmt&&r.fmt[col.key]?Object.assign({},r.fmt[col.key]):null;
     const disp=TEXTY.includes(col.type)&&col.type!=="date"&&(isFml(t)||(fm&&fm.nf))?cellDisplay(t,fm||{}):col.type==="check"?(r&&r[col.key]?"TRUE":"FALSE"):t;
-    return {t,disp,v:v==null?"":JSON.parse(JSON.stringify(v)),type:col.type,fmt:fm,note:r&&r.notes&&r.notes[col.key]||"",lk:r&&r.lk&&r.lk[col.key]||"",rn,ci:full.indexOf(col)}})});
+    const dd=col.type==="dropdown"?{label:col.label,opts:getList(colList(col,b)).slice(),oc:Object.assign({},S.optColor[colList(col,b)]||{})}:null;
+    return {t,disp,dd,v:v==null?"":JSON.parse(JSON.stringify(v)),type:col.type,fmt:fm,note:r&&r.notes&&r.notes[col.key]||"",lk:r&&r.lk&&r.lk[col.key]||"",rn,ci:full.indexOf(col)}})});
   return {code:b.code,cells,tsv:cells.map(row=>row.map(c=>tsvCell(String(c.disp))).join("\t")).join("\n"),html:clipHtml(cells)}}
 function copyRange(cut){const c=buildClip();if(!c)return null;S.gclip=c;
   document.querySelectorAll(".sheet .cclip").forEach(x=>x.classList.remove("cclip"));const R=rect();for(const rk of R.rows)for(const col of R.cols){const td=cellTd(rk,col.key);if(td)td.classList.add("cclip")}
@@ -1944,6 +1945,15 @@ async function menuPaste(mode){if(!canWrite())return;
   if(S.gclip){pasteGrid(S.gclip.cells,mode);return}
   toast("Untuk menempel dari Google Sheets atau Excel, tekan Ctrl+V");
 }
+
+/* paste special → dropdown: the target columns become dropdowns with the copied options and colors (like data validation in Google Sheets); cell values stay */
+function pasteDropdown(){if(!canWrite())return;const R=rect(),b=curB();if(!R||!b||!S.gclip){toast("Salin sel dropdown dulu");return}
+  const src=S.gclip.cells[0]||[],w=src.length;if(!src.some(c=>c&&c.dd)){toast("Sel yang disalin bukan dropdown");return}
+  const FIX=["check","motif","shot","brand","tgl","hari"];const done=[],skip=[];pushUndo(true);
+  R.cols.forEach((col,j)=>{const s=src[j%w];if(!s||!s.dd)return;if(FIX.includes(col.type)){skip.push(col.label);return}
+    const k="cx:"+b.code+":"+col.key;col.type="dropdown";col.list=k;S.lists[k]=s.dd.opts.slice();if(Object.keys(s.dd.oc).length)S.optColor[k]=Object.assign({},s.dd.oc);else delete S.optColor[k];done.push(col.label)});
+  if(!done.length){S.undo.pop();toast(skip.length?`Kolom ${skip.join(", ")} tidak bisa dijadikan dropdown`:"Tidak ada kolom yang diubah");return}
+  touch();render();maybeSaveSettings();toast(`Kolom ${done.join(", ")} sekarang dropdown (${src.find(c=>c&&c.dd).dd.opts.length} pilihan)${skip.length?" · dilewati: "+skip.join(", "):""}`,"Urungkan",undo)}
 
 /* ---- rows ---- */
 function rangeRows(){const R=rect();if(!R)return [];return R.rows.map(rowById).filter(Boolean)}
@@ -2043,7 +2053,7 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
   const m=document.createElement("div");m.className="cmenu";m.setAttribute("role","menu");m.setAttribute("aria-label","Menu sel");
   if(S.ro){m.innerHTML=`<div class="mhead">Mode baca saja</div>`+MI("copy","Salin","Ctrl+C")+MS+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter");placeMenu(m,x,y);return}
   m.innerHTML=MI("cut","Potong","Ctrl+X")+MI("copy","Salin","Ctrl+C")+MI("paste","Tempel","Ctrl+V")+
-    `<div class="msub"><span>Tempel khusus</span>${MI("pv","Hanya nilai","Ctrl+Shift+V",!S.gclip)}${MI("pf","Hanya format","",!S.gclip)}</div>`+MS+
+    `<div class="msub"><span>Tempel khusus</span>${MI("pv","Hanya nilai","Ctrl+Shift+V",!S.gclip)}${MI("pf","Hanya format","",!S.gclip)}${MI("pdd","Dropdown (jadikan kolom dropdown)","",!(S.gclip&&S.gclip.cells.some(l=>l.some(c=>c.dd))))}</div>`+MS+
     MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MS+
     (fullCols&&!fullRows?"":MI("delrows",R.rows.length>1?`Hapus ${R.rows.length} baris`:"Hapus baris"))+(fullRows&&!fullCols?"":MI("delcols",R.cols.length>1?`Hapus ${R.cols.length} kolom`:"Hapus kolom"))+MI("clear","Hapus isi sel","Delete")+MS+
     MI("dup",rows.length>1?`Duplikat ${rows.length} baris`:"Duplikat baris","",!rows.length)+MI("move","Pindahkan baris ke tanggal…","",!rows.length)+MS+
@@ -2067,7 +2077,7 @@ function headMenu(key,x,y){const b=curB(),cols=colsOf(b),col=cols.find(c=>c.key=
     (fixed?MI("hfilt","Filter kolom ini…")+MS:MI("hasc","Urutkan A → Z")+MI("hdesc","Urutkan Z → A")+MI("hfilt","Filter kolom ini…")+MS)+
     (col.type==="tgl"?"":MI("hleft","Sisipkan 1 kolom di kiri","",fixed))+MI("hright","Sisipkan 1 kolom di kanan","",col.type==="tgl")+MS+
     MI("hedit",fixed?"Ganti nama kolom":"Edit kolom (nama, jenis, pilihan)…")+(fixed?"":MI("hml","Geser ke kiri","",i<=2)+MI("hmr","Geser ke kanan","",i>=cols.length-1)+MI("hdel",multi.length>1?`Hapus ${multi.length} kolom`:"Hapus kolom"))+MS+
-    (fixed?"":MI("hhide",multi.length>1?`Sembunyikan ${multi.length} kolom`:"Sembunyikan kolom"))+MI("hunhide",`Tampilkan kolom tersembunyi${cols.some(c=>c.hidden)?" ("+cols.filter(c=>c.hidden).length+")":""}`,"",!cols.some(c=>c.hidden))+MI("hcf","Format bersyarat…")+(S.isOwner?MI("hthc","Warna bar judul (warna brand)…"):"")+MS+
+    (fixed?"":MI("hhide",multi.length>1?`Sembunyikan ${multi.length} kolom`:"Sembunyikan kolom"))+MI("hunhide",`Tampilkan kolom tersembunyi${cols.some(c=>c.hidden)?" ("+cols.filter(c=>c.hidden).length+")":""}`,"",!cols.some(c=>c.hidden))+MI("hcf","Format bersyarat…")+(b.ig?"":MI("hcopyfmt","Salin format tabel ke brand lain…"))+(S.isOwner?MI("hthc","Warna bar judul (warna brand)…"):"")+MS+
     MI("hrestore",`Kembalikan kolom bawaan${miss.length?" ("+miss.length+")":""}`,"",!miss.length)+MI("hreset","Kembalikan susunan kolom awal");
   placeMenu(m,x,y)}
 document.addEventListener("contextmenu",e=>{
@@ -2110,6 +2120,7 @@ document.addEventListener("click",async e=>{
     case "paste":menuPaste("all");break;
     case "pv":menuPaste("values");break;
     case "pf":menuPaste("format");break;
+    case "pdd":pasteDropdown();break;
     case "rowabove":insertRow("above");break;
     case "rowbelow":insertRow("below");break;
     case "colleft":insertCol("left",rect().cols[0].key);break;
@@ -2141,6 +2152,7 @@ document.addEventListener("click",async e=>{
     case "hhide":hideCols(keys.length?keys:[hk]);break;
     case "hunhide":unhideCols(null);break;
     case "hcf":openCF();break;
+    case "hcopyfmt":openCopyFmt();break;
     case "hthc":thColorPop(e.clientX,e.clientY);break;
     case "cf":openCF();break;
     case "hrestore":restoreBase();break;
@@ -2217,6 +2229,7 @@ const IC={undo:'<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h
 const TB=(a,t,html,cls)=>`<button data-tb="${a}" title="${esc(t)}" aria-label="${esc(t)}" class="${cls||""}">${html}</button>`;
 /* toolbar + formula bar above the table, like Google Sheets */
 IC.cf='<svg viewBox="0 0 24 24"><rect x="4" y="4" width="13" height="6" rx="1"/><path d="M17 7h2.5v5H11v3"/><rect x="9.5" y="15" width="3" height="5" rx=".8"/></svg>';
+IC.copyfmt='<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/><path d="M11 12h6M11 16h4"/></svg>';
 IC.sort='<svg viewBox="0 0 24 24"><path d="M7 5v14M4 16l3 3 3-3"/><path d="M13 7h7M13 12h5M13 17h3"/></svg>';
 IC.up='<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>';IC.down='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
 const tbMin=()=>lsGet("cpig-tbmin","0")==="1";
@@ -2229,7 +2242,7 @@ function gbar(){return `<div class="gbar ${tbMin()?"tbmin":""}"><div class="gtoo
   ${TB("pop:border","Border",IC.border,"edit caret")}${TB("pop:merge","Gabungkan sel",IC.merge,"edit caret")}<span class="sep edit"></span>
   ${TB("pop:halign","Rata horizontal",ICON_AL.left,"edit caret")}${TB("pop:valign","Rata vertikal",IC.vtop,"edit caret")}${TB("pop:wrap","Pengemasan teks",IC.wrap,"edit caret")}<span class="sep edit"></span>
   ${TB("link","Sisipkan link (Ctrl+K)",IC.link,"edit")}${TB("note","Catatan sel",IC.note,"edit")}${TB("filter","Buat / matikan filter",IC.filter)}${TB("pop:fn","Fungsi (rumus)",IC.sigma,"edit caret")}<span class="sep"></span>
-  ${TB("ai","Buat script dari Ide/Brief (AI)",'<span class="aitb">✨ Script</span>',"edit")}<span class="sep edit"></span>${TB("find","Cari & ganti (Ctrl+F)",IC.find)}${TB("pop:sort","Urutkan",IC.sort,"edit caret")}${TB("cf","Format bersyarat",IC.cf,"edit")}${TB("pop:freeze","Bekukan baris / kolom",IC.freeze,"caret")}
+  ${TB("ai","Buat script dari Ide/Brief (AI)",'<span class="aitb">✨ Script</span>',"edit")}<span class="sep edit"></span>${TB("find","Cari & ganti (Ctrl+F)",IC.find)}${TB("pop:sort","Urutkan",IC.sort,"edit caret")}${TB("cf","Format bersyarat",IC.cf,"edit")}${curB()&&curB().ig?"":TB("copyfmt","Salin format tabel ke brand lain",IC.copyfmt,"edit")}${TB("pop:freeze","Bekukan baris / kolom",IC.freeze,"caret")}
   </div><div class="fxrow"><span class="fxref" id="fxRef" title="Alamat sel"></span><span class="fxi" aria-hidden="true">fx</span><textarea class="fxin" id="fxIn" rows="1" spellcheck="false" aria-label="Bar rumus: isi sel terpilih"></textarea><span class="fxstat" id="fxStat"></span><button class="tbtog" data-tbtog title="${tbMin()?"Tampilkan toolbar":"Ciutkan toolbar"}" aria-label="${tbMin()?"Tampilkan toolbar":"Ciutkan toolbar"}" aria-expanded="${!tbMin()}">${tbMin()?IC.down:IC.up}</button></div></div>`}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-tbtog]");if(!t)return;const on=!tbMin();lsSet("cpig-tbmin",on?"1":"0");document.querySelectorAll(".gbar").forEach(g=>g.classList.toggle("tbmin",on));document.querySelectorAll("[data-tbtog]").forEach(x=>{x.innerHTML=on?IC.down:IC.up;x.title=on?"Tampilkan toolbar":"Ciutkan toolbar";x.setAttribute("aria-label",x.title);x.setAttribute("aria-expanded",String(!on))})});
 function fmtBar(){return gbar()}
@@ -2345,6 +2358,7 @@ document.addEventListener("click",e=>{const t=e.target.closest(".gtools [data-tb
   if(a.startsWith("nf:"))return applyFmt("nf",a.slice(3));
   if(a.startsWith("dp:"))return applyFmt("dp",a.slice(3));
   if(a==="cf")return openCF();
+  if(a==="copyfmt")return openCopyFmt();
   if(a.startsWith("pal:"))return openPal(a.slice(4),rc.left,rc.bottom+6);
   if(a.startsWith("pop:"))return toolPop(a.slice(4),rc.left,rc.bottom+6);
   if(a==="find")return openFind(false);
@@ -2653,6 +2667,53 @@ function openCF(){const b=curB();if(!b){toast("Buka tabel brand dulu");return}if
       if(edit!=null)rules[edit]=rule;else rules.push(rule);save(rules);toast(edit!=null?"Aturan disimpan":"Aturan ditambahkan","Urungkan",undo);edit=null;st={bg:"#f4cccc",fc:"",b:false};return draw()}});
   document.body.append(sc,m);draw();const f=m.querySelector("[data-cfc]");if(f)f.focus()}
 
+/* ---- copy a TikTok tab's table format to other TikTok brands (columns, conditional formats, freeze, title-bar color) + template for new brands ---- */
+S.tpl=null;
+const clone=x=>JSON.parse(JSON.stringify(x));
+function listFor(col,code){return String(col.list||"").startsWith("cx:")?"cx:"+code+":"+col.key:col.list}
+/* a column of another brand, with its own dropdown list (custom dropdown options are copied, not shared) */
+function colFor(col,fromCode,toCode,mode,lists){const c=clone(col);if(String(c.list||"").startsWith("cx:")){const sk=String(col.list).replace("@",fromCode),src=lists?lists[c.key]||[]:getList(sk).slice(),k=listFor(c,toCode);c.list=k;
+    const cur=S.lists[k]||[];S.lists[k]=mode==="add"?[...new Set([...cur,...src])]:src;
+    const oc=!lists&&S.optColor[sk];if(oc)S.optColor[k]=mode==="add"?Object.assign({},oc,S.optColor[k]||{}):Object.assign({},oc)}
+  return c}
+function copyFormatTo(src,t,parts,mode){
+  if(parts.cols){const sc=colsOf(src);if(mode==="replace"){S.cols[t.code]=sc.map(c=>colFor(c,src.code,t.code,mode))}
+    else{const tc=colsOf(t);sc.forEach((c,i)=>{if(tc.some(x=>x.key===c.key))return;let at=tc.length;for(let k=i-1;k>=0;k--){const j=tc.findIndex(x=>x.key===sc[k].key);if(j>=0){at=j+1;break}}tc.splice(at,0,colFor(c,src.code,t.code,mode))})}}
+  if(parts.cf){const r=clone(S.cf[src.code]||[]);if(mode==="replace"){r.length?S.cf[t.code]=r:delete S.cf[t.code]}else{const cur=S.cf[t.code]||[],sig=new Set(cur.map(x=>JSON.stringify(x)));r.forEach(x=>{if(!sig.has(JSON.stringify(x)))cur.push(x)});if(cur.length)S.cf[t.code]=cur}}
+  if(parts.frz){if(mode==="replace"||S.frz[t.code]==null){S.frz[src.code]!=null?S.frz[t.code]=S.frz[src.code]:delete S.frz[t.code]}if(mode==="replace"||!S.frzR[t.code]){S.frzR[src.code]?S.frzR[t.code]=S.frzR[src.code]:delete S.frzR[t.code]}}
+  if(parts.color&&S.isOwner){if(mode==="replace"||!t.thOn){t.thOn=!!src.thOn;if(src.thOn)t.color=src.color}}}
+/* template: saved from one TikTok tab, used automatically when a new brand is added */
+function makeTemplate(src){const cols=colsOf(src),lists={};cols.forEach(c=>{if(String(c.list||"").startsWith("cx:"))lists[c.key]=getList(colList(c,src)).slice()});
+  S.tpl={from:src.name,at:new Date().toISOString().slice(0,10),cols:clone(cols),lists,cf:clone(S.cf[src.code]||[]),frz:S.frz[src.code]??null,frzR:S.frzR[src.code]||0}}
+function applyTemplate(code){const T=S.tpl;if(!T)return;S.cols[code]=T.cols.map(c=>colFor(c,"",code,"replace",T.lists));if(T.cf.length)S.cf[code]=clone(T.cf);if(T.frz!=null)S.frz[code]=T.frz;if(T.frzR)S.frzR[code]=T.frzR}
+function openCopyFmt(){const src=curB();if(!src){toast("Buka tabel brand dulu");return}if(src.ig){toast("Salin format tabel hanya untuk brand TikTok");return}if(!canWrite())return;closeMenus();
+  const others=S.brands.filter(b=>b.code!==src.code);
+  const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal cfm";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");m.setAttribute("aria-label","Salin format tabel");
+  const nCols=colsOf(src).length,nCf=(S.cf[src.code]||[]).length;
+  m.innerHTML=`<h2>Salin format tabel · ${esc(src.name)}</h2><p class="sub" style="margin:0 0 10px">Hanya format yang disalin, isi konten tidak ikut. Bisa diurungkan dengan Ctrl+Z.</p>
+    <div class="field"><span>Yang disalin</span><div class="cfcols" style="max-height:none">
+      <label><input type="checkbox" data-cp="cols" checked> Susunan kolom <small class="sub">(${nCols} kolom: nama, urutan, jenis, pilihan dropdown, kolom tersembunyi)</small></label>
+      <label><input type="checkbox" data-cp="cf" checked> Format bersyarat <small class="sub">(${nCf} aturan)</small></label>
+      <label><input type="checkbox" data-cp="frz" checked> Bekukan kolom & baris</label>
+      <label ${S.isOwner?"":'title="Hanya pemilik"'}><input type="checkbox" data-cp="color" ${S.isOwner?"checked":"disabled"}> Warna bar judul${S.isOwner?"":" <small class=\"sub\">(hanya pemilik)</small>"}</label></div></div>
+    <div class="field" style="margin-top:10px"><span>Bila brand tujuan sudah punya kolom / aturan sendiri</span><div class="seg" role="group" aria-label="Cara menyalin" style="align-self:flex-start"><button type="button" data-cpm="replace" aria-pressed="true">Timpa (sama persis)</button><button type="button" data-cpm="add" aria-pressed="false">Tambahkan yang belum ada</button></div></div>
+    <div class="field" style="margin-top:10px"><span>Ke brand <button type="button" class="linkb" data-cpall>pilih semua</button></span><div class="cfcols">${others.map(b=>`<label><input type="checkbox" data-cpt="${esc(b.code)}"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${esc(b.color)}"></span> ${esc(b.name)}</label>`).join("")}</div></div>
+    <div class="cfprev" style="margin-top:10px">${S.tpl?`Template brand baru: dari <b>${esc(S.tpl.from)}</b> (${esc(S.tpl.at)}). <button type="button" class="linkb" data-tpldel>Hapus template</button>`:"Belum ada template untuk brand baru."}</div>
+    <div class="acts"><button class="btn" data-x>Tutup</button><button class="btn" data-tpl title="Format tabel ini dipakai otomatis saat brand baru ditambahkan">Jadikan template brand baru</button><button class="btn acc" data-cpgo>Salin format</button></div>`;
+  let mode="replace";const close=()=>{sc.remove();m.remove()};sc.onclick=close;
+  m.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();close()}});
+  m.addEventListener("click",async e=>{const t=e.target;
+    if(t.closest("[data-x]"))return close();
+    const md=t.closest("[data-cpm]");if(md){mode=md.dataset.cpm;m.querySelectorAll("[data-cpm]").forEach(x=>x.setAttribute("aria-pressed",String(x===md)));return}
+    if(t.closest("[data-cpall]")){const bs=[...m.querySelectorAll("[data-cpt]")],on=!bs.every(x=>x.checked);bs.forEach(x=>x.checked=on);return}
+    if(t.closest("[data-tpl]")){pushUndo(true);makeTemplate(src);touch();maybeSaveSettings();close();toast(`Format tabel ${src.name} jadi template untuk brand baru`);return}
+    if(t.closest("[data-tpldel]")){S.tpl=null;maybeSaveSettings();close();toast("Template brand baru dihapus");return}
+    if(t.closest("[data-cpgo]")){const parts={};m.querySelectorAll("[data-cp]").forEach(x=>parts[x.dataset.cp]=x.checked&&!x.disabled);const tg=[...m.querySelectorAll("[data-cpt]:checked")].map(x=>byCode(x.dataset.cpt)).filter(Boolean);
+      if(!tg.length){toast("Pilih brand tujuan dulu");return}if(!Object.values(parts).some(Boolean)){toast("Pilih yang mau disalin");return}
+      if(mode==="replace"&&parts.cols&&!(await confirmBox(`Timpa format ${tg.length} brand?`,`Susunan kolom ${tg.map(b=>b.name).join(", ")} dibuat sama persis dengan ${src.name}. Isi konten tetap aman; kolom yang tidak ada di ${src.name} disembunyikan dari tabel dan muncul lagi lewat "Kembalikan kolom bawaan".`,"Timpa")))return;
+      pushUndo(true);tg.forEach(b=>copyFormatTo(src,b,parts,mode));touch();close();render();maybeSaveSettings();toast(`Format ${src.name} disalin ke ${tg.length} brand (${mode==="replace"?"ditimpa":"ditambahkan"})`,"Urungkan",undo)}});
+  document.body.append(sc,m)}
+
 /* ---- clipboard with formats: HTML table both ways (Google Sheets / Excel keep bold, colors, number format) ---- */
 const hexOf=c=>{c=String(c||"").trim().toLowerCase();if(!c||c==="transparent"||c==="inherit"||c==="initial")return "";if(/^#[0-9a-f]{6}$/.test(c))return c;if(/^#[0-9a-f]{3}$/.test(c))return "#"+c.slice(1).split("").map(x=>x+x).join("");
   const m=c.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?/);if(!m)return "";if(m[4]!==undefined&&parseFloat(m[4])===0)return "";return "#"+[m[1],m[2],m[3]].map(x=>(+x).toString(16).padStart(2,"0")).join("")};
@@ -2885,7 +2946,7 @@ async function migrateLegacy(ym){
 function settingsObj(){return {brands:S.brands.map(b=>({code:b.code,name:b.name,abbr:b.abbr,color:b.color,pics:b.pics||[],talents:b.talents||[],motifLib:b.motifLib||[],logo:b.logo||null,thOn:!!b.thOn})),
   channels:S.channels.map(c=>({code:c.code,name:c.name,abbr:c.abbr,sub:c.sub,color:c.color,pics:c.pics||[],logo:c.logo||null,thOn:!!c.thOn})),
   lists:S.lists,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
-  logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,frzR:S.frzR,cf:S.cf,theme2:true,theme3:true,aiTone:S.aiTone}}
+  logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,frzR:S.frzR,cf:S.cf,tpl:S.tpl,theme2:true,theme3:true,aiTone:S.aiTone}}
 let lastSettings="",setT=null;
 function applySettings(d){
   if(!d)return;
@@ -2902,6 +2963,7 @@ function applySettings(d){
   if(d.frz&&typeof d.frz==="object")S.frz=Object.assign({},d.frz);
   if(d.frzR&&typeof d.frzR==="object")S.frzR=Object.assign({},d.frzR);
   if(d.cf&&typeof d.cf==="object")S.cf=JSON.parse(JSON.stringify(d.cf));
+  if(d.tpl!==undefined)S.tpl=d.tpl&&Array.isArray(d.tpl.cols)?JSON.parse(JSON.stringify(d.tpl)):null;
   if(d.aiTone)S.aiTone=d.aiTone;
   /* once: saved column layouts get the new built-in IDE / BRIEF (TikTok) and Script (Instagram) columns */
   if(!(S.migrated||{}).briefCol){Object.keys(S.cols).forEach(code=>{const b=byCode(code),cols=S.cols[code];if(!b||!Array.isArray(cols))return;
