@@ -1401,7 +1401,7 @@ function cellHtml(col,v,ctx){
     case "check":cls+=" ctr";inner=`<input type="checkbox" ${F} ${val?"checked":""} aria-label="${esc(col.label)}">`;break;
     case "dropdown":inner=selHtml(colList(col,b),val,key==="st"?"st-"+stClass(val):"",key)+(key==="pil"&&ctx.tag?`<span class="camp-tag">${esc(ctx.tag)}</span>`:"");break;
     case "brand":{const br=byCode(val);inner=`<span class="bdot" style="--bc:${br?br.color:"var(--line)"}"><i></i>${selHtml("brand",val,"",key)}</span>`;break}
-    case "motif":cls+=" w-mot";inner=motifCell(v,byCode(v.brand)||(b.ig?null:b));break;
+    case "motif":cls+=" w-mot";inner=motifCell(v,byCode(v.brand)||(b.ig?null:b),b.ig);break;
     case "shot":cls+=" shot";inner=v.shot?`<a class="thumb" href="${esc(blobUrl(v.shot))}" target="_blank" rel="noopener" title="Buka screenshot"><img src="${esc(blobUrl(v.shot))}" alt="Screenshot"></a><button class="shotx" data-shotdel title="Hapus screenshot" aria-label="Hapus screenshot">✕</button>`:v.id?`<label class="btn sm press">Upload<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-shot hidden></label>`:"";break;
     case "link":{cls+=" w-link";const url=linkUrl(val);if(url)cls+=" haslink";inner=TA()+(url?`<a class="lnk" href="${esc(url)}" target="_blank" rel="noopener" title="${esc(url)}">${esc(shortUrl(url))}</a>`:"");break}
     case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=key==="scr"?TA(`placeholder="Hook · Body · CTA"`)+(v.id?`<button class="aibtn" data-ai title="Buat script dari Ide/Brief dengan AI" aria-label="Buat script dengan AI">✨</button>`:""):TA(key==="brief"||key==="ide"?`placeholder="Tulis ide / brief konten…"`:"");break;
@@ -1416,19 +1416,22 @@ function cellHtml(col,v,ctx){
   return `<td data-col="${key}" data-k="${key}" class="${cls}" ${ctx.span||""} ${fa} ${note?`title="Catatan: ${esc(note)}"`:""}>${inner}${lk?`<a class="celllink" href="${esc(lk)}" target="_blank" rel="noopener" title="${esc(lk)}" aria-label="Buka link sel">↗</a>`:""}${note?`<i class="notetri" aria-hidden="true"></i>`:""}</td>`;
 }
 /* MOTIF cell: type a motif, suggestions come from that brand's list; a match shows its PIDs. Up to 3 motifs per content. */
-function motifCell(v,br){
+function motifCell(v,br,ig){
   const ms=(v.motifs||[]).filter(Boolean).slice(0,3), show=ms.length<3?[...ms,""]:ms, list=br?"ml-"+br.code:"ml-ALL";
   return `<div class="mcell">${show.map((name,i)=>{
     const m=br&&name?findMotif(br.code,name):null;
+    if(ig){/* Instagram: product name only, no PID */
+      const info=name&&br&&!m?`<small class="pid miss">Belum ada di daftar ${esc(br.name)} <button class="addmot" data-addmot="${br.code}" data-name="${esc(name)}">+ Tambahkan ke daftar</button></small>`:"";
+      return `<div class="mslot"><input class="cin min" list="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ produk "+(i+1):"Ketik produk…"}" autocomplete="off" aria-label="Produk ${i+1}">${info}</div>`}
     const pid=m?[m.ih&&"IH "+m.ih,m.lv&&"LV "+m.lv,m.af&&"AF "+m.af,m.kl&&"KL "+m.kl].filter(Boolean).join(" · "):"";
     const use=(v.pidUse&&v.pidUse[m?m.name:""])||[];
     const info=!name?"":m?(pid?`<div class="pids" title="Centang PID yang dipakai untuk konten ini">${["ih","lv","af","kl"].filter(k=>m[k]).map(k=>{const on=use.includes(k);return `<span class="pidw"><label class="pidc ${on?"on":""}"><input type="checkbox" data-pidk="${k}" data-pidm="${esc(m.name)}" ${on?"checked":""} ${v.id?"":"disabled"} aria-label="Pakai PID ${k.toUpperCase()} ${esc(m[k])}"><b>${k.toUpperCase()}</b>${esc(m[k])}</label><button type="button" class="pidcp" data-copy="${esc(m[k])}" data-copyk="${k.toUpperCase()}" title="Salin PID ${k.toUpperCase()}" aria-label="Salin PID ${k.toUpperCase()} ${esc(m[k])}">⧉</button></span>`}).join("")}</div>`:`<small class="pid">PID belum diisi di daftar ${esc(br.name)}</small>`)
       :br?`<small class="pid miss">Belum ada di daftar ${esc(br.name)} <button class="addmot" data-addmot="${br.code}" data-name="${esc(name)}">+ Tambahkan ke daftar</button></small>`:`<small class="pid">Pilih Brand dulu agar PID terdeteksi</small>`;
     return `<div class="mslot"><input class="cin min" list="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ motif "+(i+1):"Ketik motif…"}" autocomplete="off" aria-label="Motif ${i+1}">${info}</div>`}).join("")}</div>`;
 }
-function motifDatalists(codes){
-  const opt=m=>`<option value="${esc(m.name)}">${esc([m.ih&&"IH "+m.ih,m.lv&&"LV "+m.lv].filter(Boolean).join(" · ")||"PID belum diisi")}</option>`;
-  return codes.map(c=>`<datalist id="ml-${c}">${libOf(c).map(opt).join("")}</datalist>`).join("")+`<datalist id="ml-ALL">${S.brands.flatMap(b=>libOf(b.code)).map(opt).join("")}</datalist>`;
+function motifDatalists(codes,ig){
+  const opt=(m,c)=>`<option value="${esc(m.name)}">${esc(ig?((byCode(c)||{}).name||""):[m.ih&&"IH "+m.ih,m.lv&&"LV "+m.lv].filter(Boolean).join(" · ")||"PID belum diisi")}</option>`;
+  return codes.map(c=>`<datalist id="ml-${c}">${libOf(c).map(m=>opt(m,c)).join("")}</datalist>`).join("")+`<datalist id="ml-ALL">${S.brands.flatMap(b=>libOf(b.code).map(m=>opt(m,b.code))).join("")}</datalist>`;
 }
 /* every date of the month: its rows + one empty row to type into; empty Sundays fold into a MINGGU row; filters hide non-matching rows and dates.
    Laid out like Google Sheets: column letters on top, row numbers on the left (row 1 = column titles), fixed column widths, frozen columns. */
@@ -1495,7 +1498,7 @@ function sheetTable(b,rows,ctx){
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
     <div class="seg" role="group" aria-label="Ukuran tabel">${[["normal","Normal"],["dense","Ringkas"],["fit","Muat layar"]].map(([k,l])=>`<button data-density="${k}" aria-pressed="${dn===k}">${l}</button>`).join("")}</div></div></div>
   ${fon?`<div class="fbar"><b>Filter</b>${fchips||`<span class="sub">Klik ▾ di judul kolom untuk memfilter atau mengurutkan.</span>`}<span style="flex:1"></span><span class="sub">Berlaku untuk:</span><div class="seg" role="group" aria-label="Filter berlaku untuk"><button data-fscope="me" aria-pressed="${scope==="me"}">Saya saja</button><button data-fscope="all" aria-pressed="${scope==="all"}">Semua tim</button></div>${filtering?`<button class="btn sm press" data-fclear>Hapus semua filter</button>`:""}</div>`:""}
-  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code])}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
+  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code],b.ig)}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
 }
 /* rekap motif TikTok: keranjang kuning vs non keranjang */
 function motifKKTable(b){
@@ -2895,39 +2898,125 @@ function cleanMeta(mt){const o={};if(mt.hideG&&mt.hideG.length)o.hideG=mt.hideG.
 const docSig=v=>JSON.stringify(v.meta?{rows:v.rows||[],meta:v.meta}:(v.rows||[]));
 function groupDocs(ym){const out={};for(const [code,rows] of Object.entries(S.data[ym]||{}))rows.forEach(r=>{const id=code+"_w"+weekOf(r.d);(out[id]=out[id]||{code,week:weekOf(r.d),rows:[]}).rows.push(r)});
   for(const [code,mt] of Object.entries(S.meta[ym]||{})){const c=cleanMeta(mt);if(c)out[code+"_meta"]={code,week:0,rows:[],meta:c}}return out}
-let persistT=null,persisting=false;
-function touch(){S.gcache={};if(S.ro)return;clearTimeout(persistT);setSync("wait","Menyimpan…");const ym=S.ym;persistT=setTimeout(()=>{persistT=null;persistMonth(ym)},500)}
+/* ---- offline-safe saving (like a spreadsheet): every change is first kept on this device (localStorage journal),
+   then sent to the server and retried until it arrives. Server updates never overwrite changes that are still waiting.
+   If someone else changed the same week while this device was offline, the user picks: merge per row, mine, or theirs. ---- */
+let persistT=null,persisting=false,retryT=null,retryN=0;
+S.pend={};S.srv={};S.pendSet=null;
+const JK="cpig-pend-",JSET="cpig-pend-settings",JTY="cpig-typing";
+const lsDel=k=>{try{localStorage.removeItem(k)}catch(_){}};
+const jclone=x=>x==null?x:JSON.parse(JSON.stringify(x));
+const tmo=(pr,ms)=>Promise.race([pr,new Promise((_,rej)=>setTimeout(()=>rej({code:"timeout",message:"Koneksi terputus"}),ms))]);
+function jSave(ym){const p=S.pend[ym];if(!p)return;try{localStorage.setItem(JK+ym,JSON.stringify({base:p.base,baseDocs:p.baseDocs,n:p.n,data:S.data[ym]||{},meta:S.meta[ym]||{},at:Date.now()}))}catch(_){}}
+function pendCount(){let n=0;for(const p of Object.values(S.pend))n+=p.n||0;if(S.pendSet)n+=S.pendSet.n||1;return n}
+function hasPending(){return !!(persistT||persisting||Object.keys(S.pend).length||S.pendSet||lsGet(JTY,""))}
+function offlineMsg(){const n=pendCount();return (navigator.onLine===false?"Offline":"Koneksi terputus")+(n?` · ${n} perubahan aman di perangkat`:"")}
+function syncIdle(){if(!persistT&&!persisting&&!Object.keys(S.pend).length&&!S.pendSet)setSync("ok","Tersimpan")}
+function touch(ym){S.gcache={};if(S.ro)return;ym=typeof ym==="string"?ym:S.ym;
+  const p=S.pend[ym]||(S.pend[ym]={base:Object.assign({},S.saved[ym]||{}),baseDocs:jclone(S.srv[ym]||{}),n:0,v:0});
+  p.n++;p.v++;jSave(ym);
+  clearTimeout(persistT);setSync("wait","Menyimpan…");persistT=setTimeout(()=>{persistT=null;persistMonth(ym)},500)}
+function schedRetry(ms){clearTimeout(retryT);const d=ms||Math.min(30000,2000*Math.pow(2,retryN++));retryT=setTimeout(retryAll,d)}
+function retryAll(){retryT=null;Object.keys(S.pend).forEach(ym=>persistMonth(ym));if(S.pendSet)persistSettings()}
+function ingest(ym,qdocs){const saved=S.saved[ym]={},srv=S.srv[ym]={};qdocs.forEach(d=>{const v=d.data();saved[d.id]=docSig(v);srv[d.id]=jclone(v)})}
+/* put one stored doc (a brand's week, or its _meta) back into the local month data */
+function putDoc(ym,id,doc){
+  if(/_meta$/.test(id)){const code=id.slice(0,-5),mm=S.meta[ym]||(S.meta[ym]={});if(doc&&doc.meta)mm[code]=jclone(doc.meta);else delete mm[code];return}
+  const mt=id.match(/^(.*)_w(\d+)$/);if(!mt)return;const code=mt[1],w=+mt[2],m=S.data[ym]||(S.data[ym]={});
+  const all=[...(m[code]||[]).filter(r=>weekOf(r.d)!==w),...(doc?jclone(doc.rows||[]):[])];
+  m[code]=all.map((r,i)=>[r,i]).sort((a,b)=>weekOf(a[0].d)-weekOf(b[0].d)||a[1]-b[1]).map(x=>x[0])}
+/* merge per row: rows I changed/added use my version, rows I deleted go (unless the other person changed them), everything else is theirs */
+function mergeDoc(id,b,m,v){
+  if(/_meta$/.test(id))return m||v;
+  const J=JSON.stringify,rows=x=>(x&&x.rows)||[],key=r=>r.id||J(r);
+  const B=new Map(rows(b).map(r=>[key(r),J(r)])),M=new Map(rows(m).map(r=>[key(r),r]));
+  const out=rows(v).map(jclone),idx=new Map(out.map((r,i)=>[key(r),i]));
+  M.forEach((r,k)=>{if(B.get(k)===J(r))return;if(idx.has(k))out[idx.get(k)]=jclone(r);else{idx.set(k,out.length);out.push(jclone(r))}});
+  B.forEach((js,k)=>{if(!M.has(k)&&idx.has(k)&&J(out[idx.get(k)])===js)out[idx.get(k)]=null});
+  const res=out.filter(Boolean),src=m||v||b;return res.length?{code:src.code,week:src.week,rows:res}:null}
+function docLabel(ym,id){const mt=id.match(/^(.*?)_(w(\d+)|meta)$/),b=mt&&byCode(mt[1]),nm=b?b.name:(mt?mt[1]:id);
+  const [y,mo]=ym.split("-");const bl=new Date(+y,+mo-1,1).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
+  return nm+" · "+(mt&&mt[3]?"Minggu "+mt[3]:"daftar motif")+" · "+bl}
+let cfQueue=Promise.resolve();
+function conflictBox(items){const run=()=>new Promise(res=>{const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<h2>Ada perubahan dari orang lain</h2><p class="sub" style="margin:0 0 10px">Saat koneksi Anda terputus, bagian di bawah juga diubah orang lain. Pilih versi yang dipakai. <b>Gabung per baris</b>: baris yang Anda ubah memakai versi Anda, baris lain memakai versi orang lain.</p>
+  <div style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto">${items.map((it,i)=>`<label class="field" style="margin:0">${esc(it.label)}<select class="cin" data-cfi="${i}" style="border:1px solid var(--line)"><option value="merge">Gabung per baris (disarankan)</option><option value="mine">Pakai versi saya</option><option value="srv">Pakai versi orang lain</option></select></label>`).join("")}</div>
+  <div class="acts" style="flex-wrap:wrap"><button class="btn" data-cfall="srv">Semua versi orang lain</button><button class="btn" data-cfall="mine">Semua versi saya</button><button class="btn acc" data-cfok>Simpan pilihan</button></div>`;
+  const done=()=>{const ch=[...m.querySelectorAll("[data-cfi]")].map(s=>s.value);sc.remove();m.remove();res(ch)};
+  m.onclick=e=>{const a=e.target.closest("[data-cfall]");if(a){m.querySelectorAll("[data-cfi]").forEach(s=>s.value=a.dataset.cfall);done();return}if(e.target.closest("[data-cfok]"))done()};
+  document.body.append(sc,m);m.querySelector("[data-cfok]").focus()});
+  const p=cfQueue.then(run);cfQueue=p.catch(()=>{});return p}
 async function persistMonth(ym){
-  if(!DB.db){setSync("bad","Belum tersimpan (offline)");return}
-  if(persisting){touch();return}persisting=true;
-  const docs=groupDocs(ym),saved=S.saved[ym]||(S.saved[ym]={});
-  let acts=[];try{if(!S.ro&&!S.quietLog&&DB.team&&DB.team.log)acts=diffActs(ym,docs,saved)}catch(_){acts=[]}S.quietLog=false;
+  const p=S.pend[ym];if(!p){syncIdle();return}
+  if(!DB.db){setSync("bad",offlineMsg());return}
+  if(persisting){schedRetry(700);return}
+  if(navigator.onLine===false){p.failed=true;setSync("bad",offlineMsg());schedRetry();return}
+  persisting=true;const v0=p.v;
   try{
+    if(p.failed||ym!==S.ym||!S.loaded[ym]){const q=await tmo(DB.db.collection(`months/${ym}/tabs`).get(),20000);if(q.metadata&&q.metadata.fromCache)throw {code:"offline"};ingest(ym,q.docs)}
+    const saved=S.saved[ym]||(S.saved[ym]={}),srv=S.srv[ym]||(S.srv[ym]={});
+    let docs=groupDocs(ym),changed=false;const conf=[];
+    for(const id of new Set([...Object.keys(docs),...Object.keys(saved),...Object.keys(p.base)])){
+      const loc=docs[id]?docSig(docs[id]):undefined,base=p.base[id],cur=saved[id];
+      if(loc===cur)continue;
+      if(loc===base){putDoc(ym,id,srv[id]);changed=true;continue} /* only the other person changed it: take theirs */
+      if(cur!==base)conf.push(id)}
+    if(conf.length){const ch=await conflictBox(conf.map(id=>({id,label:docLabel(ym,id)})));docs=groupDocs(ym);
+      conf.forEach((id,i)=>{const c=ch[i],fin=c==="srv"?srv[id]:c==="mine"?docs[id]:mergeDoc(id,p.baseDocs[id],docs[id],srv[id]);putDoc(ym,id,fin||null)});changed=true}
+    if(changed){docs=groupDocs(ym);if(ym===S.ym){if(sheetBusy())S.needRender=true;else render()}}
+    let acts=[];try{if(!S.ro&&!S.quietLog&&DB.team&&DB.team.log)acts=diffActs(ym,docs,saved)}catch(_){acts=[]}S.quietLog=false;
     for(const id of new Set([...Object.keys(docs),...Object.keys(saved)])){
-      const d=docs[id],json=d?docSig(d):null;if(json===saved[id])continue;
+      const d=docs[id],json=d?docSig(d):undefined;if(json===saved[id])continue;
       const ref=DB.db.doc(`months/${ym}/tabs/${id}`);
-      if(d){const doc={code:d.code,week:d.week,ym,rows:JSON.parse(JSON.stringify(d.rows)),updatedAt:new Date().toISOString()};if(d.meta)doc.meta=JSON.parse(JSON.stringify(d.meta));await ref.set(doc);saved[id]=json}
-      else{await ref.delete();delete saved[id]}
+      if(d){const doc={code:d.code,week:d.week,ym,rows:jclone(d.rows),updatedAt:new Date().toISOString()};if(d.meta)doc.meta=jclone(d.meta);await tmo(ref.set(doc),20000);saved[id]=json;srv[id]=doc}
+      else{await tmo(ref.delete(),20000);delete saved[id];delete srv[id]}
     }
-    setSync("ok","Tersimpan");if(acts.length)DB.team.log(acts).catch(()=>{});
-  }catch(e){if(e&&e.code==="invalid_argument"&&S.roUnknown){S.ro=true;applyRO();render();setSync("bad","Baca saja");toast("Akun Anda hanya bisa membaca content plan ini");return}setSync("bad","Gagal menyimpan");toast(dbErr(e),"Coba lagi",()=>persistMonth(ym))}
+    p.failed=false;retryN=0;
+    if(p.v===v0){delete S.pend[ym];lsDel(JK+ym)}else{p.base=Object.assign({},saved);p.baseDocs=jclone(srv);jSave(ym)}
+    syncIdle();if(acts.length)DB.team.log(acts).catch(()=>{});
+  }catch(e){
+    const c=e&&e.code;
+    if(c==="invalid_argument"&&S.roUnknown){S.ro=true;delete S.pend[ym];lsDel(JK+ym);applyRO();render();setSync("bad","Baca saja");toast("Akun Anda hanya bisa membaca content plan ini");return}
+    p.failed=true;jSave(ym);
+    if(c==="invalid_argument"||c==="quota_exceeded"){setSync("bad","Gagal menyimpan · aman di perangkat");toast(dbErr(e),"Coba lagi",()=>persistMonth(ym));return}
+    setSync("bad",offlineMsg());schedRetry();
+  }
   finally{persisting=false}
 }
+/* journals left by an earlier visit (offline, closed tab, refresh) come back on load and are sent */
+function restoreJournals(){if(S.ro)return;let ks=[];try{ks=Object.keys(localStorage).filter(k=>k.startsWith(JK)&&k!==JSET)}catch(_){}
+  ks.forEach(k=>{try{const j=JSON.parse(localStorage.getItem(k));const ym=k.slice(JK.length);if(!j||!/^\d{4}-\d{2}$/.test(ym))return;
+    S.pend[ym]={base:j.base||{},baseDocs:j.baseDocs||{},n:j.n||1,v:1,failed:true};S.data[ym]=j.data||{};S.meta[ym]=j.meta||{}}catch(_){}});
+  try{const s=JSON.parse(lsGet(JSET,"null"));if(s&&s.data){S.pendSet=Object.assign(s,{failed:true})}}catch(_){}
+  if(pendCount())setSync("wait",pendCount()+" perubahan dari kunjungan sebelumnya · mengirim…")}
+function restoreTyping(ym){let t=null;try{t=JSON.parse(lsGet(JTY,"null"))}catch(_){}if(!t||t.ym!==ym)return;lsDel(JTY);
+  const r=((S.data[ym]||{})[t.code]||[]).find(x=>x.id===t.id);if(!r||(r[t.f]??"")===t.v)return;r[t.f]=t.v;touch(ym);toast("Ketikan terakhir yang belum tersimpan sudah dipulihkan")}
+/* text being typed (not yet Enter) is kept too */
+document.addEventListener("input",e=>{const el=e.target;if(S.ro||!el.dataset||!el.dataset.f||el.type==="checkbox"||el.tagName==="SELECT")return;const tr=el.closest(".sheet tr[data-id]");if(!tr)return;
+  lsSet(JTY,JSON.stringify({ym:S.ym,code:S.view,id:tr.dataset.id,f:el.dataset.f,v:el.value}))});
+document.addEventListener("change",e=>{if(e.target.dataset&&e.target.dataset.f)lsDel(JTY)},true);
+function flushTyping(){const a=document.activeElement;if(a&&a.dataset&&a.dataset.f&&a.closest&&a.closest(".sheet")&&a.type!=="checkbox")a.dispatchEvent(new Event("change",{bubbles:true}))}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)flushTyping()});
+window.addEventListener("pagehide",flushTyping);
+window.addEventListener("beforeunload",e=>{flushTyping();if(hasPending()){e.preventDefault();e.returnValue=""}});
+window.addEventListener("online",()=>{retryN=0;if(hasPending()){setSync("wait","Tersambung lagi · mengirim…");retryAll()}else setSync("ok","Tersimpan")});
+window.addEventListener("offline",()=>setSync("bad",offlineMsg()));
 let unsubMonth=null,monthTimer=null;
 function subMonth(ym){
   if(unsubMonth){unsubMonth();unsubMonth=null}
   if(!DB.db)return;
   clearTimeout(monthTimer);monthTimer=setTimeout(()=>{if(!S.loaded[ym]){setSync("wait","Koneksi lambat…")}},10000);
   unsubMonth=DB.db.collection(`months/${ym}/tabs`).onSnapshot(q=>{
-    const saved=S.saved[ym]||(S.saved[ym]={}),byTab={},seen={},metaM={};
-    q.docs.forEach(d=>{const v=d.data();seen[d.id]=1;saved[d.id]=docSig(v);if(v.meta)metaM[v.code]=JSON.parse(JSON.stringify(v.meta));(byTab[v.code]=byTab[v.code]||[]).push([v.week,v.rows||[]])});
-    Object.keys(saved).forEach(id=>{if(!seen[id])delete saved[id]});
-    const first=!S.loaded[ym];
-    if(!q.metadata.fromCache){S.loaded[ym]=true;clearTimeout(monthTimer);if(!persistT&&!persisting)setSync("ok","Tersimpan")}else if(q.size)S.loaded[ym]=true;
-    if((persistT||persisting)&&!first)return; /* local edits waiting to be saved win */
+    const byTab={},metaM={};
+    const first=!S.loaded[ym],cache=!!(q.metadata&&q.metadata.fromCache);
+    if(!cache){S.loaded[ym]=true;clearTimeout(monthTimer)}else if(q.size)S.loaded[ym]=true;
+    if(S.pend[ym]||persisting){ /* changes still waiting win: keep them on screen, record the server state, then send */
+      if(!cache)ingest(ym,q.docs);if(!cache&&!persistT&&!persisting)persistMonth(ym);if(first&&S.loaded[ym])restoreTyping(ym);if(first&&ym===S.ym)render();return}
+    ingest(ym,q.docs);if(!cache&&!persistT)syncIdle();
+    q.docs.forEach(d=>{const v=d.data();if(v.meta)metaM[v.code]=JSON.parse(JSON.stringify(v.meta));(byTab[v.code]=byTab[v.code]||[]).push([v.week,v.rows||[]])});
     const m={};for(const [code,arr] of Object.entries(byTab))m[code]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));
-    S.data[ym]=m;S.meta[ym]=metaM;if(!S.ro&&!S.roUnknown&&normalizeRows(ym))setTimeout(()=>{if(!S.ro){S.quietLog=true;persistMonth(ym)}},900);
-    if(first&&S.loaded[ym])migrateLegacy(ym);
+    S.data[ym]=m;S.meta[ym]=metaM;if(!S.ro&&!S.roUnknown&&normalizeRows(ym))setTimeout(()=>{if(!S.ro){S.quietLog=true;touch(ym)}},900);
+    if(first&&S.loaded[ym]){migrateLegacy(ym);restoreTyping(ym)}
     if(ym===S.ym){if(sheetBusy())S.needRender=true;else render()}
   },err=>{S.err=dbErr(err);S.loaded[ym]=true;setSync("bad","Tidak tersambung");render()});
 }
@@ -2984,11 +3073,30 @@ function applySettings(d){
   if(d.sheet)S.sheet=Object.assign({spreadsheetId:"",lastBackup:"",lastImport:""},d.sheet);
   applyFont();applyColW();
 }
+/* settings are journaled on this device like the rows, and retried until saved */
+let srvSetRaw="",setBusyS=false;
 function maybeSaveSettings(){if(S.ro)return;
   if(!S.settingsReady||!DB.db)return;const j=JSON.stringify(settingsObj());if(j===lastSettings)return;
-  clearTimeout(setT);setT=setTimeout(async()=>{const j2=JSON.stringify(settingsObj());if(j2===lastSettings)return;lastSettings=j2;
-    try{await DB.db.doc("config/settings").set(JSON.parse(j2))}catch(e){lastSettings="";toast("Pengaturan gagal disimpan: "+dbErr(e))}},700);
+  if(!S.pendSet)S.pendSet={baseObj:lastSettings,baseRaw:srvSetRaw,n:0};
+  if(S.pendSet.data===j)return;S.pendSet.n++;S.pendSet.data=j;lsSet(JSET,JSON.stringify(S.pendSet));
+  clearTimeout(setT);setSync("wait","Menyimpan…");setT=setTimeout(persistSettings,700);
 }
+async function persistSettings(){const ps=S.pendSet;if(!ps||setBusyS||!DB.db)return;
+  if(navigator.onLine===false){ps.failed=true;lsSet(JSET,JSON.stringify(ps));setSync("bad",offlineMsg());schedRetry();return}
+  setBusyS=true;const j=ps.data;
+  try{let out=JSON.parse(j);
+    if(ps.failed){const s=await tmo(DB.db.doc("config/settings").get(),20000);const raw=s.exists?JSON.stringify(s.data()):"";
+      if(raw&&raw!==ps.baseRaw){const [c]=await conflictBox([{label:"Pengaturan (warna, kolom, format, daftar pilihan)"}]);
+        if(c!=="mine"){const sv=s.data();if(c==="merge"){let base={};try{base=JSON.parse(ps.baseObj||"{}")}catch(_){}const mine=JSON.parse(S.pendSet.data);Object.keys(mine).forEach(k=>{if(JSON.stringify(mine[k])!==JSON.stringify(base[k]))sv[k]=mine[k]})}
+          applySettings(sv);out=settingsObj();render()}}}
+    await tmo(DB.db.doc("config/settings").set(out),20000);
+    const sent=JSON.stringify(out);lastSettings=sent;srvSetRaw=sent;retryN=0;
+    if(S.pendSet===ps&&ps.data===j){S.pendSet=null;lsDel(JSET)}else if(S.pendSet){S.pendSet.baseObj=sent;S.pendSet.baseRaw=sent;S.pendSet.failed=false;lsSet(JSET,JSON.stringify(S.pendSet));setTimeout(persistSettings,300)}
+    syncIdle();
+  }catch(e){ps.failed=true;lsSet(JSET,JSON.stringify(ps));const c=e&&e.code;
+    if(c==="invalid_argument"||c==="quota_exceeded"){setSync("bad","Pengaturan gagal disimpan · aman di perangkat");toast("Pengaturan gagal disimpan: "+dbErr(e),"Coba lagi",persistSettings)}
+    else{setSync("bad",offlineMsg());schedRetry()}}
+  finally{setBusyS=false}}
 
 /* ---- uploads (logos, screenshots) ---- */
 async function uploadAsset(file){
@@ -3168,9 +3276,14 @@ async function boot(){
   applyRO();
   if(!DB.db){S.err=window.CP_CONFIG?"Server belum tersambung. Periksa config.js (API_URL).":"Buka dashboard ini di claude.ai dan masuk ke akun untuk melihat dan menyimpan content plan.";setSync("bad","Offline");S.settingsReady=true;render();return}
   setSync("wait","Memuat…");
+  if(!S.ro)restoreJournals();
   DB.db.doc("config/settings").onSnapshot(s=>{
-    const d=s.exists?s.data():null;if(S.settingsReady&&d&&JSON.stringify(d)===lastSettings)return;
+    const d=s.exists?s.data():null;srvSetRaw=d?JSON.stringify(d):"";
+    if(S.settingsReady&&S.pendSet){if(!setBusyS)setTimeout(persistSettings,300);return} /* my unsent settings win until sent */
+    if(S.settingsReady&&d&&JSON.stringify(d)===lastSettings)return;
     applySettings(d);lastSettings=JSON.stringify(settingsObj());const first=!S.settingsReady;S.settingsReady=true;
+    if(first&&S.pendSet&&!S.ro){try{applySettings(JSON.parse(S.pendSet.data))}catch(_){}setTimeout(persistSettings,1200)}
+    if(first&&Object.keys(S.pend).length)setTimeout(retryAll,1500);
     if(first&&!S.subscribed){S.subscribed=true;S.view=viewFromHash();subMonth(S.ym);teamStart()}
     if(sheetBusy())S.needRender=true;else render();
   },err=>{S.err=dbErr(err);S.settingsReady=true;render()});
