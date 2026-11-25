@@ -1495,7 +1495,7 @@ function sheetTable(b,rows,ctx){
   const fchips=Object.entries(flt).map(([k,vals])=>`<span class="fchip">${esc(colLabel(k))}: ${esc(vals.slice(0,3).join(", "))}${vals.length>3?" +"+(vals.length-3):""}<button data-fdel="${k}" aria-label="Hapus filter ${esc(colLabel(k))}">✕</button></span>`).join("");
   return `${guideHtml(b.ig)}
   <div class="tbar"><span class="hint">${cols.length} kolom · klik kanan pada sel, nomor baris atau huruf kolom untuk semua opsi${hid.size&&!S.ro?` · <button class="linkb" data-unhide>Tampilkan lagi ${hid.size} baris kosong yang dihapus</button>`:""}</span>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${S.isOwner&&!S.ro?`<button class="btn sm press" data-adddate title="Munculkan lagi tanggal yang hilang atau terhapus">+ Tanggal</button>`:""}<button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
     <div class="seg" role="group" aria-label="Ukuran tabel">${[["normal","Normal"],["dense","Ringkas"],["fit","Muat layar"]].map(([k,l])=>`<button data-density="${k}" aria-pressed="${dn===k}">${l}</button>`).join("")}</div></div></div>
   ${fon?`<div class="fbar"><b>Filter</b>${fchips||`<span class="sub">Klik ▾ di judul kolom untuk memfilter atau mengurutkan.</span>`}<span style="flex:1"></span><span class="sub">Berlaku untuk:</span><div class="seg" role="group" aria-label="Filter berlaku untuk"><button data-fscope="me" aria-pressed="${scope==="me"}">Saya saja</button><button data-fscope="all" aria-pressed="${scope==="all"}">Semua tim</button></div>${filtering?`<button class="btn sm press" data-fclear>Hapus semua filter</button>`:""}</div>`:""}
   <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code],b.ig)}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
@@ -1553,7 +1553,7 @@ function brandPage(b){
   return `${brandDash(b)}
   ${table}
   <p class="note">Setiap bulan otomatis berisi semua tanggal dengan nama hari yang benar. Baris paling bawah setiap tanggal adalah baris kosong: isi salah satu kolomnya untuk menambah konten. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
-  ${pendingCard(b.code)}
+  ${undatedCard(b)}${pendingCard(b.code)}
   ${mlSection(b)}
   <section class="recap">
     ${motifKKTable(b)}
@@ -1570,7 +1570,7 @@ function igPage(b){
   return `${brandDash(b)}
   ${table}
   <p class="note">Kolom awal sama dengan tab INSTAGRAM di Google Sheets. Setiap bulan otomatis berisi semua tanggal. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
-  ${pendingCard(b.code)}
+  ${undatedCard(b)}${pendingCard(b.code)}
   ${mlSection(b)}
   <section class="recap">
     ${igRecaps(rows)}
@@ -1978,6 +1978,45 @@ function deleteRows(){if(!canWrite())return;const R=rect(),rs=curRows(),b=curB()
   S.cs=null;touch();render();toast(`${rows.length+ghosts.length+folds.length} baris dihapus`,"Urungkan",undo)}
 function hideDates(code,ds){if(!ds.length)return;const mt=metaOf(code),h=new Set(mt.hideG||[]);ds.forEach(d=>h.add(d));mt.hideG=[...h].sort((a,c)=>a-c)}
 function unhideAll(){if(!canWrite())return;const b=curB();if(!b)return;pushUndo(true);delete metaOf(b.code).hideG;touch();render();toast("Baris kosong dan tanggal yang dihapus ditampilkan lagi")}
+/* owner only: bring back a date that went missing (its empty rows were deleted), via calendar or a list of hidden dates */
+function openAddDate(){const b=curB();if(!b)return;if(!S.isOwner){toast("Hanya pemilik yang bisa menambah tanggal");return}if(!canWrite())return;
+  const nd=daysIn(S.ym),[y,mo]=S.ym.split("-").map(Number),rows=rowsOf(b.code),mt=metaOf(b.code);
+  const hid=[...new Set(mt.hideG||[])].filter(d=>d>=1&&d<=nd&&!rows.some(r=>r.d===d)).sort((a,c)=>a-c);
+  const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<h2>Tambah tanggal · ${esc(b.name)}</h2><p class="sub" style="margin:0 0 10px">Pilih tanggal di ${esc(BULAN[mo-1])} ${y}. Baris kosong tanggal itu langsung muncul di urutan yang benar.</p>
+    <label class="field">Tanggal<input type="date" id="adIn" class="cin" style="border:1px solid var(--line)" min="${ISO(y,mo,1)}" max="${ISO(y,mo,nd)}"></label>
+    ${hid.length?`<div class="field" style="margin-top:10px">Tanggal yang tersembunyi (${hid.length}) <button type="button" class="linkb" data-adall>pilih semua</button>
+      <div class="adlist" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;max-height:34vh;overflow:auto">${hid.map(d=>`<label class="pidc" style="font-family:var(--font);font-size:12px;padding:4px 8px"><input type="checkbox" value="${d}"> ${d} ${HARI[dow(d)].slice(0,3)}</label>`).join("")}</div></div>`:`<p class="sub" style="margin:8px 0 0">Tidak ada tanggal yang tersembunyi.</p>`}
+    <div class="acts"><button class="btn" data-x>Batal</button><button class="btn acc" data-adok>Tambahkan</button></div>`;
+  const close=()=>{sc.remove();m.remove()};sc.onclick=close;
+  m.onclick=e=>{if(e.target.closest("[data-x]")){close();return}
+    if(e.target.closest("[data-adall]")){const cb=[...m.querySelectorAll(".adlist input")],on=!cb.every(x=>x.checked);cb.forEach(x=>{x.checked=on;x.parentElement.classList.toggle("on",on)});return}
+    const c=e.target.closest(".adlist input");if(c){c.parentElement.classList.toggle("on",c.checked);return}
+    if(!e.target.closest("[data-adok]"))return;
+    const ds=new Set([...m.querySelectorAll(".adlist input:checked")].map(x=>+x.value));const v=m.querySelector("#adIn").value;
+    if(v){const [yy,mm,dd]=v.split("-").map(Number);if(yy!==y||mm!==mo){toast("Pilih tanggal di bulan "+BULAN[mo-1]);return}ds.add(dd)}
+    if(!ds.size){toast("Pilih tanggal dulu");return}
+    const list=[...ds].sort((a,c)=>a-c);pushUndo(true);
+    const h=(mt.hideG||[]).filter(d=>!ds.has(d));if(h.length)mt.hideG=h;else delete mt.hideG;
+    list.forEach(d=>{if(dow(d)===0)S.openSun.add(b.code+"|"+S.ym+"|"+d)});
+    close();touch();render();toast(`Tanggal ${list.join(", ")} ${BULAN[mo-1]} ditampilkan`,"Urungkan",undo);
+    setTimeout(()=>{const tr=document.querySelector(`.sheet tbody tr[data-date="${list[0]}"]`)||document.querySelector(`.sheet tbody tr[data-sund="${list[0]}"]`);if(tr)tr.scrollIntoView({block:"center"})},60)};
+  document.body.append(sc,m);m.querySelector("#adIn").focus()}
+document.addEventListener("click",e=>{if(e.target.closest("[data-adddate]"))openAddDate()});
+/* content whose date is empty or outside this month never shows in the table: list it so it can be moved */
+const validDay=(r,nd)=>Number.isInteger(r.d)&&r.d>=1&&r.d<=nd;
+function rowSummary(r){return ["slot","pil","brief","judul","ide","scr","pic","st"].map(k=>r[k]).filter(v=>typeof v==="string"&&v.trim()).join(" · ").slice(0,140)||"(baris tanpa judul)"}
+function undatedCard(b){const nd=daysIn(S.ym),list=rowsOf(b.code).filter(r=>!validDay(r,nd)&&hasContent(r));if(!list.length)return "";
+  const ro=S.ro?"disabled":"";
+  return `<section class="card" style="border-left:5px solid var(--late)"><h2>Tanpa tanggal (${list.length})</h2><p class="sub">Konten ini tersimpan tetapi tanggalnya kosong atau tidak ada di ${esc(BULAN[+S.ym.slice(5)-1])}, jadi tidak tampil di tabel. Pilih tanggal lalu klik Pindahkan.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">${list.map(r=>`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--line);border-radius:10px">
+      <span class="pill red">${esc(r.d==null||r.d===""?"kosong":"tgl "+String(r.d))}</span><span style="flex:1;min-width:180px">${esc(rowSummary(r))}</span>
+      <select class="cin" data-udsel="${esc(r.id)}" style="border:1px solid var(--line);width:auto" ${ro}>${Array.from({length:nd},(_,i)=>`<option value="${i+1}">${i+1} ${HARI[dow(i+1)].slice(0,3)}</option>`).join("")}</select>
+      <button class="btn sm acc press" data-udmove="${esc(r.id)}" ${ro}>Pindahkan</button></div>`).join("")}</div></section>`}
+document.addEventListener("click",e=>{const bt=e.target.closest("[data-udmove]");if(!bt||!canWrite())return;const b=curB();if(!b)return;
+  const id=bt.dataset.udmove,r=rowsOf(b.code).find(x=>x.id===id),sel=document.querySelector(`[data-udsel="${CSS.escape(id)}"]`);if(!r||!sel)return;
+  const d=+sel.value;pushUndo(true);r.d=d;const mt=metaOf(b.code);if(mt.hideG){mt.hideG=mt.hideG.filter(x=>x!==d);if(!mt.hideG.length)delete mt.hideG}
+  if(dow(d)===0)S.openSun.add(b.code+"|"+S.ym+"|"+d);touch();render();toast(`Konten dipindah ke tanggal ${d}`,"Urungkan",undo)});
 function dupRows(){if(!canWrite())return;const rows=rangeRows(),rs=curRows();if(!rows.length){toast("Pilih baris yang berisi konten");return}pushUndo(true);
   let at=rs.indexOf(rows[rows.length-1])+1;rows.forEach(r=>{const c=Object.assign(JSON.parse(JSON.stringify(r)),{id:rid(),st:""});rs.splice(at++,0,c)});touch();render();toast(`${rows.length} baris diduplikat (status dikosongkan)`,"Urungkan",undo)}
 async function moveRows(){if(!canWrite())return;const rows=rangeRows();if(!rows.length){toast("Pilih baris yang berisi konten");return}const nd=daysIn(S.ym);
@@ -2061,7 +2100,7 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
   if(S.ro){m.innerHTML=`<div class="mhead">Mode baca saja</div>`+MI("copy","Salin","Ctrl+C")+MS+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter");placeMenu(m,x,y);return}
   m.innerHTML=MI("cut","Potong","Ctrl+X")+MI("copy","Salin","Ctrl+C")+MI("paste","Tempel","Ctrl+V")+
     `<div class="msub"><span>Tempel khusus</span>${MI("pv","Hanya nilai","Ctrl+Shift+V",!S.gclip)}${MI("pf","Hanya format","",!S.gclip)}${MI("pdd","Dropdown (jadikan kolom dropdown)","",!(S.gclip&&S.gclip.cells.some(l=>l.some(c=>c.dd))))}</div>`+MS+
-    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MS+
+    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MS+
     (fullCols&&!fullRows?"":MI("delrows",R.rows.length>1?`Hapus ${R.rows.length} baris`:"Hapus baris"))+(fullRows&&!fullCols?"":MI("delcols",R.cols.length>1?`Hapus ${R.cols.length} kolom`:"Hapus kolom"))+MI("clear","Hapus isi sel","Delete")+MS+
     MI("dup",rows.length>1?`Duplikat ${rows.length} baris`:"Duplikat baris","",!rows.length)+MI("move","Pindahkan baris ke tanggal…","",!rows.length)+MS+
     MI("asc",`Urutkan A → Z <small>(${esc(col?col.label:"")})</small>`)+MI("desc",`Urutkan Z → A <small>(${esc(col?col.label:"")})</small>`)+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter")+MS+
@@ -2133,6 +2172,7 @@ document.addEventListener("click",async e=>{
     case "colleft":insertCol("left",rect().cols[0].key);break;
     case "colright":{const R=rect();insertCol("right",R.cols[R.cols.length-1].key);break}
     case "delrows":deleteRows();break;
+    case "adddate":openAddDate();break;
     case "delsun":if(canWrite()){pushUndo(true);hideDates(b.code,[+m.dataset.sund]);touch();render();toast("1 baris dihapus","Urungkan",undo)}break;
     case "opensun":S.openSun.add(b.code+"|"+S.ym+"|"+m.dataset.sund);render();break;
     case "delcols":deleteCol(rect().cols.map(c=>c.key));break;
@@ -2206,7 +2246,7 @@ document.addEventListener("click",e=>{
     render();toast(now==="all"?"Filter sekarang berlaku untuk semua anggota tim":"Filter sekarang hanya berlaku untuk Anda");return}
   const os=e.target.closest("[data-opensun]");if(os){S.openSun.add(os.dataset.opensun);render();return}
   if(e.target.closest("[data-undo]")){undo();return}
-  if(e.target.closest("[data-unhide]")){unhideAll();return}
+  if(e.target.closest("[data-unhide]")){if(S.isOwner)openAddDate();else unhideAll();return}
 });
 
 function guideHtml(ig){
