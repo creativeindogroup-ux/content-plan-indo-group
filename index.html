@@ -346,6 +346,10 @@ tr.ghost td:not(.tgl):not(.hari){opacity:.75}
 .zoom button:hover{background:color-mix(in srgb,var(--side-ink) 12%,transparent)}
 .zoom button:active{transform:scale(.9)}
 .zoom .zv{font-size:11.5px;min-width:54px}
+#zoomPill{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:999px;background:var(--surface,#fff);color:var(--ink,#111);border:1px solid var(--line,#ddd);box-shadow:0 6px 24px rgba(0,0,0,.16);font-size:12.5px;font-weight:700;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s,transform .18s}
+#zoomPill.on{opacity:1;transform:none;pointer-events:auto}
+#zoomPill button{border:1px solid var(--line,#ddd);background:transparent;color:inherit;border-radius:999px;padding:3px 10px;font:inherit;font-size:11.5px;cursor:pointer}
+html,body{touch-action:pan-x pan-y}
 .empty{text-align:center;padding:40px 20px}
 .empty b{display:block;font-size:17px;margin-bottom:6px}
 .empty p{color:var(--muted);margin:0 auto;max-width:520px}
@@ -3211,11 +3215,31 @@ function fitTables(){
 }
 window.addEventListener("resize",()=>{clearTimeout(window.__ft);window.__ft=setTimeout(fitTables,120)});
 document.addEventListener("click",e=>{const d=e.target.closest("[data-density]");if(!d)return;S.density=d.dataset.density;try{localStorage.setItem("cpig-density2",S.density)}catch(_){}const y=window.scrollY;render();window.scrollTo(0,y)});
-/* zoom: Ctrl + scroll (and Ctrl + / - / 0) resizes the whole dashboard */
-let zoom=1; try{zoom=+localStorage.getItem("cpig-zoom")||1}catch(_){}
-function setZoom(z){zoom=Math.round(Math.min(1.6,Math.max(.6,z))*10)/10;const sh=document.querySelector(".shell");sh.style.zoom=zoom;document.documentElement.style.setProperty("--z",zoom);document.getElementById("zoomLbl").textContent=Math.round(zoom*100)+"%";try{localStorage.setItem("cpig-zoom",zoom)}catch(_){}}
-window.addEventListener("wheel",e=>{if(!e.ctrlKey)return;e.preventDefault();setZoom(zoom+(e.deltaY<0?.1:-.1))},{passive:false});
-window.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey))return;if(e.key==="="||e.key==="+"){e.preventDefault();setZoom(zoom+.1)}else if(e.key==="-"){e.preventDefault();setZoom(zoom-.1)}else if(e.key==="0"){e.preventDefault();setZoom(1)}});
+/* zoom: Ctrl + scroll, Ctrl + / - / 0 and pinch resize only the content right of the sidebar.
+   Zooming out stops once every column is visible (fits the width); always starts at 100%. */
+let zoom=1; const ZMAX=2, ZMIN=.2;
+const zEl=()=>document.querySelector(".content");
+function applyZoom(z){const c=zEl();if(!c)return;zoom=z;c.style.zoom=z;c.style.setProperty("--z",z)}
+function zFits(){const c=zEl();if(!c)return true;if(c.scrollWidth>c.clientWidth+2)return false;
+  for(const w of c.querySelectorAll(".sheet-wrap,.zfit"))if(w.offsetParent&&w.scrollWidth>w.clientWidth+2)return false;return true}
+function zFloor(){const z0=zoom;if(zFits())return z0;let lo=ZMIN,hi=z0;applyZoom(lo);if(!zFits()){applyZoom(z0);return ZMIN}
+  for(let i=0;i<9;i++){const m=(lo+hi)/2;applyZoom(m);zFits()?lo=m:hi=m}applyZoom(z0);return Math.floor(lo*100)/100}
+function zPill(msg){let p=document.getElementById("zoomPill");if(!p){p=document.createElement("div");p.id="zoomPill";p.innerHTML='<span></span><button type="button" data-zreset title="Kembali ke 100% (Ctrl+0)">100%</button>';document.body.appendChild(p)}
+  p.querySelector("span").textContent=msg||Math.round(zoom*100)+"%";p.classList.add("on");clearTimeout(p.__t);p.__t=setTimeout(()=>p.classList.remove("on"),1800)}
+function setZoom(z,quiet){const old=zoom;z=Math.min(ZMAX,Math.max(ZMIN,z));let msg="";
+  if(z<old){ if(zFits()){applyZoom(old);if(!quiet)zPill(Math.round(old*100)+"% · semua isi sudah terlihat");return}
+    applyZoom(z); if(zFits()){let lo=z,hi=old;for(let i=0;i<7;i++){const m=(lo+hi)/2;applyZoom(m);zFits()?lo=m:hi=m}z=Math.floor(lo*100)/100;msg=" · semua isi terlihat"} }
+  applyZoom(Math.round(z*100)/100);document.getElementById("zoomLbl").textContent=Math.round(zoom*100)+"%";if(!quiet)zPill(Math.round(zoom*100)+"%"+msg)}
+window.addEventListener("wheel",e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const st=zoom<.5?.05:.1;setZoom(zoom+(e.deltaY<0?st:-st))},{passive:false});
+window.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey))return;if(e.key==="="||e.key==="+"){e.preventDefault();setZoom(zoom+.1)}else if(e.key==="-"||e.key==="_"){e.preventDefault();setZoom(zoom-(zoom<=.5?.05:.1))}else if(e.key==="0"){e.preventDefault();setZoom(1)}});
+document.addEventListener("click",e=>{if(e.target.closest("[data-zreset]"))setZoom(1)});
+/* pinch with two fingers (phone / tablet) */
+let pinch=null;const tDist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+document.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch={d:tDist(e.touches),z:zoom,floor:zFloor()};e.preventDefault()}},{passive:false});
+document.addEventListener("touchmove",e=>{if(!pinch||e.touches.length!==2)return;e.preventDefault();
+  let z=pinch.z*tDist(e.touches)/pinch.d;z=Math.min(ZMAX,Math.max(Math.min(pinch.floor,pinch.z),z));applyZoom(Math.round(z*100)/100);zPill()},{passive:false});
+document.addEventListener("touchend",e=>{if(pinch&&e.touches.length<2){pinch=null;document.getElementById("zoomLbl").textContent=Math.round(zoom*100)+"%"}});
+["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 const OWNER_COLOR=id=>id==="side"||id==="sideoff"||/^(b|th|thoff)\d+$/.test(id);
 function setColor(id,c){
   if(OWNER_COLOR(id)&&!S.isOwner){toast("Hanya pemilik dashboard yang bisa mengubah warna brand, bar judul dan sidebar");return}
@@ -3234,7 +3258,7 @@ tb.forEach(b=>b.onclick=()=>applyTheme(b.dataset.themeSet));
 let saved=null;try{saved=localStorage.getItem("cpig-theme")}catch(_){}
 if(saved)applyTheme(saved);else tb.forEach(b=>b.setAttribute("aria-pressed",b.dataset.themeSet===cur()));
 if(lsGet("cpig-mini","0")==="1"){document.querySelector(".shell").classList.add("mini");const st=document.getElementById("sideTog");st.setAttribute("aria-label","Lebarkan sidebar");st.setAttribute("aria-expanded","false")}
-applyFont(); applyColW(); render(); setZoom(zoom); boot();
+applyFont(); applyColW(); render(); applyZoom(1); try{localStorage.removeItem("cpig-zoom")}catch(_){} boot();
 })();
 </script>
 
