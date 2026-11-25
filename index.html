@@ -896,7 +896,26 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .sheet td.haslink textarea.cin{position:absolute;inset:0;opacity:0;pointer-events:none;height:100%!important}
 .sheet-wrap:not(.fresh) td.haslink.cfocus textarea.cin{position:static;opacity:1;pointer-events:auto;height:auto!important}
 .sheet-wrap:not(.fresh) td.haslink.cfocus .lnk{display:none}
-.sheet td.w-link .cin{padding-right:8px}</style>
+.sheet td.w-link .cin{padding-right:8px}/* ==== team: who is online, activity, greeting pop-up, bell alert ==== */
+.online{display:flex;align-items:center;padding-left:6px}
+.oav{width:32px;height:32px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:12.5px;font-weight:600;margin-left:-8px;border:2px solid var(--bg);cursor:default}
+.oav.more{background:var(--surface);color:var(--ink)}
+.actw .alist{display:flex;flex-direction:column;gap:2px;max-height:520px;overflow:auto;margin:0 -6px}
+.aitem{display:flex;gap:10px;align-items:flex-start;text-align:left;border:0;background:transparent;border-radius:10px;padding:7px 6px;color:var(--ink);cursor:pointer;width:100%}
+.aitem:hover{background:var(--raised)}
+.aav{width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:600;flex:none;margin-top:1px}
+.atx{display:flex;flex-direction:column;gap:1px;font-size:12.5px;line-height:1.4;min-width:0}
+.atx b{font-weight:600}.atx small{color:var(--muted);font-size:11px}
+.hello-pop{width:min(420px,calc(100% - 32px));gap:10px}
+.hello-pop h2{font-size:18px;font-weight:600}
+.hello-pop p{margin:0;font-size:14px;line-height:1.6;color:var(--ink)}
+.linkb.chn{font-size:12px;font-weight:500;color:var(--muted);vertical-align:middle;margin-left:6px;text-decoration:underline}
+.ibtn.alert svg{stroke:var(--late)}
+.ibtn.alert .badge{background:var(--late)}
+.ibtn.ring svg{animation:bellshake 1.2s ease-in-out 2,bellblink .6s steps(2,jump-none) 4;transform-origin:50% 15%}
+@keyframes bellshake{0%,100%{transform:rotate(0)}15%{transform:rotate(16deg)}30%{transform:rotate(-14deg)}45%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
+@keyframes bellblink{0%{opacity:1}100%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.ibtn.ring svg{animation:bellblink .6s steps(2,jump-none) 4}}</style>
 
 </head>
 <body>
@@ -915,6 +934,7 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
       <div class="gsearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><input id="gsearch" type="search" placeholder="Cari konten, motif, script, brief…" autocomplete="off" aria-label="Cari di semua brand"></div>
       <div class="month" role="group" aria-label="Pilih bulan"><button data-month="-1" aria-label="Bulan sebelumnya">‹</button><span id="monthLbl">November 2026</span><button data-month="1" aria-label="Bulan berikutnya">›</button></div>
       <div class="sync wait" id="sync" role="status" title="Status simpan"><i></i><span>Menghubungkan…</span></div>
+      <div class="online" id="online" hidden></div>
       <div class="tbtns">
         <button class="ibtn" id="bellBtn" aria-label="Pengingat" title="Pengingat konten"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><i class="badge" id="bellBadge" hidden></i></button>
         <div class="theme" role="group" aria-label="Tema"><button data-theme-set="light" aria-label="Mode terang" title="Mode terang"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><button data-theme-set="dark" aria-label="Mode gelap" title="Mode gelap"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div>
@@ -1071,7 +1091,7 @@ function perCtl(){const p=S.per.mode,[a,b]=perRange();return `<div class="seg" r
 S.once={};
 async function loadMonthOnce(ym){if(S.data[ym]||S.once[ym]||!DB.db)return;S.once[ym]="loading";
   try{const q=await DB.db.collection(`months/${ym}/tabs`).get();const byTab={},metaM={};q.docs.forEach(d=>{const v=d.data();if(v.meta)metaM[v.code]=v.meta;(byTab[v.code]=byTab[v.code]||[]).push([v.week,v.rows||[]])});
-    if(!S.data[ym]){const m={};for(const [c,arr] of Object.entries(byTab))m[c]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));S.data[ym]=m;S.meta[ym]=S.meta[ym]||metaM}
+    if(!S.data[ym]){const m={};for(const [c,arr] of Object.entries(byTab))m[c]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));S.data[ym]=m;S.meta[ym]=S.meta[ym]||metaM;const sv=S.saved[ym]||(S.saved[ym]={});q.docs.forEach(d=>{sv[d.id]=docSig(d.data())})}
     S.once[ym]=true}catch(_){S.once[ym]="err"}
   if(!sheetBusy())render()}
 function itemsIn(range,code){const [a,b]=range,out=[];let ym=a.slice(0,7),g=0;
@@ -1113,10 +1133,10 @@ function brandCard(items){const list=all();if(!S.homeBrand||!byCode(S.homeBrand)
     <div class="pchips">${Object.entries(pm).sort((a,c)=>c[1]-a[1]).slice(0,4).map(([p,n])=>`<span class="pill amber">${esc(p)} ${n}</span>`).join("")||`<span class="sub">Belum ada pilar</span>`}</div>
     ${nx?`<p class="sub" style="margin:0 0 12px"><span class="datec">${ICS.cal}Berikutnya ${esc(shortISO(nx.iso))} · ${esc(titleOf(nx.r))}</span></p>`:""}
     <button class="btn full" data-go="${b.code}">Lihat detail →</button></article>`}
-function displayName(){const me=window.CP_AUTH&&window.CP_AUTH.me;if(me&&me.email)return me.email.split("@")[0].replace(/[._-]+/g," ").replace(/\b\w/g,c=>c.toUpperCase());return "Tim Indo Group"}
+function displayName(){if(S.team&&S.team.nick)return S.team.nick;const me=window.CP_AUTH&&window.CP_AUTH.me;if(me&&me.email)return me.email.split("@")[0].replace(/[._-]+/g," ").replace(/\b\w/g,c=>c.toUpperCase());return "Tim Indo Group"}
 function beranda(){const items=itemsIn(perRange());
-  return `<section class="hello"><div><h1>Selamat datang, ${esc(displayName())}</h1><p>Ringkasan content plan ${esc(perLabel())}.</p></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="">+ Konten baru</button></div></section>
-  <div class="dash"><div class="dcol">${statsHtml(items)}${brandTable(items)}${boardHtml(items)}</div><div class="dcol">${calHtml()}${brandCard(items)}</div></div>`}
+  return `<section class="hello"><div><h1>Selamat datang, ${esc(displayName())}${S.team&&S.team.nick?` <button class="linkb chn" data-chnick title="Ubah nama panggilan">ubah</button>`:""}</h1><p>Ringkasan content plan ${esc(perLabel())}.</p></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="">+ Konten baru</button></div></section>
+  <div class="dash"><div class="dcol">${statsHtml(items)}${brandTable(items)}${boardHtml(items)}</div><div class="dcol">${calHtml()}${brandCard(items)}${S.ro?"":actCard()}</div></div>`}
 function brandDash(b){const items=itemsIn(perRange(),b.code);
   return `<section class="hello"><div class="band" style="--c:${b.color}">${av(b)}<div class="tt"><div class="lbl">${b.ig?"CONTENT PLAN INSTAGRAM · SEMUA BRAND":"CONTENT PLAN TIKTOK"}</div><h2>${esc(b.ig?"Instagram":b.name)}</h2><div class="pics">${b.pics.length?b.pics.map(p=>`<span>PIC ${esc(p)}</span>`).join(""):`<span>PIC belum diisi</span>`}</div></div></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="${b.code}">+ Konten baru</button></div></section>
   <div class="bdash"><div class="dcol">${statsHtml(items,true)}${boardHtml(items)}</div><div class="dcol">${calHtml(b.code)}</div></div>
@@ -1154,13 +1174,93 @@ document.addEventListener("input",e=>{if(e.target.id!=="gsearch")return;const q=
   openTpop(e.target.closest(".gsearch"),`<div class="th">${hits.length?hits.length+(hits.length>=30?"+":"")+" hasil · "+esc(ymLabel(S.ym)):"Hasil pencarian"}</div>${hits.map(h=>hitHtml(h.b,h.r,h.s)).join("")||`<div class="empty">Tidak ada yang cocok di ${esc(ymLabel(S.ym))}.</div>`}`,"search")});
 document.addEventListener("keydown",e=>{if(e.target.id!=="gsearch")return;if(e.key==="Enter"){const f=document.querySelector("#tpop .ti");if(f){e.preventDefault();f.click()}}else if(e.key==="Escape"){closeTpop();e.target.blur()}});
 function bellItems(){const today=todayISO(),out=[];for(const b of all())for(const r of rowsOf(b.code)){if(!hasContent(r)||isDoneSt(r.st))continue;const iso=S.ym+"-"+pad2(r.d);if(iso===today)out.push({b,r,k:"today"});else if(isPendingRow(r,S.ym))out.push({b,r,k:"pend"})}return out}
-function syncBell(){const n=bellItems().length,bd=document.getElementById("bellBadge");if(bd){bd.hidden=!n;bd.textContent=n>99?"99+":String(n)}}
+function syncBell(){const it=bellItems(),n=it.length,bd=document.getElementById("bellBadge");if(bd){bd.hidden=!n;bd.textContent=n>99?"99+":String(n)}
+  const bb=document.getElementById("bellBtn");if(bb){const pend=it.some(x=>x.k==="pend"),was=bb.classList.contains("alert");bb.classList.toggle("alert",pend);if(pend&&!was&&S.loaded[S.ym])setTimeout(ringBell,600)}}
 document.addEventListener("click",e=>{
   const bell=e.target.closest("#bellBtn");
   if(bell){const cur=document.getElementById("tpop");if(cur&&cur.dataset.k==="bell"){closeTpop();return}const it=bellItems(),t=it.filter(x=>x.k==="today"),p=it.filter(x=>x.k==="pend");
     openTpop(bell,`${t.length?`<div class="th">Jadwal hari ini (${t.length})</div>${t.map(x=>hitHtml(x.b,x.r)).join("")}`:""}${p.length?`<div class="th">Pending (${p.length})</div>${p.slice(0,25).map(x=>hitHtml(x.b,x.r,x.r.st||"belum ada status")).join("")}`:""}${it.length?"":`<div class="empty">Tidak ada pengingat. Semua konten aman.</div>`}`,"bell");return}
   if(e.target.closest("#tpop .ti")){setTimeout(closeTpop,0);return}
   if(!e.target.closest("#tpop,.gsearch"))closeTpop()});
+/* ===== team: nickname, who is online, activity log, daily greeting, bell alert =====
+   GitHub version: claude.use("team") from cp-backend.js (Apps Script). Claude version: db docs people/, presence/, activity/ (editors). */
+S.team={online:[],acts:[],actRev:-1,nick:"",uid:""};
+const TODAY_DONE=/^(UPLOAD SCHEDULED|UPLOADED|SUDAH UPLOAD|TERJADWAL|POSTED)$/i;
+function pageName(){const b=byCode(S.view);return S.view==="pengaturan"?"Pengaturan":b?(b.ig?"Instagram":b.name):"Beranda"}
+const nameColor=s=>{let h=0;for(const c of String(s||"?"))h=(h*31+c.charCodeAt(0))>>>0;return AUTO_COL[h%AUTO_COL.length]};
+function agoTxt(t){const d=Date.now()-t,m=Math.round(d/60000),dt=new Date(t),hm=pad2(dt.getHours())+":"+pad2(dt.getMinutes());
+  if(m<1)return "baru saja · "+hm;if(m<60)return m+" mnt lalu · "+hm;if(dt.toDateString()===new Date().toDateString())return "hari ini · "+hm;return dt.getDate()+" "+BULAN[dt.getMonth()].slice(0,3)+" · "+hm}
+async function teamStart(){if(S.teamOn)return;S.teamOn=true;let t=null;
+  try{t=window.claude&&window.claude.use?await window.claude.use("team"):null}catch(_){t=null}
+  if(t){DB.team=t;const tick=async()=>{if(document.hidden)return;try{const j=await t.ping(pageName(),S.team.actRev);S.team.online=j.online||[];
+        if(j.acts){S.team.acts=j.acts;S.team.actRev=j.actRev;if(S.view==="beranda"&&!sheetBusy()&&!document.querySelector(".modal"))render()}renderOnline()}catch(_){}};
+    S.team.tick=tick;tick();setInterval(tick,20000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()})}
+  else await claudeTeamStart();
+  refreshNick()}
+async function claudeTeamStart(){if(!DB.db||!DB.user||typeof DB.user.id!=="function")return;try{S.team.uid=await DB.user.id()}catch(_){return}const uid=S.team.uid;
+  try{const s=await DB.db.doc("people/"+uid).get();if(s.exists)S.team.nick=String(s.data().nick||"")}catch(_){}
+  if(!S.team.nick)S.team.nick=lsGet("cp-nick","");
+  if(S.ro)return;
+  const beat=()=>{if(!document.hidden)DB.db.doc("presence/"+uid).set({n:S.team.nick||"Tim",p:pageName(),t:Date.now()}).catch(()=>{})};beat();setInterval(beat,20000);
+  DB.db.collection("presence").onSnapshot(q=>{const now=Date.now();S.team.online=q.docs.map(d=>Object.assign({id:d.id},d.data())).filter(x=>now-x.t<60000).map(x=>({id:x.id,name:x.n,page:x.p,me:x.id===uid}));renderOnline()},()=>{});
+  DB.db.collection("activity").onSnapshot(q=>{const cut=Date.now()-30*864e5,all_=q.docs.map(d=>Object.assign({id:d.id},d.data()));S.team.acts=all_.filter(a=>a.t>cut).sort((a,b)=>b.t-a.t).slice(0,200);
+    if(S.view==="beranda"&&!sheetBusy()&&!document.querySelector(".modal"))render();
+    if(!S.prunedActs){S.prunedActs=true;all_.filter(a=>a.t<=cut).slice(0,40).forEach(a=>DB.db.doc("activity/"+a.id).delete().catch(()=>{}))}},()=>{});
+  DB.team={kind:"db",log:async items=>{for(const it of items){const prev=it.rowId&&S.team.acts.find(a=>a.by===uid&&a.rowId===it.rowId&&a.col===it.col&&a.code===it.code&&Date.now()-a.t<300000);
+      await DB.db.doc("activity/"+(prev?prev.id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,7))).set(Object.assign({},it,{t:Date.now(),by:uid,nick:S.team.nick||"Tim"}))}}}}
+function refreshNick(){const me=window.CP_AUTH&&window.CP_AUTH.me;if(DB.team&&DB.team.kind==="server"){if(!me){S.team.nick="";return}S.team.nick=me.nick||"";if(!S.team.nick)askNick()}
+  else if(DB.team||S.team.uid||DB.user){if(!S.team.nick&&S.settingsReady)askNick()}}
+async function askNick(){if(S.askingNick||document.querySelector(".modal"))return;S.askingNick=true;
+  try{const o=await formBox("Tuliskan nama panggilanmu",`<p class="sub" style="margin:0">Dipakai untuk sapaan di beranda, daftar yang sedang online, dan catatan aktivitas. Samakan dengan namamu di kolom PIC supaya tugas harianmu terhitung.</p><label class="field">Nama panggilan<input name="nick" required maxlength="24" value="${esc(S.team.nick||"")}" placeholder="misalnya Rani" autocomplete="nickname"></label>`,"Simpan");
+    if(o&&String(o.nick||"").trim())await saveNick(String(o.nick).trim())}finally{S.askingNick=false}}
+async function saveNick(n){n=n.replace(/[<>]/g,"").slice(0,24);
+  try{if(DB.team&&DB.team.kind==="server")n=await DB.team.setNick(n);else if(DB.db&&!S.ro&&S.team.uid)await DB.db.doc("people/"+S.team.uid).set({nick:n});else lsSet("cp-nick",n)}
+  catch(e){toast("Nama panggilan belum tersimpan: "+(e.message||e.code));return}
+  S.team.nick=n;lsSet("cp-nick",n);toast("Halo, "+n+"!");S.greeted=false;render();if(S.team.tick)S.team.tick()}
+document.addEventListener("click",e=>{if(e.target.closest("[data-chnick],.topbar .authtx"))askNick();if(e.target.closest("[data-actall]")){S.actAll=true;render()}});
+function renderOnline(){const el=document.getElementById("online");if(!el)return;const others=(S.team.online||[]).filter(x=>!x.me);
+  el.innerHTML=others.slice(0,5).map(x=>`<span class="oav" style="--c:${nameColor(x.name+x.id)}" title="${esc(x.name||"Tamu")}${x.guest?" (tamu)":""} · ${esc(x.page||"Beranda")}">${esc(String(x.name||"?").charAt(0).toUpperCase())}</span>`).join("")+(others.length>5?`<span class="oav more" title="${esc(others.slice(5).map(x=>x.name).join(", "))}">+${others.length-5}</span>`:"");
+  el.hidden=!others.length;el.setAttribute("aria-label",others.length+" orang lain sedang membuka dashboard")}
+function actCard(){const all_=S.team.acts||[],show=S.actAll?all_:all_.slice(0,20);
+  return `<article class="panel actw"><div class="phead"><div><h2>Aktivitas</h2><p>Perubahan oleh tim · 30 hari terakhir</p></div></div>${show.length?`<div class="alist">${show.map(a=>{const b=byCode(a.code);return `<button class="aitem" ${b?`data-go="${esc(a.code)}" ${a.rowId?`data-jump="${esc(a.rowId)}"`:""} ${a.ym?`data-jym="${esc(a.ym)}"`:""}`:""}><span class="aav" style="--c:${nameColor(a.nick+a.by)}">${esc(String(a.nick||"?").charAt(0).toUpperCase())}</span><span class="atx"><span><b>${esc(a.nick||"Tim")}</b> ${esc(a.text)}${b?` · ${esc(b.ig?"Instagram":b.name)}`:""}</span><small>${esc(agoTxt(a.t))}</small></span></button>`}).join("")}</div>`:`<p class="sub" style="margin:0">Belum ada aktivitas. Perubahan di tabel akan muncul di sini.</p>`}${!S.actAll&&all_.length>20?`<button class="btn full" data-actall style="margin-top:10px">Lihat semua (${all_.length})</button>`:""}</article>`}
+/* activity from what this person changed: compares the saved month with the one about to be written */
+const SKIPK=new Set(["fmt","rh","mg","id","d"]);
+const emptyV=v=>v==null||v===""||v===false||(Array.isArray(v)&&!v.length)||(typeof v==="object"&&!Array.isArray(v)&&!Object.keys(v).length);
+function colOfKey(code,key){const b=byCode(code);return b?colsOf(b).find(x=>x.key===key):null}
+function labelFor(code,key){if(key==="motifs")return "Motif";if(key==="pidUse")return "PID";if(key==="notes")return "catatan sel";if(key==="lk")return "link sel";if(key==="shot")return "Screenshot";const c=colOfKey(code,key);return c?c.label:key}
+function verbFor(code,key,o,n){const c=colOfKey(code,key);if(emptyV(n))return "menghapus";if(key==="shot"||(c&&c.type==="link"))return "mengunggah";if(emptyV(o))return c&&(c.type==="long"||c.type==="text")?"menulis":"mengisi";return "mengubah"}
+function diffActs(ym,docs,saved){const out=[],O={},N={},mon=BULAN[+ym.slice(5)-1].slice(0,3);
+  const rowsOfSig=s=>{try{const v=JSON.parse(s);return Array.isArray(v)?v:(v.rows||[])}catch(_){return []}};
+  for(const id in saved){const code=id.replace(/_(w\d+|meta)$/,"");rowsOfSig(saved[id]).forEach(r=>{(O[code]=O[code]||{})[r.id]=r})}
+  for(const id in docs){const dc=docs[id];(dc.rows||[]).forEach(r=>{(N[dc.code]=N[dc.code]||{})[r.id]=r})}
+  for(const code of new Set([...Object.keys(O),...Object.keys(N)])){const o_=O[code]||{},n_=N[code]||{},per=[];
+    for(const id in n_){const n=n_[id],o=o_[id],when=n.d+" "+mon;
+      if(!o){const ks=Object.keys(n).filter(k=>!SKIPK.has(k)&&!emptyV(n[k]));per.push({text:ks.length?`menambah konten baru ${when} (${ks.slice(0,2).map(k=>labelFor(code,k)).join(", ")})`:`menambah baris konten ${when}`,code,ym,d:n.d,rowId:id,col:"+"});continue}
+      if(o.d!==n.d)per.push({text:`memindahkan konten ${o.d} ${mon} ke ${when}`,code,ym,d:n.d,rowId:id,col:"tgl"});
+      const ks=[...new Set([...Object.keys(o),...Object.keys(n)])].filter(k=>!SKIPK.has(k)&&JSON.stringify(o[k]??"")!==JSON.stringify(n[k]??"")&&!(emptyV(o[k])&&emptyV(n[k])));
+      if(ks.length===1){const k=ks[0];per.push({text:`${verbFor(code,k,o[k],n[k])} ${labelFor(code,k)} untuk konten ${when}`,code,ym,d:n.d,rowId:id,col:k})}
+      else if(ks.length>1)per.push({text:`mengubah ${ks.length} kolom (${ks.slice(0,3).map(k=>labelFor(code,k)).join(", ")}${ks.length>3?", …":""}) konten ${when}`,code,ym,d:n.d,rowId:id,col:"*"})}
+    for(const id in o_)if(!n_[id]&&hasContent(o_[id]))per.push({text:`menghapus konten ${o_[id].d} ${mon}`,code,ym,d:o_[id].d,rowId:"",col:"-"});
+    if(per.length>8)out.push({text:`mengubah ${per.length} konten sekaligus`,code,ym,d:0,rowId:"",col:"bulk"});else out.push(...per)}
+  return out}
+/* pop-ups: greeting with today's tasks (once per opening), and "done" when all of today's content is scheduled/uploaded (once per day) */
+function myToday(){const n=String(S.team.nick||"").trim().toLowerCase();if(!n)return null;const t=new Date(),ym=t.getFullYear()+"-"+pad2(t.getMonth()+1),d=t.getDate();
+  const m=S.data[ym];if(!m||(ym===S.ym&&!S.loaded[ym])){if(ym!==S.ym)loadMonthOnce(ym);return null}
+  const out=[];for(const b of all())(m[b.code]||[]).forEach(r=>{if(r.d===d&&hasContent(r)&&String(r.pic||"").trim().toLowerCase()===n&&String(r.st||"").trim().toUpperCase()!=="TERMINATED")out.push({b,r})});return out}
+function popup(title,text){return new Promise(res=>{const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal hello-pop";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<h2>${esc(title)}</h2><p>${esc(text)}</p><div class="acts"><button class="btn dark" data-x>Oke</button></div>`;
+  const done=()=>{sc.remove();m.remove();res()};m.querySelector("[data-x]").onclick=done;sc.onclick=done;m.addEventListener("keydown",e=>{if(e.key==="Escape")done()});document.body.append(sc,m);m.querySelector("[data-x]").focus()})}
+function maybeGreet(){if(document.querySelector(".modal"))return;const nick=S.team.nick;const my=myToday();if(!my)return;
+  if(!S.greeted){S.greeted=true;
+    if(my.length){const pm={};my.forEach(x=>{const p=x.r.pil||"tanpa pilar";pm[p]=(pm[p]||0)+1});const ps=Object.entries(pm).sort((a,c)=>c[1]-a[1]).map(([p,k])=>`${p} (${k})`).join(", ");
+      popup("Halo, "+nick+"!",`Hai ${nick}, hari ini kamu akan mengerjakan ${my.length} konten video dengan pilar ${ps}. Semangat yaa!`)}
+    else popup("Halo, "+nick+"!",`Hai ${nick}, hari ini tidak ada konten terjadwal untukmu. Coba crosscheck ke content leadermu ya.`);
+    return}
+  const key="cp-done-"+todayISO()+"-"+nick.toLowerCase();
+  if(my.length&&my.every(x=>TODAY_DONE.test(String(x.r.st||"").trim()))&&!lsGet(key,"")){lsSet(key,"1");popup("Yey!","Yey, kamu sudah menyelesaikan tugasmu. Terima kasih atas kerja kerasnya, sampai jumpa besok!")}}
+/* bell: red and shaking every 5 minutes while there is pending content */
+function ringBell(){const b=document.getElementById("bellBtn");if(!b||!b.classList.contains("alert"))return;b.classList.remove("ring");void b.offsetWidth;b.classList.add("ring");setTimeout(()=>b.classList.remove("ring"),2600)}
+setInterval(ringBell,300000);
 /* dropdown lists: every list can grow from the table or from Pengaturan */
 function listRef(k){if(S.lists[k])return S.lists[k];const [t,c]=k.split(":");const b=byCode(c);if(!b)return null;if(t==="tal")return b.talents;if(t==="pic")return b.pics;return null}
 function getList(k){if(k==="brand")return S.brands.map(x=>x.name);if(k.startsWith("mot:")){const b=byCode(k.slice(4));return b?(b.motifLib||[]).map(m=>m.name):[]}return listRef(k)||[]}
@@ -1450,6 +1550,7 @@ document.addEventListener("scroll",e=>{const el=e.target;if(!el||!el.classList)r
 window.addEventListener("resize",()=>setTimeout(syncHbar,150));
 document.addEventListener("input",e=>{const x=e.target;if(x&&x.type==="time"&&x.classList)x.classList.toggle("tempty",!x.value)});
 document.addEventListener("click",e=>{if(e.target.closest("[data-cplogin]")&&window.CP_AUTH)window.CP_AUTH.login()});
+window.addEventListener("cp-auth",()=>{setTimeout(()=>{refreshNick();if(S.team.tick)S.team.tick()},50)});
 window.addEventListener("cp-auth",async()=>{if(!DB.user)return;try{S.isOwner=await DB.user.isOwner();S.ro=!(await DB.user.canEdit())}catch(_){S.ro=true}S.roUnknown=false;applyRO();render()});
 function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua perubahan langsung tersimpan untuk seluruh tim.</small></h1></div>
   ${accessCard()}
@@ -1490,7 +1591,7 @@ function render(){
   if(S.jump){const tr=document.querySelector(`.sheet tr[data-id="${S.jump}"]`);if(tr){const w=tr.closest(".sheet-wrap"),th=w.querySelector("thead");w.scrollTop=Math.max(0,tr.offsetTop-(th?th.offsetHeight:0)-6);tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),2200);w.scrollIntoView({block:"start"})}S.jump=null}
   maybeSaveSettings();
   paintSel(); if(S.refocus){const rf=S.refocus;S.refocus=null;focusCell(rf.rk,rf.ck,true)}else if(hadF&&S.cs&&rect()){if(rect().n>1){const w=m.querySelector(".sheet-wrap");w&&w.focus({preventScroll:true})}else{const fr=S.fresh;focusCell(S.cs.f.rk,S.cs.f.ck,fr)}}
-  fitTables(); applyFreeze(); autoSize(); syncBell(); syncHbar();
+  fitTables(); applyFreeze(); autoSize(); syncBell(); syncHbar(); renderOnline(); if(S.loaded[S.ym])setTimeout(maybeGreet,400);
   const rl=document.getElementById("roLogin");if(rl&&window.CP_AUTH&&window.CP_AUTH.mountButton&&!window.CP_AUTH.mountButton(rl))rl.innerHTML="<button class='btn dark' data-cplogin>Masuk dengan Google</button>"; if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
@@ -2418,6 +2519,7 @@ async function persistMonth(ym){
   if(!DB.db){setSync("bad","Belum tersimpan (offline)");return}
   if(persisting){touch();return}persisting=true;
   const docs=groupDocs(ym),saved=S.saved[ym]||(S.saved[ym]={});
+  let acts=[];try{if(!S.ro&&!S.quietLog&&DB.team&&DB.team.log)acts=diffActs(ym,docs,saved)}catch(_){acts=[]}S.quietLog=false;
   try{
     for(const id of new Set([...Object.keys(docs),...Object.keys(saved)])){
       const d=docs[id],json=d?docSig(d):null;if(json===saved[id])continue;
@@ -2425,7 +2527,7 @@ async function persistMonth(ym){
       if(d){const doc={code:d.code,week:d.week,ym,rows:JSON.parse(JSON.stringify(d.rows)),updatedAt:new Date().toISOString()};if(d.meta)doc.meta=JSON.parse(JSON.stringify(d.meta));await ref.set(doc);saved[id]=json}
       else{await ref.delete();delete saved[id]}
     }
-    setSync("ok","Tersimpan");
+    setSync("ok","Tersimpan");if(acts.length)DB.team.log(acts).catch(()=>{});
   }catch(e){if(e&&e.code==="invalid_argument"&&S.roUnknown){S.ro=true;applyRO();render();setSync("bad","Baca saja");toast("Akun Anda hanya bisa membaca content plan ini");return}setSync("bad","Gagal menyimpan");toast(dbErr(e),"Coba lagi",()=>persistMonth(ym))}
   finally{persisting=false}
 }
@@ -2442,7 +2544,7 @@ function subMonth(ym){
     if(!q.metadata.fromCache){S.loaded[ym]=true;clearTimeout(monthTimer);if(!persistT&&!persisting)setSync("ok","Tersimpan")}else if(q.size)S.loaded[ym]=true;
     if((persistT||persisting)&&!first)return; /* local edits waiting to be saved win */
     const m={};for(const [code,arr] of Object.entries(byTab))m[code]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));
-    S.data[ym]=m;S.meta[ym]=metaM;if(!S.ro&&!S.roUnknown&&normalizeRows(ym))setTimeout(()=>{if(!S.ro)persistMonth(ym)},900);
+    S.data[ym]=m;S.meta[ym]=metaM;if(!S.ro&&!S.roUnknown&&normalizeRows(ym))setTimeout(()=>{if(!S.ro){S.quietLog=true;persistMonth(ym)}},900);
     if(first&&S.loaded[ym])migrateLegacy(ym);
     if(ym===S.ym){if(sheetBusy())S.needRender=true;else render()}
   },err=>{S.err=dbErr(err);S.loaded[ym]=true;setSync("bad","Tidak tersambung");render()});
@@ -2664,7 +2766,7 @@ async function boot(){
   DB.db.doc("config/settings").onSnapshot(s=>{
     const d=s.exists?s.data():null;if(S.settingsReady&&d&&JSON.stringify(d)===lastSettings)return;
     applySettings(d);lastSettings=JSON.stringify(settingsObj());const first=!S.settingsReady;S.settingsReady=true;
-    if(first&&!S.subscribed){S.subscribed=true;S.view=viewFromHash();subMonth(S.ym)}
+    if(first&&!S.subscribed){S.subscribed=true;S.view=viewFromHash();subMonth(S.ym);teamStart()}
     if(sheetBusy())S.needRender=true;else render();
   },err=>{S.err=dbErr(err);S.settingsReady=true;render()});
 }
