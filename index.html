@@ -507,6 +507,53 @@ table.sheet{table-layout:fixed;width:auto;min-width:0;font-size:12px}
 .rrz:hover,.rrz.on{background:#1a73e8}
 .sheet .stk{position:sticky}
 .sheet td.stk{z-index:1}.sheet th.stk{z-index:4}
+/* column letters show only while a formula is being typed (like picking references in Google Sheets) */
+.sheet-wrap:not(.fml) .sheet thead tr.letters{display:none}
+.sheet-wrap:not(.fml) .sheet thead tr.labels th{top:0}
+.sheet thead tr.labels th.rn[data-all]{cursor:pointer}
+.sheet-wrap.fml .sheet thead tr.letters th{background:color-mix(in srgb,#1a73e8 10%,var(--hdr));color:var(--ink)}
+.sheet thead th .hidc{position:absolute;top:50%;left:-7px;transform:translateY(-50%);z-index:3;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:8px;line-height:1;padding:3px 1px;border-radius:4px;cursor:pointer}
+.sheet thead th .hidc.r{left:auto;right:-7px}
+.sheet thead th .hidc:hover{color:var(--ink);border-color:var(--ink)}
+.sheet textarea.cin.numv{text-align:right;font-variant-numeric:tabular-nums}
+.sheet td[data-ta="left"] textarea.cin.numv{text-align:left}.sheet td[data-ta="center"] textarea.cin.numv{text-align:center}
+.gtools .nft{font-size:12px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}.gtools .nft small{font-size:9px;margin-left:1px}
+.tbtog{border:0;background:transparent;width:30px;display:grid;place-items:center;color:var(--muted);cursor:pointer;border-left:1px solid var(--line)}
+.tbtog svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tbtog:hover{color:var(--ink);background:var(--bg-2)}
+.gbar.tbmin .gtools{display:none}
+.cmenu{max-height:calc(100vh - 16px);overflow-y:auto}
+/* custom colors (owner): column-title bar per brand, sidebar panel; slightly dimmed in dark mode */
+.sheet-wrap.thc{--th-bg:var(--thc);--th-ink:var(--thc-ink);--th-line:color-mix(in srgb,var(--thc) 78%,var(--thc-ink))}
+:root[data-theme="dark"] .sheet-wrap.thc{--th-bg:color-mix(in srgb,var(--thc) 74%,#000)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sheet-wrap.thc{--th-bg:color-mix(in srgb,var(--thc) 74%,#000)}}
+.shell.sidec .side,.shell.sidec.mini .side{background:var(--side)!important;color:var(--side-ink);border-radius:20px!important;box-shadow:var(--sh-card)!important;padding:12px 0!important}
+.shell.sidec .navb svg{stroke:var(--side-muted)}.shell.sidec .navb[aria-current="page"] svg{stroke:var(--ink)}
+.shell.sidec .navb:hover{background:color-mix(in srgb,var(--side-ink) 12%,transparent)}
+.shell.sidec .side h3{background:color-mix(in srgb,var(--side-ink) 22%,transparent)}
+:root[data-theme="dark"] .shell.sidec .side{background:color-mix(in srgb,var(--side) 72%,#000)!important}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .shell.sidec .side{background:color-mix(in srgb,var(--side) 72%,#000)!important}}
+.colrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.colrow input[type=color]{width:34px;height:26px;border:1px solid var(--line);border-radius:6px;padding:0;background:none;cursor:pointer}
+.colrow .linkb{font-size:12px}
+.thtog{display:inline-flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;cursor:pointer}
+.cmenu .mnf{display:grid;grid-template-columns:1fr 1fr}.cmenu .mnf>span{grid-column:1/-1}.cmenu .mnf button[data-cm]{padding-left:16px!important}.cmenu .mnf kbd{display:none}
+.cfm{width:min(560px,calc(100vw - 32px))!important;max-height:calc(100vh - 40px);overflow:auto}
+.cfm .cfl{display:flex;flex-direction:column;gap:6px;margin:4px 0 10px}
+.cfm .cfi{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12.5px}
+.cfm .cfi .sw{width:34px;height:22px;border-radius:5px;border:1px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:600;flex:none}
+.cfm .cfi .tx{flex:1;min-width:0}.cfm .cfi .tx small{display:block;color:var(--muted)}
+.cfm .cfi button{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;padding:4px}
+.cfm .cfi button:hover{color:var(--ink)}
+.cfm .cfg{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+.cfm .cfg .full{grid-column:1/-1}
+.cfm .cfcols{display:flex;flex-wrap:wrap;gap:4px 10px;max-height:120px;overflow:auto;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12px}
+.cfm .cfcols label{display:inline-flex;gap:4px;align-items:center}
+.cfm .cfsw{display:flex;flex-wrap:wrap;gap:4px}
+.cfm .cfsw button{width:20px;height:20px;border-radius:5px;border:1px solid var(--line);background:var(--sw);cursor:pointer;padding:0}
+.cfm .cfsw button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}
+.cfm .cfsw button.none{background:linear-gradient(135deg,transparent 45%,#d33 46% 54%,transparent 55%),var(--surface)}
+.cfm .cfprev{padding:8px 12px;border:1px dashed var(--line);border-radius:8px;font-size:12.5px}
 .sheet tr.camp td.rn,.sheet tr.promo td.rn{box-shadow:inset 4px 0 0 var(--stripe)}
 .sheet tr.camp td.s2,.sheet tr.promo td.s2,.sheet tr.camp td:first-of-type{box-shadow:none}
 .sheet tr.camp td.rn{box-shadow:inset 4px 0 0 var(--stripe)}
@@ -1025,6 +1072,7 @@ function renderNav(){
   if(S.view==="pengaturan")document.querySelector('.side-foot [data-go="pengaturan"]').setAttribute("aria-current","page");
   document.getElementById("logoMark").innerHTML=logoUrl(S.logo)?`<img src="${logoUrl(S.logo)}" alt="Logo Indo Group">`:"<span>INDO</span>";
   const rs=document.documentElement.style;
+  document.querySelector(".shell").classList.toggle("sidec",!!S.sideCustom);
   if(S.sideCustom){const l=lum(S.sideColor)>.45;rs.setProperty("--side",S.sideColor);rs.setProperty("--side-ink",l?"#1E2B24":"#F3F6F4");rs.setProperty("--side-muted",l?"#6F8078":"#B9CBC3");rs.setProperty("--side-2",`color-mix(in srgb,${S.sideColor} 93%,${l?"#1E2B24":"#ffffff"})`)}else["--side","--side-ink","--side-muted","--side-2"].forEach(k=>rs.removeProperty(k));
   if(S.accentCustom){rs.setProperty("--accent",S.accent);rs.setProperty("--on-accent",lum(S.accent)>.42?"#1C241F":"#FFFFFF");rs.setProperty("--accent-soft",`color-mix(in srgb,${S.accent} 18%,var(--surface))`)}else["--accent","--on-accent","--accent-soft"].forEach(k=>rs.removeProperty(k));
   document.documentElement.style.setProperty("--promo",S.promo);
@@ -1330,7 +1378,7 @@ const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:v}catch
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}};
 function filterScope(code){return S.ro?"me":lsGet("cpig-fs-"+code,"me")}
 /* ---- access: only Editors (invited by email in the Share menu) and the owner change anything; everyone else reads ---- */
-S.ro=false;
+S.ro=false;S.cf={};S.frzR={};S.gcache={};
 function canWrite(){if(S.ro){toast("Mode baca saja. Hanya editor yang bisa mengubah content plan.");return false}return true}
 function applyRO(){document.body.classList.toggle("ro",!!S.ro);if(S.ro&&S.view==="pengaturan"){S.view="beranda";history.replaceState(null,"","#beranda")}}
 function filterOn(code){return lsGet("cpig-fon-"+code,"0")==="1"}
@@ -1342,8 +1390,9 @@ function passFilter(r,flt,cols){for(const [k,allowed] of Object.entries(flt)){co
 function cellHtml(col,v,ctx){
   const key=col.key,val=v[key]??"",F=`data-f="${key}"`,b=ctx.b;let cls=ctx.frz&&ctx.frz.has(key)?"stk":"",inner;
   /* text cells are wrapping text areas: the row grows to fit a long script, like "Wrap" in Google Sheets; a value starting with = is a formula */
-  const TA=(extra,c2)=>{const raw=String(val),fm=isFml(raw),disp=fm?fmlDisplay(raw):raw;if(fm)S.hasF=true;
-    return `<textarea class="cin ${c2||""}" ${F} rows="1" spellcheck="false" ${extra||""} ${fm?`data-raw="${esc(raw)}" data-disp="${esc(disp)}"`:""} aria-label="${esc(col.label)}">${esc(disp)}</textarea>`};
+  const f0=fmtOf(v,key);
+  const TA=(extra,c2)=>{const raw=String(val),fm=isFml(raw)&&f0.nf!=="text",disp=fm||f0.nf?cellDisplay(raw,f0):raw;if(isFml(raw))S.hasF=true;const alt=fm||disp!==raw,nv=f0.nf&&f0.nf!=="text"&&disp!==raw;
+    return `<textarea class="cin ${c2||""}${nv?" numv":""}" ${F} rows="1" spellcheck="false" ${extra||""} ${alt?`data-raw="${esc(raw)}" data-disp="${esc(disp)}"`:""} aria-label="${esc(col.label)}">${esc(disp)}</textarea>`};
   switch(col.type){
     case "check":cls+=" ctr";inner=`<input type="checkbox" ${F} ${val?"checked":""} aria-label="${esc(col.label)}">`;break;
     case "dropdown":inner=selHtml(colList(col,b),val,key==="st"?"st-"+stClass(val):"",key)+(key==="pil"&&ctx.tag?`<span class="camp-tag">${esc(ctx.tag)}</span>`:"");break;
@@ -1358,7 +1407,8 @@ function cellHtml(col,v,ctx){
     default:inner=TA();
   }
   const note=v.notes&&v.notes[key],lk=v.lk&&v.lk[key];
-  const occ=col.type==="dropdown"?cellColor(colList(col,b),val):col.type==="brand"?cellColor("brand",val):"";let fa=fmtAttr(v,key);if(occ){cls+=" occ";fa=fa.includes('style="')?fa.replace('style="','style="--oc:'+occ+';'):fa+' style="--oc:'+occ+'"'}
+  const cfs=ctx.cfr&&ctx.cfr.length&&v.id?cfHit(ctx.cfr,col,v,ctx):null;
+  const occ=cfs&&cfs.bg?"":col.type==="dropdown"?cellColor(colList(col,b),val):col.type==="brand"?cellColor("brand",val):"";let fa=fmtAttr(v,key,cfs);if(occ){cls+=" occ";fa=fa.includes('style="')?fa.replace('style="','style="--oc:'+occ+';'):fa+' style="--oc:'+occ+'"'}
   return `<td data-col="${key}" data-k="${key}" class="${cls}" ${ctx.span||""} ${fa} ${note?`title="Catatan: ${esc(note)}"`:""}>${inner}${lk?`<a class="celllink" href="${esc(lk)}" target="_blank" rel="noopener" title="${esc(lk)}" aria-label="Buka link sel">↗</a>`:""}${note?`<i class="notetri" aria-hidden="true"></i>`:""}</td>`;
 }
 /* MOTIF cell: type a motif, suggestions come from that brand's list; a match shows its PIDs. Up to 3 motifs per content. */
@@ -1383,15 +1433,20 @@ const DEFW={tgl:50,hari:72,dropdown:140,link:170,check:64,motif:220,long:240,sho
 function defW(col){if(col.key==="scr")return 300;if(col.key==="st")return 150;if(col.key==="slot")return col.type==="dropdown"?104:64;if(col.key==="jam")return col.type==="time"?104:84;if(col.key==="week")return 104;return DEFW[col.type]||130}
 function colW(kind,col,dense){const u=S.colW[kind]&&S.colW[kind][col.key];return u||Math.round(defW(col)*(dense?.85:1))}
 function frzOf(b){const v=S.frz[b.code];if(v!=null)return v;const cols=colsOf(b);if(b.ig){const i=cols.findIndex(c=>c.key==="brand");return i>=0?i+1:2}const j=cols.findIndex(c=>c.key==="jam");return j>=0&&j<=4?j+1:2}
-function sheetTable(b,rows,ctx){
-  const cols=colsOf(b),nd=daysIn(S.ym),span=cols.length,flt=activeFilters(b.code),filtering=Object.keys(flt).length>0,fon=filterOn(b.code)||filtering;
-  ctx.b=b;ctx.frz=new Set(cols.slice(0,Math.min(frzOf(b),cols.length)).map(c=>c.key));S.mAnchor={};S.hasF=false;
-  /* layout with row numbers first (unfiltered), so numbers and formula references stay put while filtering */
-  const G={rows:[null,{head:true}],cols},lay=[];let n=1;const hid=new Set(metaOf(b.code).hideG||[]);
+/* row layout of one brand tab (unfiltered): row numbers and formula references use it, also from other tabs (=OLIVER!E5) */
+function layoutOf(b,rows){const cols=colsOf(b),nd=daysIn(S.ym),G={rows:[null,{head:true}],cols,code:b.code},lay=[];let n=1;const hid=new Set(metaOf(b.code).hideG||[]);
   for(let d=1;d<=nd;d++){const its=rows.filter(r=>r.d===d),wd=dow(d),sunKey=b.code+"|"+S.ym+"|"+d;
     if(hid.has(d)&&!its.length)continue; /* deleted date */
     if(!its.length&&wd===0&&!S.openSun.has(sunKey)){n++;G.rows.push({d});lay.push({d,sun:sunKey,num:n});continue}
     lay.push({d,items:(hid.has(d)?its:[...its,null]).map(r=>{n++;G.rows.push({d,r});return {r,num:n}})})}
+  return {G,lay,hid}}
+function gridOf(b){if(!b)return null;if(S.grid&&S.grid.code===b.code&&S.view===b.code)return S.grid;const k=b.code+"|"+S.ym;return S.gcache[k]||(S.gcache[k]=layoutOf(b,rowsOf(b.code)).G)}
+function sheetTable(b,rows,ctx){
+  const allCols=colsOf(b),cols=allCols.filter(c=>!c.hidden),nd=daysIn(S.ym),span=cols.length,flt=activeFilters(b.code),filtering=Object.keys(flt).length>0,fon=filterOn(b.code)||filtering;
+  ctx.b=b;ctx.frz=new Set(allCols.slice(0,Math.min(frzOf(b),allCols.length)).map(c=>c.key));S.mAnchor={};S.hasF=false;S.gcache={};
+  ctx.cfr=(S.cf[b.code]||[]).filter(x=>x&&x.keys&&x.keys.length);
+  /* layout with row numbers first (unfiltered), so numbers and formula references stay put while filtering */
+  const {G,lay,hid}=layoutOf(b,rows);
   S.grid=G;
   let body="";
   for(const L of lay){const d=L.d,wd=dow(d),alt=wd===0?"sun":(wd%2===0)?"alt":"",fz=k=>ctx.frz.has(k)?"stk":"";
@@ -1412,7 +1467,7 @@ function sheetTable(b,rows,ctx){
         if(col.type==="tgl"){if(ix===0)body+=`<td class="tgl ${fz(col.key)} ${isToday(d)?"today":""}" data-k="${col.key}" rowspan="${n2}" ${isToday(d)?'id="todayCell"':""}>${d}${isToday(d)?`<small>HARI INI</small>`:""}</td>`;continue}
         if(col.type==="hari"){if(ix===0)body+=`<td class="hari ${fz(col.key)} ${isToday(d)?"today":""}" data-k="${col.key}" rowspan="${n2}">${HARI[wd]}</td>`;continue}
         const ck=r?r.id+"|"+col.key:"";if(ck&&cover.has(ck))continue;const sp=ck&&spans[ck];
-        body+=cellHtml(col,v,Object.assign({},ctx,{tag:c?c.name:promo?"Promo":"",span:sp?`rowspan="${sp[0]}" colspan="${sp[1]}"`:""}));
+        body+=cellHtml(col,v,Object.assign({},ctx,{num:x.num,d,tag:c?c.name:promo?"Promo":"",span:sp?`rowspan="${sp[0]}" colspan="${sp[1]}"`:""}));
       }
       body+=`</tr>`;
     });
@@ -1421,9 +1476,14 @@ function sheetTable(b,rows,ctx){
   const dn=S.density,kind=b.ig?"ig":"tt",scope=filterScope(b.code),dense=dn!=="normal";
   const stk=k=>ctx.frz.has(k)?"stk":"";
   const rz=col=>`<span class="rz" data-rz="${col.key}" title="Tarik untuk mengubah lebar kolom, klik dua kali untuk ukuran awal" aria-hidden="true"></span>`;
-  const letters=cols.map((col,i)=>`<th data-col="${col.key}" data-k="${col.key}" class="${stk(col.key)}" title="Kolom ${colLetter(i)} · klik untuk memilih, klik kanan untuk opsi">${colLetter(i)}${rz(col)}</th>`).join("");
+  const L=col=>colLetter(allCols.indexOf(col));
+  /* hidden columns keep their letter; a small ◂▸ marker on the next visible column shows them again */
+  const hidBefore=col=>{const out=[];for(let i=allCols.indexOf(col)-1;i>=0&&allCols[i].hidden;i--)out.unshift(allCols[i].key);return out};
+  const hidAfter=col=>{if(col!==cols[cols.length-1])return [];const out=[];for(let i=allCols.indexOf(col)+1;i<allCols.length&&allCols[i].hidden;i++)out.push(allCols[i].key);return out};
+  const hidMark=col=>{const a=hidBefore(col),z=hidAfter(col);return (a.length?`<button class="hidc" data-unhidecol="${a.join(",")}" title="Tampilkan ${a.length} kolom tersembunyi" aria-label="Tampilkan kolom tersembunyi">◂▸</button>`:"")+(z.length?`<button class="hidc r" data-unhidecol="${z.join(",")}" title="Tampilkan ${z.length} kolom tersembunyi" aria-label="Tampilkan kolom tersembunyi">◂▸</button>`:"")};
+  const letters=cols.map(col=>`<th data-col="${col.key}" data-k="${col.key}" class="${stk(col.key)}" title="Kolom ${L(col)} · klik untuk memilih, klik kanan untuk opsi">${L(col)}${rz(col)}</th>`).join("");
   const th=cols.map(col=>{const k=col.key,act=flt[k];
-    return `<th data-col="${k}" data-k="${k}" class="${stk(k)}" title="Klik untuk memilih kolom · klik kanan untuk opsi kolom"><span class="thl">${esc(col.label)}</span>${fon?`<button class="fbtn ${act?"on":""}" data-filt="${k}" aria-label="Filter ${esc(col.label)}" title="Filter & urutkan">${act?"⏷":"▾"}</button>`:""}${rz(col)}</th>`}).join("");
+    return `<th data-col="${k}" data-k="${k}" class="${stk(k)}" title="Kolom ${L(col)} · klik untuk memilih kolom · klik kanan untuk opsi kolom">${S.ro?"":hidMark(col)}<span class="thl">${esc(col.label)}</span>${fon?`<button class="fbtn ${act?"on":""}" data-filt="${k}" aria-label="Filter ${esc(col.label)}" title="Filter & urutkan">${act?"⏷":"▾"}</button>`:""}${rz(col)}</th>`}).join("");
   let tot=COLRN;const cg=cols.map(col=>{const w=colW(kind,col,dense);tot+=w;return `<col data-col="${col.key}" style="width:${w}px">`}).join("");
   const fchips=Object.entries(flt).map(([k,vals])=>`<span class="fchip">${esc(colLabel(k))}: ${esc(vals.slice(0,3).join(", "))}${vals.length>3?" +"+(vals.length-3):""}<button data-fdel="${k}" aria-label="Hapus filter ${esc(colLabel(k))}">✕</button></span>`).join("");
   return `${guideHtml(b.ig)}
@@ -1431,7 +1491,7 @@ function sheetTable(b,rows,ctx){
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
     <div class="seg" role="group" aria-label="Ukuran tabel">${[["normal","Normal"],["dense","Ringkas"],["fit","Muat layar"]].map(([k,l])=>`<button data-density="${k}" aria-pressed="${dn===k}">${l}</button>`).join("")}</div></div></div>
   ${fon?`<div class="fbar"><b>Filter</b>${fchips||`<span class="sub">Klik ▾ di judul kolom untuk memfilter atau mengurutkan.</span>`}<span style="flex:1"></span><span class="sub">Berlaku untuk:</span><div class="seg" role="group" aria-label="Filter berlaku untuk"><button data-fscope="me" aria-pressed="${scope==="me"}">Saya saja</button><button data-fscope="all" aria-pressed="${scope==="all"}">Semua tim</button></div>${filtering?`<button class="btn sm press" data-fclear>Hapus semua filter</button>`:""}</div>`:""}
-  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code])}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
+  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code])}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
 }
 /* rekap motif TikTok: keranjang kuning vs non keranjang */
 function motifKKTable(b){
@@ -1558,7 +1618,7 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
   <section class="sgrid">
     <article class="card"><h2 style="margin-bottom:12px">Logo Indo Group</h2><div class="uplogo"><div class="mark">${logoUrl(S.logo)?`<img src="${logoUrl(S.logo)}" alt="">`:"INDO"}</div><label class="btn press">Upload logo<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" id="upLogo" hidden></label></div></article>
     ${aiCard()}
-    <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Warna tema</h2><label class="field">Sidebar${pal("side",S.sideColor,["#FFFFFF","#F5F6F8","#1F2430","#2B3140","#22304F","#3B3F46","#3D5A50","#5B4B8A"])}</label><label class="field">Aksen (tombol, menu aktif, tanda hari ini)${pal("accent",S.accent,["#5B6BD6","#4F5BD5","#3E63DD","#2A8FC4","#2D8A6E","#7C5CC4","#C4507A","#D6A92C"])}</label></article>
+    <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Warna tema</h2><div class="field">Sidebar${S.isOwner?`${pal("side",S.sideCustom?S.sideColor:"",SIDE_SW)}<div class="colrow"><label class="colrow" style="margin:0">Kustom <input type="color" data-colorpick="side" value="${esc(S.sideCustom?S.sideColor:"#4A3527")}" aria-label="Warna sidebar kustom"></label>${S.sideCustom?`<button class="linkb" data-color="sideoff" data-c="">Kembali ke bawaan</button>`:""}</div><small class="note">Bisa juga klik kanan pada sidebar.</small>`:`<p class="note" style="margin:4px 0 0">Hanya pemilik dashboard yang bisa mengganti warna sidebar.</p>`}</div><label class="field">Aksen (tombol, menu aktif, tanda hari ini)${pal("accent",S.accent,["#5B6BD6","#4F5BD5","#3E63DD","#2A8FC4","#2D8A6E","#7C5CC4","#C4507A","#D6A92C"])}</label></article>
     
     <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Campaign & promo</h2><p class="note">Baris yang pilar/script/hook/catatannya memuat kata kunci campaign diberi garis warna campaign.</p>${S.campaigns.map((c,i)=>`<div class="field campf"><div style="display:flex;gap:6px"><input class="cin" data-campf="name" data-ci="${i}" value="${esc(c.name)}" aria-label="Nama campaign" style="border:1px solid var(--line);font-weight:800"><input class="cin" data-campf="kw" data-ci="${i}" value="${esc(c.kw||"")}" placeholder="kata kunci, pisah koma" aria-label="Kata kunci" style="border:1px solid var(--line)"><button class="icon-del" data-campdel="${i}" aria-label="Hapus campaign ${esc(c.name)}">✕</button></div>${pal("camp"+i,c.color,CSW)}</div>`).join("")}<button class="btn sm press" data-campadd style="align-self:flex-start">+ Campaign</button><label class="field">Promo (baris berpilar Promo)${pal("promo",S.promo,CSW)}</label></article>
   </section>
@@ -1568,7 +1628,7 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
   <h2 style="margin:6px 0 0;font-size:17px">Brand & channel</h2>
   <p class="note">PIC, talent dan motif di sini menjadi isi dropdown di tabel brand tersebut.</p>
   <section class="sgrid">${all().map((b,bi)=>`<article class="card scard" style="--c:${b.color}"><div class="bch">${av(b)}<div><b>${esc(b.name)}</b><small>${b.ig?"Instagram":"TikTok"}</small></div></div>
-    <label class="field">Warna khas (tabel, header, aksen)${pal("b"+bi,b.color,SWATCH)}</label>
+    <div class="field">Warna khas (sidebar, kartu, bar judul tabel)${S.isOwner?`${pal("b"+bi,b.color,SWATCH)}<div class="colrow"><label class="colrow" style="margin:0">Kustom <input type="color" data-colorpick="b${bi}" value="${esc(b.color)}" aria-label="Warna kustom ${esc(b.name)}"></label></div><label class="thtog"><input type="checkbox" data-thon="${bi}" ${b.thOn?"checked":""}> Pakai warna ini untuk bar judul tabel (bukan cokelat)</label>`:`<p class="note" style="margin:4px 0 0"><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:${esc(b.color)};vertical-align:-2px"></span> Hanya pemilik yang bisa mengganti warna.</p>`}</div>
     <div class="field">PIC${chips("pic:"+b.code)}</div>
     ${b.ig?"":`<div class="field">Talent${chips("tal:"+b.code)}</div><button class="btn sm press" data-motlib="${b.code}" style="align-self:flex-start">Daftar motif & PID (${(b.motifLib||[]).length})</button>`}
     <label class="btn sm press" style="align-self:flex-start">Upload logo${b.ig?"":" brand"}<input type="file" accept="image/*" data-uplogo="${bi}" hidden></label></article>`).join("")}</section>
@@ -1620,6 +1680,7 @@ document.addEventListener("change",async e=>{
   }
   if(t.dataset.f){saveField(t);return}
   if(t.dataset.colorpick)setColor(t.dataset.colorpick,t.value);
+  if(t.dataset.thon!==undefined){const i=+t.dataset.thon,b=all()[i];if(b)setColor(t.checked?"th"+i:"thoff"+i,b.color);if(!S.isOwner)t.checked=!t.checked}
   if(t.id==="upLogo"&&t.files[0]){const id=await uploadAsset(t.files[0]);if(id){S.logo={id};render();toast("Logo Indo Group tersimpan")}}
   if(t.dataset.shot!==undefined&&t.files[0]){const tr=t.closest("tr"),r=tr&&rowById(tr.dataset.id);if(r){const id=await uploadAsset(t.files[0]);if(id){pushUndo();r.shot=id;touch();render();toast("Screenshot tersimpan")}}}
   if(t.dataset.uplogo&&t.files[0]){const b=all()[+t.dataset.uplogo];const id=await uploadAsset(t.files[0]);if(id){b.logo={id};render();toast("Logo "+b.name+" tersimpan")}}
@@ -1656,15 +1717,15 @@ function formBox(title,html,ok){return new Promise(res=>{const sc=document.creat
 
 /* ---- undo ---- */
 S.undo=[]; S.redo=[]; S.guideOpen=false; S.gclip=null;
-const snapOf=ym=>({ym,snap:JSON.stringify(S.data[ym]||{}),cols:JSON.stringify(S.cols),meta:JSON.stringify(S.meta[ym]||{})});
+const snapOf=ym=>({ym,snap:JSON.stringify(S.data[ym]||{}),cols:JSON.stringify(S.cols),meta:JSON.stringify(S.meta[ym]||{}),cf:JSON.stringify(S.cf||{}),frzR:JSON.stringify(S.frzR||{})});
 function pushUndo(quiet){S.undo.push(snapOf(S.ym));if(S.undo.length>60)S.undo.shift();S.redo=[];if(!quiet)touch()}
-function restoreSnap(u){S.data[u.ym]=JSON.parse(u.snap);if(u.cols)S.cols=JSON.parse(u.cols);if(u.meta)S.meta[u.ym]=JSON.parse(u.meta);if(u.ym!==S.ym){S.ym=u.ym;subMonth(S.ym)}touch();render()}
+function restoreSnap(u){S.data[u.ym]=JSON.parse(u.snap);if(u.cols)S.cols=JSON.parse(u.cols);if(u.meta)S.meta[u.ym]=JSON.parse(u.meta);if(u.cf)S.cf=JSON.parse(u.cf);if(u.frzR)S.frzR=JSON.parse(u.frzR);if(u.ym!==S.ym){S.ym=u.ym;subMonth(S.ym)}touch();render()}
 function undo(){if(!canWrite())return;const u=S.undo.pop();if(!u){toast("Tidak ada perubahan yang bisa diurungkan");return}S.redo.push(snapOf(u.ym));restoreSnap(u);toast("Perubahan terakhir diurungkan","Ulangi",redo)}
 function redo(){if(!canWrite())return;const u=S.redo.pop();if(!u){toast("Tidak ada perubahan yang bisa diulangi");return}S.undo.push(snapOf(u.ym));restoreSnap(u);toast("Perubahan diulangi")}
 
 /* ---- selection: S.cs = {code, a:{rk,ck}, f:{rk,ck}}; rk = row id, or "g"+date for the empty row of a date ---- */
 function slotKeys(){const w=document.querySelector(".sheet-wrap");if(!w)return [];return [...w.querySelectorAll("tbody tr[data-id],tbody tr.ghost")].map(tr=>tr.dataset.id||"g"+tr.dataset.date)}
-function selCols(){const b=curB();return b?colsOf(b).filter(c=>c.type!=="tgl"&&c.type!=="hari"):[]}
+function selCols(){const b=curB();return b?colsOf(b).filter(c=>c.type!=="tgl"&&c.type!=="hari"&&!c.hidden):[]}
 function rect(){const b=curB();if(!S.cs||!b||S.cs.code!==b.code)return null;const sl=slotKeys(),cs=selCols().map(c=>c.key);
   const ra=sl.indexOf(S.cs.a.rk),rf=sl.indexOf(S.cs.f.rk),ca=cs.indexOf(S.cs.a.ck),cf=cs.indexOf(S.cs.f.ck);if(rf<0||cf<0)return null;
   const r0=Math.min(ra<0?rf:ra,rf),r1=Math.max(ra<0?rf:ra,rf),c0=Math.min(ca<0?cf:ca,cf),c1=Math.max(ca<0?cf:ca,cf);
@@ -1681,7 +1742,7 @@ function paintSel(){
   const f=cellTd(S.cs.f.rk,S.cs.f.ck);if(f)f.classList.add("cfocus");
   R.cols.forEach(c=>document.querySelectorAll(`.sheet th[data-col="${CSS.escape(c.key)}"]`).forEach(th=>th.classList.add("chsel")));
   R.rows.forEach(rk=>{const tr=trOf(rk);const rn=tr&&tr.querySelector("td.rn");if(rn)rn.classList.add("rsel")});
-  if(!S.ro){const last=cellTd(R.rows[R.rows.length-1],R.cols[R.cols.length-1].key);if(last){last.classList.add("cfh");const h=document.createElement("span");h.className="fillh";h.title="Tarik untuk mengisi sel berikutnya (seperti Google Sheets)";last.appendChild(h)}}
+  if(!S.ro){const last=cellTd(R.rows[R.rows.length-1],R.cols[R.cols.length-1].key);if(last){last.classList.add("cfh");const h=document.createElement("span");h.className="fillh";h.title="Tarik untuk menyalin ke sel berikutnya · tahan Ctrl saat melepas untuk mengisi berurutan (1, 2, 3…)";last.appendChild(h)}}
   syncFmtBar();
 }
 function ctrlOf(td){return td&&td.querySelector("input.cin,textarea.cin,select.cin,input[type=checkbox]")}
@@ -1768,7 +1829,7 @@ document.addEventListener("mouseover",e=>{
   if(k.rk===S.cs.f.rk&&k.ck===S.cs.f.ck)return;S.cs.f=k;
   const a=document.activeElement;if(a&&a.closest&&a.closest(".sheet td")){a.blur();td.closest(".sheet-wrap").focus({preventScroll:true})}
   document.body.classList.add("dragsel");window.getSelection&&window.getSelection().removeAllRanges();paintSel()});
-document.addEventListener("mouseup",()=>{S.drag=false;S.rowDrag=false;document.body.classList.remove("dragsel","filling");if(S.fill)doFill()});
+document.addEventListener("mouseup",e=>{S.drag=false;S.rowDrag=false;document.body.classList.remove("dragsel","filling");if(S.fill)doFill(!!(e.ctrlKey||e.metaKey||e.altKey))});
 document.addEventListener("focusin",e=>{const td=e.target.closest&&e.target.closest(".sheet tbody td[data-col]");if(!td)return;const k=keyOfTd(td);
   if(!S.cs||S.cs.f.rk!==k.rk||S.cs.f.ck!==k.ck)setSel(k,k)});
 
@@ -1823,10 +1884,11 @@ function parseTSV(txt){txt=String(txt).replace(/\r\n?/g,"\n");if(txt.endsWith("\
     if(ch==="\n"){rows[rows.length-1].push(cur);rows.push([]);cur="";i++;continue}
     cur+=ch;i++}
   rows[rows.length-1].push(cur);return rows.map(r=>r.map(t=>({t})))}
-function buildClip(){const R=rect();if(!R)return null;const b=curB();
-  const cells=R.rows.map(rk=>{const r=rowById(rk);return R.cols.map(col=>{const v=r?(col.type==="motif"?(r.motifs||[]).slice():r[col.key]):"";
-    return {t:cellText(r,col),v:v==null?"":JSON.parse(JSON.stringify(v)),type:col.type,fmt:r&&r.fmt&&r.fmt[col.key]?Object.assign({},r.fmt[col.key]):null,note:r&&r.notes&&r.notes[col.key]||"",lk:r&&r.lk&&r.lk[col.key]||""}})});
-  return {code:b.code,cells,tsv:cells.map(row=>row.map(c=>tsvCell(c.t)).join("\t")).join("\n")}}
+function buildClip(){const R=rect();if(!R)return null;const b=curB(),full=colsOf(b);
+  const cells=R.rows.map(rk=>{const r=rowById(rk),rn=slotNum(rk);return R.cols.map(col=>{const v=r?(col.type==="motif"?(r.motifs||[]).slice():r[col.key]):"";const t=cellText(r,col),fm=r&&r.fmt&&r.fmt[col.key]?Object.assign({},r.fmt[col.key]):null;
+    const disp=TEXTY.includes(col.type)&&col.type!=="date"&&(isFml(t)||(fm&&fm.nf))?cellDisplay(t,fm||{}):col.type==="check"?(r&&r[col.key]?"TRUE":"FALSE"):t;
+    return {t,disp,v:v==null?"":JSON.parse(JSON.stringify(v)),type:col.type,fmt:fm,note:r&&r.notes&&r.notes[col.key]||"",lk:r&&r.lk&&r.lk[col.key]||"",rn,ci:full.indexOf(col)}})});
+  return {code:b.code,cells,tsv:cells.map(row=>row.map(c=>tsvCell(String(c.disp))).join("\t")).join("\n"),html:clipHtml(cells)}}
 function copyRange(cut){const c=buildClip();if(!c)return null;S.gclip=c;
   document.querySelectorAll(".sheet .cclip").forEach(x=>x.classList.remove("cclip"));const R=rect();for(const rk of R.rows)for(const col of R.cols){const td=cellTd(rk,col.key);if(td)td.classList.add("cclip")}
   if(cut)clearRange(true);
@@ -1837,22 +1899,27 @@ function clearRange(quiet){if(!canWrite())return;const R=rect();if(!R)return;con
 function applyCell(r,col,c,mode,b){if(!col||col.type==="tgl"||col.type==="hari"||col.type==="shot")return;
   if(mode!=="format"){if(c.type&&c.type===col.type&&c.v!==undefined){if(col.type==="motif")r.motifs=(c.v||[]).slice(0,3);else r[col.key]=JSON.parse(JSON.stringify(c.v))}else setCellText(r,col,c.t,b);
     if(mode==="all"&&c.type!==undefined){r.notes=r.notes||{};r.lk=r.lk||{};c.note?r.notes[col.key]=c.note:delete r.notes[col.key];c.lk?r.lk[col.key]=c.lk:delete r.lk[col.key]}}
-  if(mode!=="values"&&c.type!==undefined){r.fmt=r.fmt||{};c.fmt?r.fmt[col.key]=Object.assign({},c.fmt):delete r.fmt[col.key]}}
+  if(mode!=="values"&&(c.type!==undefined||c.ext)){r.fmt=r.fmt||{};c.fmt?r.fmt[col.key]=Object.assign({},c.fmt):delete r.fmt[col.key];if(!Object.keys(r.fmt).length)delete r.fmt}}
 function pasteGrid(cells,mode){if(!canWrite())return;
   const R=rect(),b=curB(),rs=curRows();if(!R||!rs||!cells||!cells.length)return;
-  const cols=selCols();pushUndo(true);
-  const apply=(r,col,c)=>applyCell(r,col,c,mode,b);
+  const cols=selCols(),full=colsOf(b);pushUndo(true);let created=0;
+  /* formulas: copied ones move their relative references, Google Sheets ones (R1C1) become A1; "values only" pastes the result */
+  const prep=(c,rk,col)=>{if(!c)return c;const tn=slotNum(rk)+created,tc=full.indexOf(col);
+    if(mode==="values"){if(c.disp!==undefined&&isFml(c.t))return Object.assign({},c,{t:String(c.disp),v:undefined});return c}
+    if(c.fml&&TEXTY.includes(col.type))return Object.assign({},c,{t:r1c1ToA1(c.fml,tn,tc)});
+    if(c.rn!=null&&c.ci!=null)return shiftCell(c,tn-c.rn,tc-c.ci);return c};
+  const apply=(r,col,c,rk)=>applyCell(r,col,prep(c,rk,col),mode,b);
   let first=null,last=null,n=0;
   if(cells.length===1&&cells[0].length===1&&R.n>1){
-    for(const rk of R.rows){const r=rowById(rk);if(!r)continue;R.cols.forEach(col=>{apply(r,col,cells[0][0]);n++})}
+    for(const rk of R.rows){const r=rowById(rk);if(!r)continue;R.cols.forEach(col=>{apply(r,col,cells[0][0],rk);n++})}
     first=R.rows[0];last=R.rows[R.rows.length-1];
     S.cs.a={rk:first,ck:R.cols[0].key};S.cs.f={rk:last,ck:R.cols[R.cols.length-1].key};
   }else{
     let i=R.r0;const sl=R.sl;
-    for(const line of cells){if(i>=sl.length)break;const rk=sl[i];let r=rowById(rk);
-      if(!r){const d=+rk.slice(1);if(!d)break;r={id:rid(),d};const lastIx=rs.map(x=>x.d).lastIndexOf(d);rs.splice(lastIx<0?rs.length:lastIx+1,0,r)}else i++;
+    for(const line of cells){if(i>=sl.length)break;const rk=sl[i];let r=rowById(rk),made=false;
+      if(!r){const d=+rk.slice(1);if(!d)break;r={id:rid(),d};const lastIx=rs.map(x=>x.d).lastIndexOf(d);rs.splice(lastIx<0?rs.length:lastIx+1,0,r);made=true}else i++;
       if(!first)first=r.id;last=r.id;
-      line.forEach((c,j)=>{const col=cols[R.c0+j];if(col){apply(r,col,c);n++}});}
+      line.forEach((c,j)=>{const col=cols[R.c0+j];if(col){apply(r,col,c,rk);n++}});if(made)created++;}
     const w=Math.max(...cells.map(l=>l.length));
     S.cs.a={rk:first,ck:cols[R.c0].key};S.cs.f={rk:last,ck:cols[Math.min(cols.length-1,R.c0+w-1)].key};
   }
@@ -1860,17 +1927,20 @@ function pasteGrid(cells,mode){if(!canWrite())return;
 }
 function clipOwner(){if(!gridActive()&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest(".sheet tbody td")))return false;const a=document.activeElement,R=rect();if(!R)return false;
   if(isText(a)&&a.selectionStart!==a.selectionEnd&&!S.fresh&&R.n===1)return false;return true}
-document.addEventListener("copy",e=>{if(!clipOwner())return;const R=rect();const a=document.activeElement;if(R.n===1&&isText(a)&&!S.fresh&&a.selectionStart!==a.selectionEnd)return;e.preventDefault();const c=copyRange(false);if(c)e.clipboardData.setData("text/plain",c.tsv)});
-document.addEventListener("cut",e=>{if(!clipOwner())return;if(S.ro){e.preventDefault();canWrite();return}const a=document.activeElement,R=rect();if(R.n===1&&isText(a)&&!S.fresh&&a.selectionStart!==a.selectionEnd)return;e.preventDefault();const c=buildClip();if(!c)return;e.clipboardData.setData("text/plain",c.tsv);copyRange(true)});
-document.addEventListener("paste",e=>{if(!clipOwner())return;if(S.ro){e.preventDefault();canWrite();return}const txt=(e.clipboardData&&e.clipboardData.getData("text/plain"))||"";const a=document.activeElement,R=rect();
-  const multi=/[\t\n]/.test(txt.replace(/\r?\n$/,""));
-  if(!multi&&R.n===1&&isText(a)&&!S.gclip)return;
-  if(!multi&&R.n===1&&isText(a)&&S.gclip&&S.gclip.tsv!==txt.replace(/\r\n?/g,"\n").replace(/\n$/,""))return;
+document.addEventListener("copy",e=>{if(!clipOwner())return;const R=rect();const a=document.activeElement;if(R.n===1&&isText(a)&&!S.fresh&&a.selectionStart!==a.selectionEnd)return;e.preventDefault();const c=copyRange(false);if(c){e.clipboardData.setData("text/plain",c.tsv);e.clipboardData.setData("text/html",c.html)}});
+document.addEventListener("cut",e=>{if(!clipOwner())return;if(S.ro){e.preventDefault();canWrite();return}const a=document.activeElement,R=rect();if(R.n===1&&isText(a)&&!S.fresh&&a.selectionStart!==a.selectionEnd)return;e.preventDefault();const c=buildClip();if(!c)return;e.clipboardData.setData("text/plain",c.tsv);e.clipboardData.setData("text/html",c.html);copyRange(true)});
+document.addEventListener("paste",e=>{if(!clipOwner())return;if(S.ro){e.preventDefault();canWrite();return}const txt=(e.clipboardData&&e.clipboardData.getData("text/plain"))||"",html=(e.clipboardData&&e.clipboardData.getData("text/html"))||"";const a=document.activeElement,R=rect();
+  const own=S.gclip&&S.gclip.tsv===txt.replace(/\r\n?/g,"\n").replace(/\n$/,"");
+  const hc=!own&&html?parseHtmlClip(html):null,multi=/[\t\n]/.test(txt.replace(/\r?\n$/,""))||(hc&&(hc.length>1||hc[0].length>1));
+  if(!multi&&R.n===1&&isText(a)&&!S.fresh&&!own)return; /* typing inside one cell: normal text paste */
+  if(!multi&&R.n===1&&isText(a)&&!own&&!(hc&&(hc[0][0].fmt||hc[0][0].fml)))return;
   e.preventDefault();const mode=S.pvOnly?"values":"all";S.pvOnly=false;
-  if(S.gclip&&S.gclip.tsv===txt.replace(/\r\n?/g,"\n").replace(/\n$/,""))pasteGrid(S.gclip.cells,mode);else if(txt)pasteGrid(parseTSV(txt),"values")});
+  if(own)pasteGrid(S.gclip.cells,mode);else if(hc)pasteGrid(hc,mode);else if(txt)pasteGrid(parseTSV(txt),"values")});
 async function menuPaste(mode){if(!canWrite())return;
-  let txt=null;try{if(navigator.clipboard&&navigator.clipboard.readText)txt=await navigator.clipboard.readText()}catch(_){txt=null}
-  if(txt!=null&&txt!==""&&(!S.gclip||S.gclip.tsv!==txt.replace(/\r\n?/g,"\n").replace(/\n$/,""))){if(mode==="format"){toast("Tempel hanya format memakai salinan dari dashboard ini");return}pasteGrid(parseTSV(txt),"values");return}
+  let txt=null,hc=null;
+  try{if(navigator.clipboard&&navigator.clipboard.read){const items=await navigator.clipboard.read();for(const it of items){if(it.types.includes("text/html")){const h=await(await it.getType("text/html")).text();hc=parseHtmlClip(h)}if(it.types.includes("text/plain"))txt=await(await it.getType("text/plain")).text()}}}catch(_){}
+  if(txt==null){try{if(navigator.clipboard&&navigator.clipboard.readText)txt=await navigator.clipboard.readText()}catch(_){txt=null}}
+  if(txt!=null&&txt!==""&&(!S.gclip||S.gclip.tsv!==txt.replace(/\r\n?/g,"\n").replace(/\n$/,""))){if(hc){pasteGrid(hc,mode);return}if(mode==="format"){toast("Tempel hanya format memakai salinan dari dashboard ini atau Google Sheets");return}pasteGrid(parseTSV(txt),"values");return}
   if(S.gclip){pasteGrid(S.gclip.cells,mode);return}
   toast("Untuk menempel dari Google Sheets atau Excel, tekan Ctrl+V");
 }
@@ -1982,7 +2052,8 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
       <button data-cm="fmt:b" aria-pressed="${!!f.b}" title="Tebal (Ctrl+B)"><b>B</b></button><button data-cm="fmt:i" aria-pressed="${!!f.i}" title="Miring (Ctrl+I)"><i style="font-family:serif">I</i></button><button data-cm="fmt:u" aria-pressed="${!!f.u}" title="Garis bawah (Ctrl+U)"><u>U</u></button><button data-cm="fmt:s" aria-pressed="${!!f.s}" title="Coret (Alt+Shift+5)"><s>S</s></button>
       <button data-cm="pal:fc" class="fcb" title="Warna teks" aria-label="Warna teks"><span>A</span><i style="background:${f.fc||"var(--ink)"}"></i></button><button data-cm="pal:bg" class="fcb" title="Warna sel" aria-label="Warna sel">${ICON_FILL}<i style="background:${f.bg||"transparent"};box-shadow:inset 0 0 0 1px var(--line)"></i></button>
       ${["left","center","right"].map(a=>`<button data-cm="fmt:ta:${a}" aria-pressed="${f.ta===a}" title="Rata ${a==="left"?"kiri":a==="center"?"tengah":"kanan"}">${ICON_AL[a]}</button>`).join("")}
-      <button data-cm="fmt:clear" title="Hapus format" style="width:auto;padding:0 8px;font-size:11px">Hapus</button></div></div>`+MS+
+      <button data-cm="fmt:clear" title="Hapus format" style="width:auto;padding:0 8px;font-size:11px">Hapus</button></div></div>`+
+    `<div class="msub mnf"><span>Format angka</span>${NF.map(([k,l,ex])=>{const cur=(f.nf==="num"||f.nf==="pct")&&f.dp===2?f.nf+"2":f.nf||"";return MI("nf:"+k,(cur===k?"✓ ":"")+l,ex)}).join("")}</div>`+MI("cf","Format bersyarat…")+MS+
     MI("ai","✨ Buat script dari Ide/Brief","",!r)+MS+
     MI("mg:all","Gabungkan sel","",R.n<2||!rows.length)+MI("mg:un","Pisahkan sel")+MS+
     MI("link",r&&r.lk&&r.lk[S.cs.f.ck]?"Edit link":"Sisipkan link","Ctrl+K",!r)+MI("note",r&&r.notes&&r.notes[S.cs.f.ck]?"Edit catatan sel":"Catatan sel","",!r)+
@@ -1996,6 +2067,7 @@ function headMenu(key,x,y){const b=curB(),cols=colsOf(b),col=cols.find(c=>c.key=
     (fixed?MI("hfilt","Filter kolom ini…")+MS:MI("hasc","Urutkan A → Z")+MI("hdesc","Urutkan Z → A")+MI("hfilt","Filter kolom ini…")+MS)+
     (col.type==="tgl"?"":MI("hleft","Sisipkan 1 kolom di kiri","",fixed))+MI("hright","Sisipkan 1 kolom di kanan","",col.type==="tgl")+MS+
     MI("hedit",fixed?"Ganti nama kolom":"Edit kolom (nama, jenis, pilihan)…")+(fixed?"":MI("hml","Geser ke kiri","",i<=2)+MI("hmr","Geser ke kanan","",i>=cols.length-1)+MI("hdel",multi.length>1?`Hapus ${multi.length} kolom`:"Hapus kolom"))+MS+
+    (fixed?"":MI("hhide",multi.length>1?`Sembunyikan ${multi.length} kolom`:"Sembunyikan kolom"))+MI("hunhide",`Tampilkan kolom tersembunyi${cols.some(c=>c.hidden)?" ("+cols.filter(c=>c.hidden).length+")":""}`,"",!cols.some(c=>c.hidden))+MI("hcf","Format bersyarat…")+(S.isOwner?MI("hthc","Warna bar judul (warna brand)…"):"")+MS+
     MI("hrestore",`Kembalikan kolom bawaan${miss.length?" ("+miss.length+")":""}`,"",!miss.length)+MI("hreset","Kembalikan susunan kolom awal");
   placeMenu(m,x,y)}
 document.addEventListener("contextmenu",e=>{
@@ -2023,6 +2095,9 @@ document.addEventListener("click",async e=>{
   if(a.startsWith("bd:")){closeMenus();applyBorder(a.slice(3));return}
   if(a.startsWith("mg:")){closeMenus();mergeCells(a.slice(3));return}
   if(a.startsWith("frz:")){closeMenus();setFreeze(+a.slice(4));return}
+  if(a.startsWith("frzr:")){closeMenus();setFreezeRows(+a.slice(5));return}
+  if(a.startsWith("nf:")){closeMenus();applyFmt("nf",a.slice(3));return}
+  if(a.startsWith("dp:")){closeMenus();applyFmt("dp",a.slice(3));return}
   if(a.startsWith("fn:")){closeMenus();insertFn(a.slice(3));return}
   if(a.startsWith("wr:")){closeMenus();const t=fmtTargets(),cur=t.length?fmtOf(t[0].r,t[0].key).wr||"":"";if(cur!==(a==="wr:clip"?"clip":""))applyFmt("wr","clip");return}
   if(a==="redo"){closeMenus();redo();return}
@@ -2030,8 +2105,8 @@ document.addEventListener("click",async e=>{
   if(a.startsWith("fmt:")){const [,p,v]=a.split(":");applyFmt(p,v);if(p==="ta")m.querySelectorAll('[data-cm^="fmt:ta"]').forEach(x=>x.setAttribute("aria-pressed",x===it&&x.getAttribute("aria-pressed")!=="true"));else if(p!=="clear")it.setAttribute("aria-pressed",it.getAttribute("aria-pressed")!=="true");else closeMenus();return}
   closeMenus();const b=curB();
   switch(a){
-    case "cut":{const c=buildClip();if(c){try{await navigator.clipboard.writeText(c.tsv)}catch(_){}copyRange(true)}break}
-    case "copy":{const c=copyRange(false);if(c){try{await navigator.clipboard.writeText(c.tsv)}catch(_){}}break}
+    case "cut":{const c=buildClip();if(c){await writeClip(c);copyRange(true)}break}
+    case "copy":{const c=copyRange(false);if(c)await writeClip(c);break}
     case "paste":menuPaste("all");break;
     case "pv":menuPaste("values");break;
     case "pf":menuPaste("format");break;
@@ -2063,6 +2138,11 @@ document.addEventListener("click",async e=>{
     case "hml":moveCol(hk,-1);break;
     case "hmr":moveCol(hk,1);break;
     case "hdel":deleteCol(keys.length?keys:[hk]);break;
+    case "hhide":hideCols(keys.length?keys:[hk]);break;
+    case "hunhide":unhideCols(null);break;
+    case "hcf":openCF();break;
+    case "hthc":thColorPop(e.clientX,e.clientY);break;
+    case "cf":openCF();break;
     case "hrestore":restoreBase();break;
     case "hreset":resetCols();break;
   }
@@ -2124,7 +2204,7 @@ document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("[d
 
 /* ---- text formatting like Google Sheets: bold, italic, underline, font color, alignment (selected cells) ---- */
 function fmtOf(v,key){const f=v&&v.fmt||{};return Object.assign({},f._row||{},f[key]||{})}
-function fmtAttr(v,key){const f=fmtOf(v,key);return [f.b&&"data-b",f.i&&"data-i",f.u&&"data-u",f.s&&"data-s",f.ta&&`data-ta="${f.ta}"`,f.va&&`data-va="${f.va}"`,f.wr&&`data-wr="${f.wr}"`,f.bd&&`data-bd="${esc(f.bd)}"`,f.fc&&"data-fc",f.bg&&"data-bg",(f.fc||f.bg)&&`style="${f.fc?"--fc:"+f.fc+";":""}${f.bg?"--cbg:"+f.bg:""}"`].filter(Boolean).join(" ")}
+function fmtAttr(v,key,extra){const f=Object.assign(fmtOf(v,key),extra||{});return [f.b&&"data-b",f.i&&"data-i",f.u&&"data-u",f.s&&"data-s",f.ta&&`data-ta="${f.ta}"`,f.va&&`data-va="${f.va}"`,f.wr&&`data-wr="${f.wr}"`,f.bd&&`data-bd="${esc(f.bd)}"`,f.fc&&"data-fc",f.bg&&"data-bg",(f.fc||f.bg)&&`style="${f.fc?"--fc:"+f.fc+";":""}${f.bg?"--cbg:"+f.bg:""}"`].filter(Boolean).join(" ")}
 const ICON_FILL='<svg viewBox="0 0 24 24"><path d="M4.5 11.5l7-7 7 7-7 7z"/><path d="M4.5 11.5h14"/><path d="M20 15s1.8 2.3 1.8 3.6a1.8 1.8 0 0 1-3.6 0c0-1.3 1.8-3.6 1.8-3.6z"/></svg>';
 const ICON_AL={left:'<svg viewBox="0 0 16 16"><path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8"/></svg>',center:'<svg viewBox="0 0 16 16"><path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8"/></svg>',right:'<svg viewBox="0 0 16 16"><path d="M2 3h12M6 6.5h8M2 10h12M6 13.5h8"/></svg>'};
 const IC={undo:'<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>',redo:'<svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg>',
@@ -2136,16 +2216,22 @@ const IC={undo:'<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h
   freeze:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M9 4v16M4 9h16" stroke-width="2.4"/></svg>'};
 const TB=(a,t,html,cls)=>`<button data-tb="${a}" title="${esc(t)}" aria-label="${esc(t)}" class="${cls||""}">${html}</button>`;
 /* toolbar + formula bar above the table, like Google Sheets */
-function gbar(){return `<div class="gbar"><div class="gtools" role="toolbar" aria-label="Toolbar tabel">
+IC.cf='<svg viewBox="0 0 24 24"><rect x="4" y="4" width="13" height="6" rx="1"/><path d="M17 7h2.5v5H11v3"/><rect x="9.5" y="15" width="3" height="5" rx=".8"/></svg>';
+IC.sort='<svg viewBox="0 0 24 24"><path d="M7 5v14M4 16l3 3 3-3"/><path d="M13 7h7M13 12h5M13 17h3"/></svg>';
+IC.up='<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>';IC.down='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+const tbMin=()=>lsGet("cpig-tbmin","0")==="1";
+function gbar(){return `<div class="gbar ${tbMin()?"tbmin":""}"><div class="gtools" role="toolbar" aria-label="Toolbar tabel">
   ${TB("undo","Urungkan (Ctrl+Z)",IC.undo,"edit")}${TB("redo","Ulangi (Ctrl+Y)",IC.redo,"edit")}<span class="sep edit"></span>
+  ${TB("nf:idr","Format sebagai Rupiah",'<span class="nft">Rp</span>',"edit")}${TB("nf:pct","Format sebagai persen",'<span class="nft">%</span>',"edit")}${TB("dp:-1","Kurangi angka desimal",'<span class="nft">.0<small>←</small></span>',"edit")}${TB("dp:1","Tambah angka desimal",'<span class="nft">.00<small>→</small></span>',"edit")}${TB("pop:nf","Format angka lainnya",'<span class="nft">123</span>',"edit caret")}<span class="sep edit"></span>
   ${TB("fmt:b","Tebal (Ctrl+B)","<b>B</b>","edit")}${TB("fmt:i","Miring (Ctrl+I)",'<i style="font-family:Georgia,serif">I</i>',"edit")}${TB("fmt:s","Coret (Alt+Shift+5)","<s>S</s>","edit")}${TB("fmt:u","Garis bawah (Ctrl+U)","<u>U</u>","edit")}
   <button data-tb="pal:fc" class="fcb edit" title="Warna teks" aria-label="Warna teks"><span>A</span><i id="fcSwatch"></i></button><span class="sep edit"></span>
   <button data-tb="pal:bg" class="fcb edit" title="Warna sel" aria-label="Warna sel">${ICON_FILL}<i id="bgSwatch"></i></button>
   ${TB("pop:border","Border",IC.border,"edit caret")}${TB("pop:merge","Gabungkan sel",IC.merge,"edit caret")}<span class="sep edit"></span>
   ${TB("pop:halign","Rata horizontal",ICON_AL.left,"edit caret")}${TB("pop:valign","Rata vertikal",IC.vtop,"edit caret")}${TB("pop:wrap","Pengemasan teks",IC.wrap,"edit caret")}<span class="sep edit"></span>
   ${TB("link","Sisipkan link (Ctrl+K)",IC.link,"edit")}${TB("note","Catatan sel",IC.note,"edit")}${TB("filter","Buat / matikan filter",IC.filter)}${TB("pop:fn","Fungsi (rumus)",IC.sigma,"edit caret")}<span class="sep"></span>
-  ${TB("ai","Buat script dari Ide/Brief (AI)",'<span class="aitb">✨ Script</span>',"edit")}<span class="sep edit"></span>${TB("find","Cari & ganti (Ctrl+F)",IC.find)}${TB("pop:freeze","Bekukan kolom",IC.freeze,"caret")}
-  </div><div class="fxrow"><span class="fxref" id="fxRef" title="Alamat sel"></span><span class="fxi" aria-hidden="true">fx</span><textarea class="fxin" id="fxIn" rows="1" spellcheck="false" aria-label="Bar rumus: isi sel terpilih"></textarea><span class="fxstat" id="fxStat"></span></div></div>`}
+  ${TB("ai","Buat script dari Ide/Brief (AI)",'<span class="aitb">✨ Script</span>',"edit")}<span class="sep edit"></span>${TB("find","Cari & ganti (Ctrl+F)",IC.find)}${TB("pop:sort","Urutkan",IC.sort,"edit caret")}${TB("cf","Format bersyarat",IC.cf,"edit")}${TB("pop:freeze","Bekukan baris / kolom",IC.freeze,"caret")}
+  </div><div class="fxrow"><span class="fxref" id="fxRef" title="Alamat sel"></span><span class="fxi" aria-hidden="true">fx</span><textarea class="fxin" id="fxIn" rows="1" spellcheck="false" aria-label="Bar rumus: isi sel terpilih"></textarea><span class="fxstat" id="fxStat"></span><button class="tbtog" data-tbtog title="${tbMin()?"Tampilkan toolbar":"Ciutkan toolbar"}" aria-label="${tbMin()?"Tampilkan toolbar":"Ciutkan toolbar"}" aria-expanded="${!tbMin()}">${tbMin()?IC.down:IC.up}</button></div></div>`}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-tbtog]");if(!t)return;const on=!tbMin();lsSet("cpig-tbmin",on?"1":"0");document.querySelectorAll(".gbar").forEach(g=>g.classList.toggle("tbmin",on));document.querySelectorAll("[data-tbtog]").forEach(x=>{x.innerHTML=on?IC.down:IC.up;x.title=on?"Tampilkan toolbar":"Ciutkan toolbar";x.setAttribute("aria-label",x.title);x.setAttribute("aria-expanded",String(!on))})});
 function fmtBar(){return gbar()}
 function fmtTargets(){const R=rect();if(!R)return [];const out=[];for(const rk of R.rows){const r=rowById(rk);if(!r)continue;R.cols.forEach(c=>out.push({r,key:c.key}))}return out}
 function syncFmtBar(){const bar=document.querySelector(".gtools");if(bar){const t=fmtTargets(),f=t.length?fmtOf(t[0].r,t[0].key):{};
@@ -2167,11 +2253,14 @@ function applyFmt(prop,val){if(!canWrite())return;
   t.forEach(({r,key})=>{r.fmt=r.fmt||{};if(r.fmt._row){Object.keys(r.fmt._row).forEach(k=>{colsOf(curB()).forEach(c=>{r.fmt[c.key]=r.fmt[c.key]||{};if(r.fmt[c.key][k]===undefined)r.fmt[c.key][k]=r.fmt._row[k]})});delete r.fmt._row}
     const f=r.fmt[key]=r.fmt[key]||{};
     if(prop==="clear"){delete r.fmt[key];return}
-    if(prop==="ta"||prop==="va"||prop==="wr")f[prop]=first[prop]===val?"":val; else if(prop==="fc"||prop==="bg")f[prop]=val; else f[prop]=!first[prop];
-    Object.keys(f).forEach(k=>{if(!f[k])delete f[k]})});
+    if(prop==="ta"||prop==="va"||prop==="wr")f[prop]=first[prop]===val?"":val; else if(prop==="fc"||prop==="bg")f[prop]=val;
+    else if(prop==="nf"){f.nf=val==="num2"?"num":val==="pct2"?"pct":val;f.dp=/2$/.test(val)?2:0}
+    else if(prop==="dp"){if(!f.nf||!/^(num|idr|pct)$/.test(f.nf))f.nf="num";f.dp=Math.max(0,Math.min(10,(f.dp||0)+(+val||0)))}
+    else f[prop]=!first[prop];
+    Object.keys(f).forEach(k=>{if(!f[k])delete f[k]});if(!Object.keys(f).length)delete r.fmt[key]});
   t.forEach(({r,key})=>{const td=cellTd(r.id,key);if(!td)return;const f=fmtOf(r,key);
     ["b","i","u","s","fc","bg"].forEach(k=>td.toggleAttribute("data-"+k,!!f[k]));["ta","va","wr","bd"].forEach(k=>f[k]?td.setAttribute("data-"+k,f[k]):td.removeAttribute("data-"+k));f.fc?td.style.setProperty("--fc",f.fc):td.style.removeProperty("--fc");f.bg?td.style.setProperty("--cbg",f.bg):td.style.removeProperty("--cbg")});
-  touch();syncFmtBar();if(prop==="wr"||prop==="clear")autoSize();
+  touch();if(prop==="nf"||prop==="dp"||prop==="clear"){render();return}syncFmtBar();if(prop==="wr")autoSize();
 }
 /* borders on the selected range */
 function applyBorder(kind){if(!canWrite())return;const R=rect();if(!R)return;if(!R.rows.some(rowById)){toast("Pilih sel yang berisi konten dulu");return}pushUndo(true);
@@ -2199,12 +2288,31 @@ async function mergeCells(kind){if(!canWrite())return;const R=rect();if(!R)retur
   useful.forEach(([i,j,rs,cs])=>{for(let a=0;a<rs;a++)for(let c=0;c<cs;c++){if(!a&&!c)continue;clearCell(rows[i+a],R.cols[j+c])}const ar=rows[i];ar.mg=ar.mg||{};ar.mg[R.cols[j].key]=[rs,cs]});
   S.cs.a={rk:rows[0].id,ck:R.cols[0].key};S.cs.f=Object.assign({},S.cs.a);touch();render();toast("Sel digabungkan","Urungkan",undo)}
 /* freeze columns (column titles always stay on top) */
+const SIDE_SW=["#FFFFFF","#F5F6F8","#F3EDE4","#E8F0EA","#E6EDF7","#4A3527","#3D5A50","#22304F","#1F2430","#2B3140","#5B4B8A","#741B47"];
+/* color popup for the owner: right-click a column title (bar judul = warna brand) or the sidebar */
+function colorPop(title,cur,pick,reset,x,y){closeMenus();if(!S.isOwner){toast("Hanya pemilik dashboard yang bisa mengubah warna");return}
+  const brand=[...new Set(all().map(b=>String(b.color).toLowerCase()))],sw=c=>`<button data-pc="${esc(c)}" style="--sw:${esc(c)}" aria-label="Warna ${esc(c)}" title="${esc(c)}" aria-pressed="${String(cur).toLowerCase()===c.toLowerCase()}"></button>`;
+  const p=document.createElement("div");p.className="cpal";p.setAttribute("role","dialog");p.setAttribute("aria-label",title);
+  p.innerHTML=`<div class="mhead">${esc(title)}</div>${reset?`<button class="pnone" data-pr>${esc(reset)}</button>`:""}<div class="pgrid">${PAL.map(sw).join("")}</div><span class="plbl">Warna brand</span><div class="pgrid">${brand.map(sw).join("")}</div><label class="pcust">+ Warna kustom<input type="color" value="${esc(/^#[0-9a-f]{6}$/i.test(cur)?cur:"#4a3527")}" aria-label="Pilih warna kustom"></label>`;
+  placeMenu(p,x,y);
+  p.addEventListener("click",e=>{const c=e.target.closest("[data-pc]");if(c){closeMenus();pick(c.dataset.pc);return}if(e.target.closest("[data-pr]")){closeMenus();reset&&pick(null)}});
+  p.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();closeMenus()}});
+  p.querySelector(".pcust input").addEventListener("change",e=>{closeMenus();pick(e.target.value)})}
+document.addEventListener("contextmenu",e=>{const s=e.target.closest(".side");if(!s||!S.isOwner||e.target.closest("input,textarea"))return;e.preventDefault();
+  colorPop("Warna sidebar",S.sideCustom?S.sideColor:"",c=>setColor(c?"side":"sideoff",c||""),S.sideCustom?"Kembali ke bawaan":"",e.clientX,e.clientY)});
+function thColorPop(x,y){const b=curB();if(!b)return;const i=all().indexOf(b);
+  colorPop("Warna bar judul · "+b.name,b.thOn?b.color:"",c=>setColor(c?"th"+i:"thoff"+i,c||b.color),b.thOn?"Kembali cokelat (bawaan)":"",x,y)}
 function setFreeze(n){const b=curB();if(!b)return;S.frz[b.code]=n;render();toast(n?`${n} kolom pertama dibekukan`:"Kolom tidak dibekukan")}
+function setFreezeRows(n){const b=curB();if(!b)return;if(n)S.frzR[b.code]=n;else delete S.frzR[b.code];render();toast(n?`${n} baris pertama dibekukan`:"Baris tidak dibekukan")}
 const frzStyle=document.createElement("style");document.head.appendChild(frzStyle);
 function applyFreeze(){const w=document.querySelector(".sheet-wrap[data-code]");if(!w){frzStyle.textContent="";return}
   const ths=[...w.querySelectorAll("thead tr.labels th.stk[data-k]")],rn=w.querySelector("thead tr.labels th.rn");let left=rn?rn.offsetWidth:COLRN,css="";
   ths.forEach(th=>{css+=`.sheet-wrap[data-code] .stk[data-k="${th.dataset.k}"]{left:${left}px}`;left+=th.offsetWidth});
   if(ths.length)css+=`.sheet-wrap[data-code] .stk[data-k="${ths[ths.length-1].dataset.k}"]{border-right:3px solid var(--frz)}`;
+  /* frozen rows: the first N rows stay under the column titles */
+  const b=curB(),nr=b?S.frzR[b.code]||0:0;
+  if(nr){const th=w.querySelector("thead"),trs=[...w.querySelectorAll("tbody tr[data-n]")].slice(0,nr);let top=th?th.offsetHeight:0;
+    trs.forEach((tr,i)=>{const q=`.sheet-wrap[data-code] tbody tr[data-n="${tr.dataset.n}"]>td`;css+=`${q}{position:sticky;top:${top}px;z-index:4}${q}.stk{z-index:5}${q}.rn{z-index:6}`+(i===trs.length-1?`${q}{border-bottom:3px solid var(--frz)}`:"");top+=tr.offsetHeight})}
   frzStyle.textContent=css}
 /* wrapping cells grow with their text; browsers without field-sizing get the height set here */
 const FS=!!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content"));
@@ -2218,9 +2326,14 @@ function toolPop(kind,x,y){closeMenus();const b=curB();if(!b)return;const t=fmtT
   if(kind==="halign")h=`<div class="mhead">Rata horizontal</div>`+[["left","Kiri"],["center","Tengah"],["right","Kanan"]].map(([k,l])=>MI("fmt:ta:"+k,chk(f.ta===k)+l)).join("");
   if(kind==="valign")h=`<div class="mhead">Rata vertikal</div>`+[["top","Atas"],["middle","Tengah"],["bottom","Bawah"]].map(([k,l])=>MI("fmt:va:"+k,chk((f.va||"top")===k)+l)).join("");
   if(kind==="wrap")h=`<div class="mhead">Pengemasan teks</div>`+MI("wr:wrap",chk(f.wr!=="clip")+"Wrap <small>(baris ikut tinggi teks)</small>")+MI("wr:clip",chk(f.wr==="clip")+"Potong <small>(satu baris)</small>");
-  if(kind==="fn")h=`<div class="mhead">Fungsi <small>ketik juga langsung: =SUM(H2:H9)</small></div>`+["SUM","AVERAGE","COUNT","COUNTA","COUNTIF","MAX","MIN","IF","CONCAT","TODAY"].map(n=>MI("fn:"+n,n)).join("");
-  if(kind==="freeze"){const cols=colsOf(b),cur=frzOf(b),ci=S.cs&&S.cs.code===b.code?cols.findIndex(c=>c.key===S.cs.f.ck):-1;
-    h=`<div class="mhead">Bekukan <small>judul kolom selalu terlihat</small></div>`+MI("frz:0",chk(cur===0)+"Tidak ada kolom")+MI("frz:1",chk(cur===1)+"1 kolom ("+esc(cols[0].label)+")")+MI("frz:2",chk(cur===2)+"2 kolom (sampai "+esc(cols[1].label)+")")+(ci>=1?MI("frz:"+(ci+1),chk(cur===ci+1)+"Sampai kolom "+colLetter(ci)+" ("+esc(cols[ci].label)+")"):"")}
+  if(kind==="fn")h=`<div class="mhead">Fungsi <small>ketik juga langsung: =SUM(H2:H9) · brand lain: =COUNTIF(OLIVER!L:L;"UPLOADED")</small></div>`+
+    FN_GROUPS.map(([g,list])=>`<div class="msub"><span>${g}</span>${list.map(n=>MI("fn:"+n,n)).join("")}</div>`).join("");
+  if(kind==="nf")h=`<div class="mhead">Format angka</div>`+NF.map(([k,l,ex])=>{const cur=(f.nf==="num"||f.nf==="pct")&&f.dp===2?f.nf+"2":f.nf||"";return MI("nf:"+k,chk(cur===k)+l,ex)}).join("")+MS+MI("dp:-1","Kurangi angka desimal")+MI("dp:1","Tambah angka desimal");
+  if(kind==="sort"){const col=S.cs&&S.cs.code===b.code?colByKey(S.cs.f.ck):null;h=`<div class="mhead">Urutkan ${col?`<small>${esc(col.label)}, di setiap tanggal</small>`:""}</div>`+MI("asc","Urutkan A → Z","",!col)+MI("desc","Urutkan Z → A","",!col)}
+  if(kind==="freeze"){const cols=colsOf(b),cur=frzOf(b),ci=S.cs&&S.cs.code===b.code?cols.findIndex(c=>c.key===S.cs.f.ck):-1,cr=S.frzR[b.code]||0;
+    const tr=S.cs&&S.cs.code===b.code?trOf(S.cs.f.rk):null,ri=tr?[...tr.parentElement.children].filter(x=>x.matches("tr[data-n]")).indexOf(tr):-1;
+    h=`<div class="mhead">Bekukan kolom <small>judul kolom selalu terlihat</small></div>`+MI("frz:0",chk(cur===0)+"Tidak ada kolom")+MI("frz:1",chk(cur===1)+"1 kolom ("+esc(cols[0].label)+")")+MI("frz:2",chk(cur===2)+"2 kolom (sampai "+esc(cols[1].label)+")")+(ci>=1?MI("frz:"+(ci+1),chk(cur===ci+1)+"Sampai kolom "+colLetter(ci)+" ("+esc(cols[ci].label)+")"):"")+
+      `<div class="mhead">Bekukan baris <small>di bawah judul</small></div>`+MI("frzr:0",chk(!cr)+"Tidak ada baris")+MI("frzr:1",chk(cr===1)+"1 baris")+MI("frzr:2",chk(cr===2)+"2 baris")+(ri>=2?MI("frzr:"+(ri+1),chk(cr===ri+1)+"Sampai baris "+tr.dataset.n):"")}
   m.dataset.tool="1";m.innerHTML=h;placeMenu(m,x,y)}
 function insertFn(name){if(!canWrite())return;const R=rect();if(!R){toast("Pilih sel dulu");return}const col=colByKey(S.cs.f.ck);
   if(!col||!["text","long","number","link"].includes(col.type)){toast("Rumus bisa ditulis di kolom teks atau angka");return}
@@ -2229,6 +2342,9 @@ function insertFn(name){if(!canWrite())return;const R=rect();if(!R){toast("Pilih
 document.addEventListener("click",e=>{const t=e.target.closest(".gtools [data-tb]");if(!t)return;const a=t.dataset.tb,rc=t.getBoundingClientRect(),b=curB();
   if(a==="undo")return undo();if(a==="redo")return redo();
   if(a.startsWith("fmt:"))return applyFmt(a.slice(4));
+  if(a.startsWith("nf:"))return applyFmt("nf",a.slice(3));
+  if(a.startsWith("dp:"))return applyFmt("dp",a.slice(3));
+  if(a==="cf")return openCF();
   if(a.startsWith("pal:"))return openPal(a.slice(4),rc.left,rc.bottom+6);
   if(a.startsWith("pop:"))return toolPop(a.slice(4),rc.left,rc.bottom+6);
   if(a==="find")return openFind(false);
@@ -2285,22 +2401,39 @@ function colIndexOf(L){let n=0;for(const ch of L.toUpperCase())n=n*26+(ch.charCo
 function refName(rk,ck){const b=curB();if(!b)return "";const i=colsOf(b).findIndex(c=>c.key===ck),tr=trOf(rk);return (i<0?"":colLetter(i))+(tr?tr.dataset.n:"")}
 const FE=s=>({err:s});
 const isErr=v=>v&&typeof v==="object"&&v.err;
-function asNum(v){if(isErr(v))return v;if(typeof v==="number")return v;if(typeof v==="boolean")return v?1:0;if(v==null||v==="")return 0;const t=String(v).trim().replace(/\s/g,"");if(/^-?\d+([.,]\d+)?$/.test(t))return Number(t.replace(",","."));return FE("#VALUE!")}
-const numLike=v=>typeof v==="number"||(typeof v==="string"&&/^-?\d+([.,]\d+)?$/.test(v.trim().replace(/\s/g,"")));
-function cellVal(ci,rn,depth){const G=S.grid;if(!G)return FE("#REF!");const col=G.cols[ci],slot=G.rows[rn];if(!col||!slot)return FE("#REF!");
+/* numbers as people type them here: 1.500 = seribu lima ratus, 1,5 = satu koma lima, Rp 150.000, 12% */
+function parseNum(v){if(typeof v==="number")return isFinite(v)?v:null;if(v==null||typeof v==="boolean"||typeof v==="object")return null;let s=String(v).trim();if(!s)return null;
+  let pct=false,neg=false;s=s.replace(/^rp\.?\s*/i,"").replace(/\s/g,"");if(s.endsWith("%")){pct=true;s=s.slice(0,-1)}if(/^\(.*\)$/.test(s)){neg=true;s=s.slice(1,-1)}
+  if(/^-rp/i.test(s)){neg=true;s=s.replace(/^-rp\.?/i,"")}
+  if(!/^[-+]?(\d|[.,]\d)[\d.,]*$/.test(s))return null;
+  const hasC=s.includes(","),hasD=s.includes(".");
+  if(hasC&&hasD){s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"")}
+  else if(hasC){s=(s.match(/,/g)||[]).length>1?s.replace(/,/g,""):s.replace(",",".")}
+  else if(hasD){if((s.match(/\./g)||[]).length>1||/^[-+]?[1-9]\d{0,2}\.\d{3}$/.test(s))s=s.replace(/\./g,"")}
+  const n=Number(s);if(!isFinite(n))return null;return (neg?-n:n)/(pct?100:1)}
+function asNum(v){if(isErr(v))return v;if(typeof v==="number")return v;if(typeof v==="boolean")return v?1:0;if(v==null||v==="")return 0;const n=parseNum(v);return n==null?FE("#VALUE!"):n}
+const numLike=v=>typeof v==="number"||(typeof v==="string"&&parseNum(v)!=null);
+/* sheet names in formulas: =OLIVER!E5, ='BATIK OLIVER'!E:E, =INSTAGRAM!C2 (code, short name or full name) */
+const sheetNorm=x=>String(x||"").toUpperCase().replace(/^'|'$/g,"").replace(/''/g,"'").replace(/^BATIK\s*/,"").replace(/[\s_]+/g,"");
+function sheetOf(name){const n=sheetNorm(name);if(!n)return null;if(n==="IG"||n==="INSTAGRAM")return S.channels[0]||null;return all().find(b=>[b.code,b.abbr,b.name].some(x=>x&&sheetNorm(x)===n))||null}
+function sheetLabel(b){const n=String(b.name||b.code).replace(/^BATIK\s+/i,"");return /^[A-Za-z_][A-Za-z0-9_]*$/.test(n)?n.toUpperCase():"'"+n.replace(/'/g,"''")+"'"}
+function cellVal(ci,rn,depth,G){G=G||S.grid;if(!G)return FE("#REF!");const col=G.cols[ci],slot=G.rows[rn];if(!col||!slot)return FE("#REF!");
   if(slot.head)return col.label;if(col.type==="tgl")return slot.d;if(col.type==="hari")return HARI[dow(slot.d)];if(!slot.r)return "";
-  const r=slot.r;if(col.type==="check")return !!r[col.key];const raw=cellText(r,col);if(isFml(raw))return evalFormula(raw,depth+1);return raw}
-function evalFormula(src,depth){depth=depth||0;if(depth>30)return FE("#REF!");
-  const s=String(src).slice(1),T=[];const re=/\s*(?:(\d+(?:\.\d+)?)|"((?:[^"]|"")*)"|(\$?[A-Za-z]{1,3}\$?\d+(?::\$?[A-Za-z]{1,3}\$?\d+)?)|(\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3})|([A-Za-z_][A-Za-z0-9_.]*)|(<>|<=|>=|[-+*/^&=<>(),;%]))/y;
+  const r=slot.r;if(col.type==="check")return !!r[col.key];const raw=cellText(r,col);if(isFml(raw)){const f=r.fmt&&r.fmt[col.key];if(f&&f.nf==="text")return raw;return evalFormula(raw,depth+1,G)}return raw}
+function evalFormula(src,depth,G0){depth=depth||0;if(depth>30)return FE("#REF!");const G=G0||gridOf(curB())||S.grid;if(!G)return FE("#REF!");
+  const s=String(src).slice(1),T=[];const re=/\s*(?:((?:'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*)!)(\$?[A-Za-z]{1,3}\$?\d+(?::\$?[A-Za-z]{1,3}\$?\d+)?|\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3})|(\d+(?:\.\d+)?)|"((?:[^"]|"")*)"|(\$?[A-Za-z]{1,3}\$?\d+(?::\$?[A-Za-z]{1,3}\$?\d+)?)|(\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3})|([A-Za-z_][A-Za-z0-9_.]*)|(<>|<=|>=|[-+*/^&=<>(),;%]))/y;
   let m,pos=0;while(pos<s.length){re.lastIndex=pos;m=re.exec(s);if(!m||m[0]===""){if(/^\s*$/.test(s.slice(pos)))break;return FE("#ERROR!")}pos=re.lastIndex;
-    if(m[1]!==undefined)T.push({n:+m[1]});else if(m[2]!==undefined)T.push({s:m[2].replace(/""/g,'"')});else if(m[3])T.push({ref:m[3].replace(/\$/g,"")});else if(m[4])T.push({cr:m[4].replace(/\$/g,"")});else if(m[5])T.push({id:m[5].toUpperCase()});else T.push({op:m[6]})}
+    if(m[1]){const sb=sheetOf(m[1].slice(0,-1)),rf=m[2].replace(/\$/g,"");T.push({sg:sb?gridOf(sb):null,sref:rf})}
+    else if(m[3]!==undefined)T.push({n:+m[3]});else if(m[4]!==undefined)T.push({s:m[4].replace(/""/g,'"')});else if(m[5])T.push({ref:m[5].replace(/\$/g,"")});else if(m[6])T.push({cr:m[6].replace(/\$/g,"")});else if(m[7])T.push({id:m[7].toUpperCase()});else T.push({op:m[8]})}
   let i=0;const peek=()=>T[i],isOp=o=>T[i]&&T[i].op===o;
-  const rangeVals=(a,b)=>{const ma=a.match(/^([A-Za-z]+)(\d+)$/),mb=b.match(/^([A-Za-z]+)(\d+)$/);if(!ma||!mb)return FE("#REF!");const c0=colIndexOf(ma[1]),c1=colIndexOf(mb[1]),r0=+ma[2],r1=+mb[2];const out=[];
-    for(let r=Math.min(r0,r1);r<=Math.max(r0,r1)&&r<S.grid.rows.length;r++)for(let c=Math.min(c0,c1);c<=Math.max(c0,c1);c++){out.push(cellVal(c,r,depth));if(out.length>20000)return out}return out};
+  const rangeVals=(a,b,g)=>{g=g||G;const ma=a.match(/^([A-Za-z]+)(\d+)$/),mb=b.match(/^([A-Za-z]+)(\d+)$/);if(!ma||!mb)return FE("#REF!");const c0=colIndexOf(ma[1]),c1=colIndexOf(mb[1]),r0=+ma[2],r1=+mb[2];const out=[];
+    for(let r=Math.min(r0,r1);r<=Math.max(r0,r1)&&r<g.rows.length;r++)for(let c=Math.min(c0,c1);c<=Math.max(c0,c1);c++){out.push(cellVal(c,r,depth,g));if(out.length>20000)return out}return out};
   function primary(){const t=T[i++];if(!t)throw 0;
     if(t.n!==undefined)return t.n;if(t.s!==undefined)return t.s;
-    if(t.ref){if(t.ref.includes(":")){const [a,b]=t.ref.split(":");return {range:rangeVals(a,b)}}const mm=t.ref.match(/^([A-Za-z]+)(\d+)$/);return cellVal(colIndexOf(mm[1]),+mm[2],depth)}
-    if(t.cr){const [a,b]=t.cr.split(":");return {range:rangeVals(a+"2",b+(S.grid.rows.length-1))}}
+    if(t.sref!==undefined){const g=t.sg;if(!g)return FE("#REF!");if(/^[A-Za-z]+:[A-Za-z]+$/.test(t.sref)){const [a,b]=t.sref.split(":");return {range:rangeVals(a+"2",b+(g.rows.length-1),g)}}
+      if(t.sref.includes(":")){const [a,b]=t.sref.split(":");return {range:rangeVals(a,b,g)}}const mm=t.sref.match(/^([A-Za-z]+)(\d+)$/);return cellVal(colIndexOf(mm[1]),+mm[2],depth,g)}
+    if(t.ref){if(t.ref.includes(":")){const [a,b]=t.ref.split(":");return {range:rangeVals(a,b)}}const mm=t.ref.match(/^([A-Za-z]+)(\d+)$/);return cellVal(colIndexOf(mm[1]),+mm[2],depth,G)}
+    if(t.cr){const [a,b]=t.cr.split(":");return {range:rangeVals(a+"2",b+(G.rows.length-1))}}
     if(t.id){if(isOp("(")){i++;const args=[];if(!isOp(")")){do{args.push(expr())}while((isOp(",")||isOp(";"))&&++i)}if(!isOp(")"))throw 0;i++;return callFn(t.id,args)}
       if(t.id==="TRUE")return true;if(t.id==="FALSE")return false;return FE("#NAME?")}
     if(t.op==="("){const v=expr();if(!isOp(")"))throw 0;i++;return v}
@@ -2344,11 +2477,66 @@ function callFn(name,args){const flat=a=>a.flatMap(x=>x&&x.range?x.range:[x]);co
     case "MID":{const s=txt(one(0)),st=asNum(one(1)),n=asNum(one(2));return s.substr(st-1,n)}
     case "ROUND":{const x=asNum(one(0)),d=args.length>1?asNum(one(1)):0;if(isErr(x))return x;const p=10**d;return Math.round(x*p)/p}
     case "ABS":{const x=asNum(one(0));return isErr(x)?x:Math.abs(x)}
+    case "ROUNDUP":case "ROUNDDOWN":{const x=asNum(one(0)),d=args.length>1?asNum(one(1)):0;if(isErr(x))return x;const p=10**d,f=name==="ROUNDUP"?(x<0?Math.floor:Math.ceil):(x<0?Math.ceil:Math.floor);return f(x*p)/p}
+    case "INT":{const x=asNum(one(0));return isErr(x)?x:Math.floor(x)}
+    case "MOD":{const x=asNum(one(0)),y=asNum(one(1));if(isErr(x))return x;if(isErr(y))return y;if(!y)return FE("#DIV/0!");return x-y*Math.floor(x/y)}
+    case "PROPER":return txt(one(0)).toLowerCase().replace(/(^|[^a-z0-9À-ɏ])([a-zÀ-ɏ])/g,(m,a,c)=>a+c.toUpperCase());
+    case "SUBSTITUTE":{const s=txt(one(0)),o=txt(one(1)),nw=txt(one(2));if(!o)return s;if(args.length>3){const k=asNum(one(3));let c=0;return s.split(o).reduce((acc,part,ix)=>ix?acc+((++c)===k?nw:o)+part:part,"")}return s.split(o).join(nw)}
+    case "FIND":case "SEARCH":{let a=txt(one(0)),s=txt(one(1));if(name==="SEARCH"){a=a.toLowerCase();s=s.toLowerCase()}const k=s.indexOf(a,(args.length>2?asNum(one(2)):1)-1);return k<0?FE("#VALUE!"):k+1}
+    case "REPLACE":{const s=txt(one(0)),st=asNum(one(1)),n=asNum(one(2));return s.slice(0,st-1)+txt(one(3))+s.slice(st-1+n)}
+    case "REPT":return txt(one(0)).repeat(Math.max(0,Math.min(500,asNum(one(1))|0)));
+    case "EXACT":return txt(one(0))===txt(one(1));
+    case "VALUE":{const n=parseNum(one(0));return n==null?FE("#VALUE!"):n}
+    case "ISBLANK":{const v=one(0);return v===""||v==null}
+    case "ISNUMBER":{const v=one(0);return typeof v==="number"||(typeof v==="string"&&numLike(v))}
+    case "ISTEXT":{const v=one(0);return typeof v==="string"&&v!==""&&!numLike(v)}
+    case "ISERROR":return !!isErr(one(0));
+    case "IFS":{for(let k=0;k+1<args.length;k+=2){const c=one(k);if(isErr(c))return c;if(c===true||(numLike(c)&&asNum(c)!==0)||txt(c).toUpperCase()==="TRUE")return one(k+1)}return FE("#N/A")}
+    case "COUNTIFS":case "SUMIFS":case "AVERAGEIFS":{const s0=name==="COUNTIFS"?0:1,base=s0?flat([args[0]]):null;let ok=null;
+      for(let k=s0;k+1<args.length;k+=2){const a=flat([args[k]]),t=critTest(one(k+1));if(!ok)ok=a.map(()=>true);a.forEach((v,ix)=>{if(!t(v))ok[ix]=false})}
+      if(!ok)return 0;if(!s0)return ok.filter(Boolean).length;let sum=0,n=0;base.forEach((v,ix)=>{if(ok[ix]){const x=asNum(v);if(!isErr(x)&&v!==""){sum+=x;n++}}});return name==="SUMIFS"?sum:n?sum/n:FE("#DIV/0!")}
+    case "AVERAGEIF":{const t=critTest(one(1)),a=flat([args[0]]),s=args[2]?flat([args[2]]):a;let sum=0,n=0;a.forEach((v,k)=>{if(t(v)){const x=asNum(s[k]);if(!isErr(x)&&s[k]!==""){sum+=x;n++}}});return n?sum/n:FE("#DIV/0!")}
     case "TODAY":{const t=new Date();return pad2(t.getDate())+"/"+pad2(t.getMonth()+1)+"/"+t.getFullYear()}
     case "NOW":{const t=new Date();return pad2(t.getDate())+"/"+pad2(t.getMonth()+1)+"/"+t.getFullYear()+" "+pad2(t.getHours())+":"+pad2(t.getMinutes())}
   }
   return FE("#NAME?")}
 function fmlDisplay(raw){const v=evalFormula(raw,0);if(isErr(v))return v.err;if(typeof v==="number")return String(Math.round(v*1e10)/1e10);return txt(v)}
+/* ---- number formats (like Format → Angka in Google Sheets): fmt.nf + fmt.dp decimals ---- */
+const NF=[["","Otomatis",""],["text","Teks biasa","abc"],["num","Angka","1.000"],["num2","Angka desimal","1.000,00"],["idr","Rupiah","Rp 1.000"],["pct","Persen","12%"],["pct2","Persen desimal","12,50%"],["date","Tanggal","25/11/2026"],["dlong","Tanggal panjang","25 Nov 2026"],["time","Jam","13:30"],["dt","Tanggal & jam","25/11/2026 13:30"]];
+function toDate(v){if(v instanceof Date)return v;if(typeof v==="number"&&v>20000&&v<90000){const d=new Date(1899,11,30);d.setDate(d.getDate()+Math.floor(v));const fr=v%1;if(fr)d.setMinutes(Math.round(fr*1440));return d}
+  const s=txt(v).trim();let m,d=null;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)))d=new Date(+m[1],m[2]-1,+m[3]);
+  else if((m=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/)))d=new Date(+m[3]<100?2000+ +m[3]:+m[3],m[2]-1,+m[1]);
+  else if((m=s.match(/^(\d{1,2})\s+([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{4})/))){const mo=MON[m[2].toLowerCase()];if(mo)d=new Date(+m[3],mo-1,+m[1])}
+  if(!d||isNaN(d))return null;const t=s.match(/(\d{1,2})[:.](\d{2})\s*$/);if(t&&s.length>10)d.setHours(+t[1],+t[2]);return d}
+function toTime(v){if(typeof v==="number"&&v>=0&&v<1){const mn=Math.round(v*1440);return pad2(Math.floor(mn/60))+":"+pad2(mn%60)}const m=txt(v).match(/(\d{1,2})[:.](\d{2})/);return m&&+m[1]<24?pad2(+m[1])+":"+m[2]:null}
+function fmtVal(v,nf,dp,fromF){
+  if(nf==="date"||nf==="dlong"||nf==="dt"){const d=toDate(v);if(!d)return txt(v);const a=pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear();
+    return nf==="dlong"?d.getDate()+" "+BULAN[d.getMonth()].slice(0,3)+" "+d.getFullYear():nf==="dt"?a+" "+pad2(d.getHours())+":"+pad2(d.getMinutes()):a}
+  if(nf==="time")return toTime(v)||txt(v);
+  const n=typeof v==="boolean"?null:parseNum(v);if(n==null)return txt(v);
+  const loc=x=>x.toLocaleString("id-ID",{minimumFractionDigits:dp,maximumFractionDigits:dp});
+  if(nf==="num")return loc(n);
+  if(nf==="idr")return (n<0?"-":"")+"Rp "+loc(Math.abs(n));
+  if(nf==="pct"){const fr=fromF||typeof v==="number"||/%/.test(String(v))?n:(Math.abs(n)>1?n/100:n);return loc(fr*100)+"%"}
+  return txt(v)}
+/* what a cell shows: formula result and/or number format; the raw value stays for editing */
+function cellDisplay(raw,f,G){const nf=f&&f.nf;if(nf==="text")return raw;const fm=isFml(raw);let v=raw;
+  if(fm){v=evalFormula(raw,0,G);if(isErr(v))return v.err}
+  if(!nf)return fm?(typeof v==="number"?String(Math.round(v*1e10)/1e10):txt(v)):raw;
+  if(String(raw).trim()==="")return "";return fmtVal(v,nf,f.dp||0,fm)}
+/* move relative references when a formula is copied, pasted or filled (A1 → A2), $A$1 stays */
+function shiftFormula(src,dr,dc){if(!isFml(src)||(!dr&&!dc))return src;
+  return src.replace(/("(?:[^"]|"")*")|(?<![A-Za-z0-9_.$'])((?:'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*)!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)(?![A-Za-z0-9_(!])|(?<![A-Za-z0-9_.$'])((?:'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*)!)?(\$?)([A-Za-z]{1,3}):(\$?)([A-Za-z]{1,3})(?![A-Za-z0-9_(!])/g,
+    (m,str,sh,cd,cl,rd,rn,sh2,ad,a,bd,bb)=>{if(str)return str;
+      if(cl!==undefined){const ci=cd?colIndexOf(cl):colIndexOf(cl)+dc,ri=rd?+rn:+rn+dr;if(ci<0||ri<1)return "#REF!";return (sh||"")+cd+colLetter(ci)+rd+ri}
+      const x=ad?colIndexOf(a):colIndexOf(a)+dc,y=bd?colIndexOf(bb):colIndexOf(bb)+dc;if(x<0||y<0)return "#REF!";return (sh2||"")+ad+colLetter(x)+":"+bd+colLetter(y)})}
+/* Google Sheets puts formulas on the clipboard as R1C1 (R[-1]C[0]); turn them into A1 at the target cell */
+function r1c1ToA1(f,rn,ci){return f.replace(/("(?:[^"]|"")*")|(?<![A-Za-z0-9_])R(\[-?\d+\]|\d+)?C(\[-?\d+\]|\d+)?(?![A-Za-z0-9_(])/g,(m,s,r,c)=>{if(s)return s;
+  const rr=r==null?rn:r[0]==="["?rn+ +r.slice(1,-1):+r,cc=c==null?ci:c[0]==="["?ci+ +c.slice(1,-1):+c-1;if(rr<1||cc<0)return "#REF!";
+  return (c&&c[0]!=="["?"$":"")+colLetter(cc)+(r&&r[0]!=="["?"$":"")+rr})}
+/* formulas sent to Google Sheets use commas between arguments */
+const fmlForSheet=f=>String(f).replace(/("(?:[^"]|"")*")|;/g,(m,s)=>s||",");
 /* formula bar: shows and edits the selected cell; the status at the right sums the selected numbers */
 const TEXTY=["text","long","number","link","date"];
 function rawText(r,col){if(!r||!col)return "";return TEXTY.includes(col.type)?String(r[col.key]??""):cellText(r,col)}
@@ -2373,27 +2561,156 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="fxIn")return;
   else if(e.key==="Escape"){e.preventDefault();S.fxDone=true;setTimeout(()=>S.fxDone=false,0);render();if(S.cs)focusCell(S.cs.f.rk,S.cs.f.ck,true)}},true);
 document.addEventListener("focusout",e=>{if(e.target.id==="fxIn"&&!S.fxDone&&!e.target.readOnly&&S.cs){const r=rowById(S.cs.f.rk),col=colByKey(S.cs.f.ck);if(e.target.value!==rawText(r,col))commitFx(null)}});
 
+const FN_GROUPS=[["Hitung",["SUM","AVERAGE","COUNT","COUNTA","COUNTBLANK","MAX","MIN","ROUND"]],["Bersyarat",["IF","IFS","IFERROR","COUNTIF","COUNTIFS","SUMIF","SUMIFS","AVERAGEIF","AND","OR","NOT"]],["Teks",["CONCAT","TEXTJOIN","LEFT","RIGHT","MID","LEN","UPPER","LOWER","PROPER","TRIM","SUBSTITUTE","FIND"]],["Lainnya",["TODAY","NOW","VALUE","ISBLANK","ABS","INT","MOD"]]];
+/* ---- column letters appear while a formula is typed ---- */
+S.fmlOn=false;
+function syncFml(){const a=document.activeElement;const on=!!(a&&isText(a)&&(a.id==="fxIn"||(a.closest&&a.closest(".sheet tbody td")))&&/^=/.test(a.value)&&!(S.fresh&&a.id!=="fxIn"));
+  if(on===S.fmlOn)return;S.fmlOn=on;document.querySelectorAll(".sheet-wrap[data-code]").forEach(w=>w.classList.toggle("fml",on));applyFreeze()}
+document.addEventListener("input",()=>syncFml());document.addEventListener("focusin",()=>setTimeout(syncFml,0));document.addEventListener("focusout",()=>setTimeout(syncFml,0));
+document.addEventListener("keyup",e=>{if(e.key==="F2"||e.key==="Enter")syncFml()});document.addEventListener("dblclick",()=>setTimeout(syncFml,0));
+
+/* ---- hide / show columns ---- */
+function hideCols(keys){if(!canWrite())return;const b=curB();if(!b)return;const cols=colsOf(b),vis=cols.filter(c=>!c.hidden&&!keys.includes(c.key)&&c.type!=="tgl"&&c.type!=="hari");
+  const hit=cols.filter(c=>keys.includes(c.key)&&c.type!=="tgl"&&c.type!=="hari");if(!hit.length)return;if(!vis.length){toast("Minimal satu kolom isi harus tetap terlihat");return}
+  pushUndo(true);hit.forEach(c=>c.hidden=true);S.cs=null;touch();render();toast(`${hit.length} kolom disembunyikan. Klik ◂▸ di judul kolom untuk menampilkannya lagi`,"Urungkan",undo)}
+function unhideCols(keys){if(!canWrite())return;const b=curB();if(!b)return;const hit=colsOf(b).filter(c=>c.hidden&&(!keys||keys.includes(c.key)));if(!hit.length)return;
+  pushUndo(true);hit.forEach(c=>delete c.hidden);touch();render();toast(`${hit.length} kolom ditampilkan lagi`)}
+document.addEventListener("mousedown",e=>{if(e.target.closest(".hidc")){e.preventDefault();e.stopPropagation()}},true);
+document.addEventListener("click",e=>{const h=e.target.closest("[data-unhidecol]");if(!h)return;e.preventDefault();e.stopPropagation();unhideCols(h.dataset.unhidecol.split(","))},true);
+
+/* ---- conditional formatting (Format → Format bersyarat in Google Sheets): rules per tab, the first matching rule wins ---- */
+const CF_CONDS=[["empty","Sel kosong"],["notempty","Sel tidak kosong"],["contains","Teks berisi"],["notcontains","Teks tidak berisi"],["starts","Teks diawali"],["ends","Teks diakhiri"],["eq","Sama dengan"],["neq","Tidak sama dengan"],["gt","Lebih dari"],["gte","Lebih dari atau sama dengan"],["lt","Kurang dari"],["lte","Kurang dari atau sama dengan"],["between","Di antara"],["formula","Rumus kustom"]];
+const CF_DW=[["","Semua tanggal"],["past","Tanggal konten sudah lewat"],["today","Tanggal konten hari ini"],["upto","Tanggal konten ≤ H-… (sudah lewat, hari ini, dan … hari ke depan)"]];
+const CF_SW=["#f4cccc","#fce5cd","#fff2cc","#d9ead3","#d0e0e3","#cfe2f3","#d9d2e9","#ead1dc","#e06666","#f6b26b","#ffd966","#93c47d","#6fa8dc","#8e7cc3"];
+const CF_FC=["#cc0000","#e69138","#bf9000","#38761d","#1155cc","#674ea7","#000000"];
+function cfTest(rule,col,r,ctx,G){
+  if(rule.dw){const t=new Date();t.setHours(0,0,0,0);const [y,m]=S.ym.split("-").map(Number),diff=Math.round((new Date(y,m-1,r.d)-t)/864e5);
+    if(rule.dw==="past"&&!(diff<0))return false;if(rule.dw==="today"&&diff!==0)return false;if(rule.dw==="upto"&&!(diff<=(+rule.dn||0)))return false}
+  if(rule.cond==="formula"){const cols=colsOf(byCode(G.code)||curB()),first=Math.min(...rule.keys.map(k=>cols.findIndex(c=>c.key===k)).filter(i=>i>=0)),ci=cols.findIndex(c=>c.key===col.key);
+    let f=String(rule.v1||"").trim();if(!f)return false;if(f[0]!=="=")f="="+f;const v=evalFormula(shiftFormula(f,(ctx.num||2)-2,ci-first),0,G);return v===true||(typeof v==="number"&&v!==0)||txt(v).toUpperCase()==="TRUE"}
+  let raw=col.type==="check"?(r[col.key]?"TRUE":""):cellText(r,col);let v=isFml(raw)?evalFormula(raw,0,G):raw;if(isErr(v))v=v.err;
+  const s=txt(v).trim(),L=s.toLowerCase(),a=String(rule.v1??"").trim(),A=a.toLowerCase();
+  const nv=parseNum(v),na=parseNum(a),nb=parseNum(String(rule.v2??""));
+  switch(rule.cond){
+    case "empty":return !s;case "notempty":return !!s;
+    case "contains":return !!A&&L.includes(A);case "notcontains":return !A||!L.includes(A);
+    case "starts":return !!A&&L.startsWith(A);case "ends":return !!A&&L.endsWith(A);
+    case "eq":return nv!=null&&na!=null?nv===na:L===A;case "neq":return nv!=null&&na!=null?nv!==na:L!==A;
+    case "gt":return nv!=null&&na!=null&&nv>na;case "gte":return nv!=null&&na!=null&&nv>=na;case "lt":return nv!=null&&na!=null&&nv<na;case "lte":return nv!=null&&na!=null&&nv<=na;
+    case "between":return nv!=null&&na!=null&&nb!=null&&nv>=Math.min(na,nb)&&nv<=Math.max(na,nb)}
+  return false}
+function cfHit(rules,col,r,ctx){for(const rule of rules){if(!rule.keys.includes(col.key))continue;let ok=false;try{ok=cfTest(rule,col,r,ctx,S.grid)}catch(_){ok=false}
+  if(ok){const o={};if(rule.bg)o.bg=rule.bg;if(rule.fc)o.fc=rule.fc;if(rule.b)o.b=1;if(rule.i)o.i=1;if(rule.s)o.s=1;return o}}return null}
+function cfDesc(rule,b){const cols=colsOf(b),names=rule.keys.map(k=>{const c=cols.find(x=>x.key===k);return c?colLetter(cols.indexOf(c))+" "+c.label:null}).filter(Boolean);
+  const cond=(CF_CONDS.find(x=>x[0]===rule.cond)||["",""])[1];const val=rule.cond==="between"?`${rule.v1} – ${rule.v2}`:/empty|notempty/.test(rule.cond)?"":rule.v1;
+  const dw=rule.dw==="upto"?`, tanggal ≤ H-${rule.dn||0}`:rule.dw==="past"?", tanggal sudah lewat":rule.dw==="today"?", tanggal hari ini":"";
+  return {cols:names.join(", ")||"(kolom sudah dihapus)",cond:cond+(val?` "${val}"`:"")+dw}}
+function openCF(){const b=curB();if(!b){toast("Buka tabel brand dulu");return}if(!canWrite())return;closeMenus();
+  const R=rect(),pre=R?R.cols.map(c=>c.key):[];const cols=colsOf(b).filter(c=>c.type!=="tgl"&&c.type!=="hari");
+  const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal cfm";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");m.setAttribute("aria-label","Format bersyarat");
+  let edit=null,st={bg:"#f4cccc",fc:"",b:false};
+  const swb=(list,cur,attr,none)=>`<div class="cfsw">${none?`<button type="button" class="none" data-${attr}="" aria-pressed="${!cur}" title="Tanpa warna" aria-label="Tanpa warna"></button>`:""}${list.map(c=>`<button type="button" data-${attr}="${c}" style="--sw:${c}" aria-pressed="${cur===c}" title="${c}" aria-label="Warna ${c}"></button>`).join("")}</div>`;
+  const draw=()=>{const rules=S.cf[b.code]||[];const ru=edit!=null?rules[edit]:null;if(ru)st={bg:ru.bg||"",fc:ru.fc||"",b:!!ru.b};const keys=ru?ru.keys:(pre.length?pre:[]);
+    m.innerHTML=`<h2>Format bersyarat · ${esc(b.name)}</h2>
+    <p class="sub" style="margin:0 0 8px">Warna otomatis bila isi sel memenuhi syarat. Aturan paling atas menang. Berlaku untuk semua anggota tim.</p>
+    <div class="cfl">${rules.length?rules.map((x,i)=>{const d=cfDesc(x,b);return `<div class="cfi"><span class="sw" style="background:${esc(x.bg||"transparent")};color:${esc(x.fc||"inherit")};${x.b?"font-weight:800":""}">Aa</span><span class="tx">${esc(d.cond)}<small>${esc(d.cols)}</small></span>
+      <button data-cfup="${i}" title="Naikkan prioritas" aria-label="Naikkan" ${i?"":"disabled"}>↑</button><button data-cfed="${i}" title="Edit aturan" aria-label="Edit aturan">✎</button><button data-cfdel="${i}" title="Hapus aturan" aria-label="Hapus aturan">✕</button></div>`}).join(""):`<p class="sub" style="margin:0">Belum ada aturan di tab ini.</p>`}</div>
+    <h3 style="margin:6px 0 8px;font-size:13px">${ru?"Edit aturan":"Tambah aturan"}</h3>
+    <div class="cfg">
+      <div class="field full"><span>Terapkan ke kolom</span><div class="cfcols">${cols.map(c=>`<label><input type="checkbox" data-cfk="${esc(c.key)}" ${keys.includes(c.key)?"checked":""}> ${colLetter(colsOf(b).indexOf(c))} · ${esc(c.label)}</label>`).join("")}</div></div>
+      <label class="field">Format sel jika…<select class="cin" data-cfc style="border:1px solid var(--line)">${CF_CONDS.map(([k,l])=>`<option value="${k}" ${(ru?ru.cond:"empty")===k?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label class="field" data-cfv1w>Nilai<input class="cin" data-cfv1 style="border:1px solid var(--line)" value="${esc(ru?ru.v1||"":"")}"></label>
+      <label class="field" data-cfv2w>Sampai<input class="cin" data-cfv2 style="border:1px solid var(--line)" value="${esc(ru?ru.v2||"":"")}"></label>
+      <label class="field">Hanya untuk<select class="cin" data-cfdw style="border:1px solid var(--line)">${CF_DW.map(([k,l])=>`<option value="${k}" ${((ru&&ru.dw)||"")===k?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label class="field" data-cfdnw>H- (hari ke depan)<input type="number" min="0" max="60" class="cin" data-cfdn style="border:1px solid var(--line)" value="${esc(ru&&ru.dn!=null?ru.dn:1)}"></label>
+      <div class="field full"><span>Warna sel</span>${swb(CF_SW,st.bg,"cfbg",true)}</div>
+      <div class="field full"><span>Warna teks</span>${swb(CF_FC,st.fc,"cffc",true)}<label style="font-size:12px;margin-top:6px;display:inline-flex;gap:6px;align-items:center"><input type="checkbox" data-cfb ${st.b?"checked":""}> Tebal</label></div>
+      <div class="cfprev full" data-cfprev>Contoh tampilan</div>
+    </div>
+    <div class="acts">${ru?`<button class="btn" data-cfnew>Batal edit</button>`:""}<button class="btn" data-x>Tutup</button><button class="btn acc" data-cfsave>${ru?"Simpan aturan":"Tambah aturan"}</button></div>`;
+    sync()};
+  const sync=()=>{const c=m.querySelector("[data-cfc]").value,dw=m.querySelector("[data-cfdw]").value;m.querySelector("[data-cfv1w]").hidden=/^(empty|notempty)$/.test(c);m.querySelector("[data-cfv2w]").hidden=c!=="between";m.querySelector("[data-cfdnw]").hidden=dw!=="upto";
+    m.querySelector("[data-cfv1w]").firstChild.textContent=c==="formula"?"Rumus (untuk baris 2, misal =$L2=\"\")":c==="between"?"Dari":"Nilai";
+    const p=m.querySelector("[data-cfprev]");p.style.background=st.bg||"transparent";p.style.color=st.fc||"";p.style.fontWeight=st.b?"800":"";
+    m.querySelectorAll("[data-cfbg]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.cfbg===st.bg)));m.querySelectorAll("[data-cffc]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.cffc===st.fc)))};
+  const close=()=>{sc.remove();m.remove()};
+  const save=list=>{pushUndo(true);if(list.length)S.cf[b.code]=list;else delete S.cf[b.code];touch();render();maybeSaveSettings()};
+  sc.onclick=close;m.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();close()}});
+  m.addEventListener("change",e=>{if(e.target.matches("[data-cfc],[data-cfdw]"))sync();if(e.target.matches("[data-cfb]")){st.b=e.target.checked;sync()}});
+  m.addEventListener("click",e=>{const t=e.target;const rules=(S.cf[b.code]||[]).slice();
+    if(t.closest("[data-x]"))return close();
+    if(t.closest("[data-cfnew]")){edit=null;st={bg:"#f4cccc",fc:"",b:false};return draw()}
+    const bg=t.closest("[data-cfbg]");if(bg){st.bg=bg.dataset.cfbg;return sync()}
+    const fc=t.closest("[data-cffc]");if(fc){st.fc=fc.dataset.cffc;return sync()}
+    const dl=t.closest("[data-cfdel]");if(dl){rules.splice(+dl.dataset.cfdel,1);save(rules);edit=null;toast("Aturan dihapus","Urungkan",undo);return draw()}
+    const up=t.closest("[data-cfup]");if(up){const i=+up.dataset.cfup;if(i>0){[rules[i-1],rules[i]]=[rules[i],rules[i-1]];save(rules)}return draw()}
+    const ed=t.closest("[data-cfed]");if(ed){edit=+ed.dataset.cfed;return draw()}
+    if(t.closest("[data-cfsave]")){const keys=[...m.querySelectorAll("[data-cfk]:checked")].map(x=>x.dataset.cfk);if(!keys.length){toast("Pilih minimal satu kolom");return}
+      const cond=m.querySelector("[data-cfc]").value,v1=m.querySelector("[data-cfv1]").value.trim(),v2=m.querySelector("[data-cfv2]").value.trim(),dw=m.querySelector("[data-cfdw]").value,dn=+m.querySelector("[data-cfdn]").value||0;
+      if(!/^(empty|notempty)$/.test(cond)&&!v1){toast(cond==="formula"?"Tulis rumusnya dulu":"Isi nilainya dulu");return}
+      if(!st.bg&&!st.fc&&!st.b){toast("Pilih warna sel, warna teks atau tebal");return}
+      const rule={keys,cond,v1:/^(empty|notempty)$/.test(cond)?"":v1,v2:cond==="between"?v2:"",dw,dn:dw==="upto"?dn:0,bg:st.bg,fc:st.fc,b:st.b};Object.keys(rule).forEach(k=>{if(rule[k]===""||rule[k]===false||(k==="dn"&&!rule.dw))delete rule[k]});
+      if(edit!=null)rules[edit]=rule;else rules.push(rule);save(rules);toast(edit!=null?"Aturan disimpan":"Aturan ditambahkan","Urungkan",undo);edit=null;st={bg:"#f4cccc",fc:"",b:false};return draw()}});
+  document.body.append(sc,m);draw();const f=m.querySelector("[data-cfc]");if(f)f.focus()}
+
+/* ---- clipboard with formats: HTML table both ways (Google Sheets / Excel keep bold, colors, number format) ---- */
+const hexOf=c=>{c=String(c||"").trim().toLowerCase();if(!c||c==="transparent"||c==="inherit"||c==="initial")return "";if(/^#[0-9a-f]{6}$/.test(c))return c;if(/^#[0-9a-f]{3}$/.test(c))return "#"+c.slice(1).split("").map(x=>x+x).join("");
+  const m=c.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?/);if(!m)return "";if(m[4]!==undefined&&parseFloat(m[4])===0)return "";return "#"+[m[1],m[2],m[3]].map(x=>(+x).toString(16).padStart(2,"0")).join("")};
+function cssOfFmt(f){if(!f)return "";const s=[];if(f.b)s.push("font-weight:bold");if(f.i)s.push("font-style:italic");const d=[f.u&&"underline",f.s&&"line-through"].filter(Boolean);if(d.length)s.push("text-decoration:"+d.join(" "));if(f.fc)s.push("color:"+f.fc);if(f.bg)s.push("background-color:"+f.bg);if(f.ta)s.push("text-align:"+f.ta);return s.join(";")}
+function htmlCell(td){const cl=td.cloneNode(true);cl.querySelectorAll("br").forEach(x=>x.replaceWith("\n"));cl.querySelectorAll("style,script").forEach(x=>x.remove());const t=cl.textContent.replace(/ /g," ");
+  const inner=td.querySelector("span[style],font,b,strong,i,em,u,s");const css=(td.getAttribute("style")||"")+";"+(inner&&inner.getAttribute&&inner.getAttribute("style")||"");
+  const g=p=>{const m=css.match(new RegExp("(?:^|;)\\s*"+p+"\\s*:\\s*([^;]+)","i"));return m?m[1].trim():""};
+  const f={};if(/bold|[6-9]00/.test(g("font-weight"))||td.querySelector("b,strong"))f.b=1;if(/italic/i.test(g("font-style"))||td.querySelector("i,em"))f.i=1;
+  const dec=g("text-decoration")+" "+g("text-decoration-line");if(/underline/i.test(dec)||td.querySelector("u"))f.u=1;if(/line-through/i.test(dec)||td.querySelector("s,strike"))f.s=1;
+  const fc=hexOf(g("color"));if(fc&&fc!=="#000000")f.fc=fc;const bg=hexOf(g("background-color")||g("background"));if(bg&&bg!=="#ffffff")f.bg=bg;const ta=g("text-align").toLowerCase();if(ta==="center"||ta==="right")f.ta=ta;
+  const nfa=td.getAttribute("data-sheets-numberformat");if(nfa){try{const o=JSON.parse(nfa),p=String(o["2"]||"");
+    if(/%/.test(p))f.nf="pct";else if(/rp/i.test(p))f.nf="idr";else if(/[dy]{2}/i.test(p)||/m{3}/i.test(p))f.nf=/h/i.test(p)?"dt":/m{3}/i.test(p)?"dlong":"date";else if(/h+:mm/i.test(p))f.nf="time";else if(/[#0]/.test(p))f.nf="num";
+    const dm=p.match(/[.,](0+)/);if(dm&&/^(num|idr|pct)$/.test(f.nf||""))f.dp=dm[1].length}catch(_){}}
+  const fml=td.getAttribute("data-sheets-formula");
+  return {t:t.replace(/\n$/,""),ext:true,fmt:Object.keys(f).length?f:null,fml:fml&&fml[0]==="="?fml:null}}
+function parseHtmlClip(html){try{if(!/<table/i.test(html))return null;const doc=new DOMParser().parseFromString(html,"text/html");const tb=doc.querySelector("table");if(!tb)return null;const out=[];
+  [...tb.rows].forEach((tr,ri)=>{const line=out[ri]=out[ri]||[];let ci=0;[...tr.cells].forEach(td=>{while(line[ci])ci++;line[ci]=htmlCell(td);const cs=Math.min(50,+td.colSpan||1),rs=Math.min(200,+td.rowSpan||1);
+    for(let a=0;a<rs;a++)for(let c=0;c<cs;c++){if(!a&&!c)continue;const L=out[ri+a]=out[ri+a]||[];L[ci+c]={t:"",ext:true}}ci+=cs})});
+  const rows=out.map(l=>Array.from(l,c=>c||{t:"",ext:true}));return rows.length?rows:null}catch(_){return null}}
+function clipHtml(cells){return `<meta charset="utf-8"><table style="border-collapse:collapse">`+cells.map(row=>"<tr>"+row.map(c=>`<td style="${esc(cssOfFmt(c.fmt))}">${esc(c.disp??c.t).replace(/\n/g,"<br>")}</td>`).join("")+"</tr>").join("")+"</table>"}
+async function writeClip(c){try{if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){await navigator.clipboard.write([new ClipboardItem({"text/plain":new Blob([c.tsv],{type:"text/plain"}),"text/html":new Blob([c.html],{type:"text/html"})})]);return}}catch(_){}
+  try{await navigator.clipboard.writeText(c.tsv)}catch(_){}}
+/* formula moves with the cell: relative references shift by the distance between source and target */
+function shiftCell(c,dr,dc){if(!c)return c;const t=typeof c.v==="string"?c.v:c.t;if(!isFml(t)||(!dr&&!dc))return c;const s=shiftFormula(t,dr,dc);return Object.assign({},c,{t:s,v:typeof c.v==="string"?s:c.v})}
+const slotNum=rk=>{const tr=trOf(rk);return tr?+tr.dataset.n||0:0};
+
 /* ---- fill handle ---- */
 function fillPreview(k){const F=S.fill;if(!F)return;const R=F.R,ri=R.sl.indexOf(k.rk),ci=R.cs.indexOf(k.ck);let t=null;
   if(ri>R.r1)t={dir:"down",to:ri};else if(ri<R.r0)t={dir:"up",to:ri};else if(ci>R.c1)t={dir:"right",to:ci};else if(ci<R.c0)t={dir:"left",to:ci};F.t=t;
   document.querySelectorAll(".sheet .cfill").forEach(x=>x.classList.remove("cfill"));if(!t)return;
   const rows=t.dir==="down"?R.sl.slice(R.r1+1,t.to+1):t.dir==="up"?R.sl.slice(t.to,R.r0):R.rows,cols=t.dir==="right"?R.cs.slice(R.c1+1,t.to+1):t.dir==="left"?R.cs.slice(t.to,R.c0):R.cols.map(c=>c.key);
   rows.forEach(rk=>cols.forEach(ck=>{const td=cellTd(rk,ck);if(td)td.classList.add("cfill")}))}
-function seriesOf(src){const nums=src.map(c=>c.t.trim());if(nums.length>=2&&nums.every(v=>numLike(v))){const a=nums.map(asNum),step=a.length>1?a[1]-a[0]:0;if(a.every((v,k)=>!k||Math.abs(v-a[k-1]-step)<1e-9))return k=>({t:String(Math.round((a[a.length-1]+step*(k+1))*1e10)/1e10)})}
-  return k=>src[k%src.length]}
-function doFill(){const F=S.fill;S.fill=null;document.querySelectorAll(".sheet .cfill").forEach(x=>x.classList.remove("cfill"));if(!F||!F.t||!canWrite())return;
+/* like Google Sheets here: a plain drag copies; hold Ctrl while letting go to continue a series (1,2,3 · tanggal · Konten 1, Konten 2) */
+function seriesOf(src,series){const cyc=k=>src[k%src.length];if(!series)return cyc;
+  const ts=src.map(c=>String(c&&c.t||"").trim()),mk=(k,t)=>Object.assign({},src[k%src.length],{t,v:undefined}),last=a=>a[a.length-1],stepOf=a=>a.length>1?last(a)-a[a.length-2]:1;
+  if(ts.length&&ts.every(v=>v!==""&&!isFml(v)&&numLike(v))){const a=ts.map(parseNum),st=stepOf(a);return k=>mk(k,String(Math.round((last(a)+st*(k+1))*1e10)/1e10))}
+  const ds=ts.map(v=>/\d/.test(v)&&!numLike(v)?toDate(v):null);if(ts.length&&ds.every(Boolean)){const st=ds.length>1?Math.round((last(ds)-ds[ds.length-2])/864e5):1;const iso=/^\d{4}-/.test(ts[0]),lng=/[A-Za-z]/.test(ts[0]);
+    return k=>{const d=new Date(last(ds));d.setDate(d.getDate()+st*(k+1));return mk(k,iso?ISO(d.getFullYear(),d.getMonth()+1,d.getDate()):lng?d.getDate()+" "+BULAN[d.getMonth()].slice(0,3)+" "+d.getFullYear():pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear())}}
+  const tm=ts.map(v=>/^\d{1,2}[:.]\d{2}$/.test(v)?toTime(v):null);if(ts.length&&tm.every(Boolean)){const mins=tm.map(x=>+x.slice(0,2)*60+ +x.slice(3)),st=mins.length>1?stepOf(mins):60;return k=>{const x=((last(mins)+st*(k+1))%1440+1440)%1440;return mk(k,pad2(Math.floor(x/60))+":"+pad2(x%60))}}
+  const mm=ts.map(v=>isFml(v)?null:v.match(/^(.*?)(\d+)(\D*)$/));if(ts.length&&mm.every(Boolean)&&mm.every(x=>x[1]===mm[0][1]&&x[3]===mm[0][3])){const a=mm.map(x=>+x[2]),w=last(mm)[2].length,st=stepOf(a),z=last(mm)[2][0]==="0";
+    return k=>{const n=last(a)+st*(k+1);return mk(k,mm[0][1]+(z?String(Math.max(0,n)).padStart(w,"0"):String(n))+mm[0][3])}}
+  return cyc}
+function doFill(series){const F=S.fill;S.fill=null;document.querySelectorAll(".sheet .cfill").forEach(x=>x.classList.remove("cfill"));if(!F||!F.t||!canWrite())return;
   const R=F.R,b=curB(),rs=curRows(),allCols=selCols(),src=(()=>{const keep=S.cs;S.cs=Object.assign({},keep);const c=buildClip();S.cs=keep;return c.cells})();
   pushUndo(true);const made={};const rowFor=rk=>{let r=rowById(rk)||made[rk];if(!r){const d=+rk.slice(1);if(!d)return null;r={id:rid(),d};const li=rs.map(x=>x.d).lastIndexOf(d);rs.splice(li<0?rs.length:li+1,0,r);made[rk]=r}return r};
   const {dir,to}=F.t;let n=0,endRk=R.rows[R.rows.length-1],endCk=R.cols[R.cols.length-1].key,startRk=R.rows[0],startCk=R.cols[0].key;
+  const full=colsOf(b);
   if(dir==="down"||dir==="up"){const tg=dir==="down"?R.sl.slice(R.r1+1,to+1):R.sl.slice(to,R.r0).reverse();
-    R.cols.forEach((col,j)=>{let seq=src.map(line=>line[j]);if(dir==="up")seq=seq.slice().reverse();const gen=seriesOf(seq);
-      tg.forEach((rk,k)=>{const r=rowFor(rk);if(!r)return;applyCell(r,col,gen(k),"all",b);n++})});
+    /* row numbers of the targets once new rows exist (a new row in an empty slot pushes the rows below it down by one) */
+    let add=0;const tnum=tg.map(rk=>{const n0=slotNum(rk)+(dir==="down"?add:0);if(!rowById(rk))add++;return n0});
+    R.cols.forEach((col,j)=>{let seq=src.map(line=>line[j]);if(dir==="up")seq=seq.slice().reverse();const gen=seriesOf(seq,series);
+      tg.forEach((rk,k)=>{const r=rowFor(rk);if(!r)return;let c=gen(k);if(c&&c.rn!=null)c=shiftCell(c,tnum[k]-c.rn,0);applyCell(r,col,c,"all",b);n++})});
     const ids=tg.map(rk=>(rowById(rk)||made[rk]||{}).id).filter(Boolean);if(dir==="down")endRk=ids[ids.length-1]||endRk;else startRk=ids[ids.length-1]||startRk}
   else{const tg=dir==="right"?R.cs.slice(R.c1+1,to+1):R.cs.slice(to,R.c0).reverse();
-    R.rows.forEach((rk,i)=>{const r=rowById(rk);if(!r)return;let seq=src[i].slice();if(dir==="left")seq=seq.reverse();const gen=seriesOf(seq);
-      tg.forEach((ck,k)=>{applyCell(r,allCols.find(c=>c.key===ck),gen(k),"all",b);n++})});
+    R.rows.forEach((rk,i)=>{const r=rowById(rk);if(!r)return;let seq=src[i].slice();if(dir==="left")seq=seq.reverse();const gen=seriesOf(seq,series);
+      tg.forEach((ck,k)=>{const col=allCols.find(c=>c.key===ck);let c=gen(k);if(c&&c.ci!=null)c=shiftCell(c,0,full.indexOf(col)-c.ci);applyCell(r,col,c,"all",b);n++})});
     if(dir==="right")endCk=tg[tg.length-1];else startCk=tg[tg.length-1]}
-  S.cs.a={rk:startRk,ck:startCk};S.cs.f={rk:endRk,ck:endCk};touch();render();toast(`${n} sel diisi`,"Urungkan",undo)}
+  S.cs.a={rk:startRk,ck:startCk};S.cs.f={rk:endRk,ck:endCk};touch();render();toast(`${n} sel diisi${series?" berurutan":" (disalin) · tahan Ctrl saat melepas untuk mengisi berurutan"}`,"Urungkan",undo)}
 
 /* ---- find & replace (Ctrl+F / Ctrl+H) in the open tab ---- */
 function openFind(rep){if(!curB())return;let p=document.querySelector(".findp");
@@ -2514,7 +2831,7 @@ const docSig=v=>JSON.stringify(v.meta?{rows:v.rows||[],meta:v.meta}:(v.rows||[])
 function groupDocs(ym){const out={};for(const [code,rows] of Object.entries(S.data[ym]||{}))rows.forEach(r=>{const id=code+"_w"+weekOf(r.d);(out[id]=out[id]||{code,week:weekOf(r.d),rows:[]}).rows.push(r)});
   for(const [code,mt] of Object.entries(S.meta[ym]||{})){const c=cleanMeta(mt);if(c)out[code+"_meta"]={code,week:0,rows:[],meta:c}}return out}
 let persistT=null,persisting=false;
-function touch(){if(S.ro)return;clearTimeout(persistT);setSync("wait","Menyimpan…");const ym=S.ym;persistT=setTimeout(()=>{persistT=null;persistMonth(ym)},500)}
+function touch(){S.gcache={};if(S.ro)return;clearTimeout(persistT);setSync("wait","Menyimpan…");const ym=S.ym;persistT=setTimeout(()=>{persistT=null;persistMonth(ym)},500)}
 async function persistMonth(ym){
   if(!DB.db){setSync("bad","Belum tersimpan (offline)");return}
   if(persisting){touch();return}persisting=true;
@@ -2565,10 +2882,10 @@ async function migrateLegacy(ym){
 }
 
 /* ---- settings shared by everyone: colors, lists, motif & PID lists, PIC/talent, column widths, font, logos ---- */
-function settingsObj(){return {brands:S.brands.map(b=>({code:b.code,name:b.name,abbr:b.abbr,color:b.color,pics:b.pics||[],talents:b.talents||[],motifLib:b.motifLib||[],logo:b.logo||null})),
-  channels:S.channels.map(c=>({code:c.code,name:c.name,abbr:c.abbr,sub:c.sub,color:c.color,pics:c.pics||[],logo:c.logo||null})),
+function settingsObj(){return {brands:S.brands.map(b=>({code:b.code,name:b.name,abbr:b.abbr,color:b.color,pics:b.pics||[],talents:b.talents||[],motifLib:b.motifLib||[],logo:b.logo||null,thOn:!!b.thOn})),
+  channels:S.channels.map(c=>({code:c.code,name:c.name,abbr:c.abbr,sub:c.sub,color:c.color,pics:c.pics||[],logo:c.logo||null,thOn:!!c.thOn})),
   lists:S.lists,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
-  logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,theme2:true,theme3:true,aiTone:S.aiTone}}
+  logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,frzR:S.frzR,cf:S.cf,theme2:true,theme3:true,aiTone:S.aiTone}}
 let lastSettings="",setT=null;
 function applySettings(d){
   if(!d)return;
@@ -2583,6 +2900,8 @@ function applySettings(d){
   ["promo","sideColor","accent","sideCustom","accentCustom","logo","font","migrated"].forEach(k=>{if(d[k]!==undefined)S[k]=d[k]});
   if(!d.theme3){S.sideCustom=false;S.accentCustom=false;S.sideColor="#FFFFFF";S.accent="#5B6BD6"} /* the Soft slate look replaces old custom colors once */
   if(d.frz&&typeof d.frz==="object")S.frz=Object.assign({},d.frz);
+  if(d.frzR&&typeof d.frzR==="object")S.frzR=Object.assign({},d.frzR);
+  if(d.cf&&typeof d.cf==="object")S.cf=JSON.parse(JSON.stringify(d.cf));
   if(d.aiTone)S.aiTone=d.aiTone;
   /* once: saved column layouts get the new built-in IDE / BRIEF (TikTok) and Script (Instagram) columns */
   if(!(S.migrated||{}).briefCol){Object.keys(S.cols).forEach(code=>{const b=byCode(code),cols=S.cols[code];if(!b||!Array.isArray(cols))return;
@@ -2696,6 +3015,20 @@ async function backupMonth(){
   if(!(await confirmBox("Backup "+ymLabel(ym)+"?",`${tabs.length} tab dibuat di spreadsheet: ${tabs.map(b=>b.code+" "+tag).join(", ")}. Tab dengan nama sama diganti dengan data terbaru.`,"Backup sekarang")))return;
   const rgb=h=>{const x=parseInt(String(h).replace("#",""),16);return {red:((x>>16)&255)/255,green:((x>>8)&255)/255,blue:(x&255)/255}};
   const T=v=>{v=v==null?"":String(v);return v===""?"":"'"+v};
+  /* formulas go to Google Sheets as real formulas: dashboard row numbers → rows of the backup tab, brand names → tab names */
+  const rowMap={},fcells=[];
+  const titleOf=b=>b.code+" "+tag,qt=s=>"'"+String(s).replace(/'/g,"''")+"'";
+  const mapRow=(code,n,side)=>{const m=rowMap[code];if(!m)return null;if(n===1)return 4;if(m.has(n))return m.get(n);const ks=[...m.keys()].sort((a,c)=>a-c);
+    if(side==="lo"){const k=ks.find(x=>x>=n);return k!=null?m.get(k):null}if(side==="hi"){const k=[...ks].reverse().find(x=>x<=n);return k!=null?m.get(k):null}return null};
+  const toSheetFml=(f,b)=>"="+fmlForSheet(String(f).slice(1)).replace(/("(?:[^"]|"")*")|(?<![A-Za-z0-9_.$'])(?:((?:'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*))!)?(\$?)([A-Za-z]{1,3})(\$?)(\d+)(?::(\$?)([A-Za-z]{1,3})(\$?)(\d+))?(?![A-Za-z0-9_(!])/g,
+    (m,str,sh,c1d,c1,r1d,r1,c2d,c2,r2d,r2)=>{if(str)return str;const tb=sh?sheetOf(sh):b;if(!tb)return m;const pre=sh||tb!==b?qt(titleOf(tb))+"!":"";
+      if(r2===undefined){const x=mapRow(tb.code,+r1);return pre+c1d+c1+r1d+(x||9999)}
+      const a=mapRow(tb.code,Math.min(+r1,+r2),"lo"),z=mapRow(tb.code,Math.max(+r1,+r2),"hi");return pre+c1d+c1+r1d+(a||9999)+":"+c2d+c2+r2d+(z&&a&&z>=a?z:a||9999)})
+    .replace(/(?<![A-Za-z0-9_.$'])((?:'(?:[^']|'')+'|[A-Za-z_][A-Za-z0-9_.]*))!(\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3})(?![A-Za-z0-9_(!])/g,(m,sh,rg)=>{const tb=sheetOf(sh);return tb?qt(titleOf(tb))+"!"+rg:m});
+  const NFP={num:["NUMBER","#,##0"],idr:["CURRENCY",'"Rp" #,##0'],pct:["PERCENT","0%"],date:["DATE","dd/mm/yyyy"],dlong:["DATE","d mmm yyyy"],time:["TIME","HH:mm"],dt:["DATE_TIME","dd/mm/yyyy HH:mm"],text:["TEXT","@"]};
+  const nfPattern=f=>{const p=NFP[f.nf];if(!p)return null;let pat=p[1];if(f.dp&&/^(num|idr|pct)$/.test(f.nf))pat=pat.replace(/0(%?)$/,"0."+"0".repeat(f.dp)+"$1");return {type:p[0],pattern:pat}};
+  const typed=(raw,f)=>{if(!f||!f.nf||f.nf==="text")return null;if(/^(num|idr|pct)$/.test(f.nf)){const n=parseNum(raw);if(n==null)return null;return f.nf==="pct"&&!/%/.test(String(raw))&&Math.abs(n)>1?n/100:n}
+    if(f.nf==="time")return toTime(raw);const d=toDate(raw);if(!d)return null;return ISO(d.getFullYear(),d.getMonth()+1,d.getDate())+(f.nf==="dt"?" "+pad2(d.getHours())+":"+pad2(d.getMinutes()):"")};
   try{
     setBusy("Membaca daftar tab…");
     const meta=await gs("get_spreadsheet",{spreadsheetId:sid,fields:["sheets.properties.sheetId","sheets.properties.title"]});
@@ -2706,18 +3039,23 @@ async function backupMonth(){
       const ex=existing.find(s=>s.title===title);if(ex)reqs.push({deleteSheet:{sheetId:ex.sheetId}});
       const rows=[[T("CONTENT PLAN "+(ig?"INSTAGRAM":"TIKTOK")+" "+b.name)],[T(ymLabel(ym).toUpperCase())],[],head.map(T)],merges=[],sun=[];
       const all_=rowsOf(b.code).filter(hasContent);
+      const lnum={};layoutOf(b,rowsOf(b.code)).lay.forEach(L=>(L.items||[]).forEach(x=>{if(x.r)lnum[x.r.id]=x.num}));rowMap[b.code]=new Map();
       for(let d=1;d<=n;d++){const its=all_.filter(r=>r.d===d),wd=dow(d);
         if(!its.length){if(wd===0&&!ig){sun.push(rows.length);rows.push([T(String(d)),T("MINGGU")])}continue}
         const st=rows.length;
-        its.forEach((r,ix)=>{rows.push(cols.map(col=>{const k=col.key;
+        its.forEach((r,ix)=>{if(lnum[r.id])rowMap[b.code].set(lnum[r.id],rows.length+1);const line=rows.length;rows.push(cols.map((col,ci)=>{const k=col.key,f=fmtOf(r,k),raw=r[k];
+          if(TEXTY.includes(col.type)&&col.type!=="date"&&isFml(raw)&&f.nf!=="text"){fcells.push({rows,line,ci,f:raw,b});return ""}
+          if(TEXTY.includes(col.type)&&raw!=null&&raw!==""){const tv=typed(raw,f);if(tv!=null)return tv}
           if(k==="tgl")return ix===0?T(ig?d+" "+BULAN[+ym.slice(5)-1].slice(0,3)+" "+ym.slice(0,4):String(d)):"";
           if(k==="hari")return ix===0?T(HARI[wd]):"";
           if(k==="mot")return T((r.motifs||[]).map(x=>{const m=findMotif(ig?(byCode(r.brand)||{}).code:b.code,x);return m?[m.name,m.ih&&"IH : "+m.ih,m.lv&&"LV : "+m.lv,m.af&&"AF : "+m.af,m.kl&&"KL : "+m.kl].filter(Boolean).join("\n"):x}).join("\n\n"));
           if(col.type==="check")return r[k]?"TRUE":"FALSE";
           if(k==="shot")return r.shot?T("ada (lihat dashboard)"):"";
           return T(r[k])}));
-          const ri=rows.length-1;cols.forEach((col,ci)=>{const f=fmtOf(r,col.key);if(!(f.bg||f.fc||f.b||f.i||f.u))return;
-            fmt.push({repeatCell:{range:{sheetId:id,startRowIndex:ri,endRowIndex:ri+1,startColumnIndex:ci,endColumnIndex:ci+1},cell:{userEnteredFormat:Object.assign(f.bg?{backgroundColor:rgb(f.bg)}:{},{textFormat:Object.assign({bold:!!f.b,italic:!!f.i,underline:!!f.u},f.fc?{foregroundColor:rgb(f.fc)}:{})})},fields:"userEnteredFormat.textFormat"+(f.bg?",userEnteredFormat.backgroundColor":"")}})})});
+          const ri=rows.length-1;cols.forEach((col,ci)=>{const f=fmtOf(r,col.key),np=nfPattern(f);if(!(f.bg||f.fc||f.b||f.i||f.u||f.s||np))return;
+            const uf={},fl=[];if(f.bg||f.fc||f.b||f.i||f.u||f.s){uf.textFormat=Object.assign({bold:!!f.b,italic:!!f.i,underline:!!f.u,strikethrough:!!f.s},f.fc?{foregroundColor:rgb(f.fc)}:{});fl.push("userEnteredFormat.textFormat")}
+            if(f.bg){uf.backgroundColor=rgb(f.bg);fl.push("userEnteredFormat.backgroundColor")}if(np){uf.numberFormat=np;fl.push("userEnteredFormat.numberFormat")}
+            fmt.push({repeatCell:{range:{sheetId:id,startRowIndex:ri,endRowIndex:ri+1,startColumnIndex:ci,endColumnIndex:ci+1},cell:{userEnteredFormat:uf},fields:fl.join(",")}})})});
         if(its.length>1&&!ig){merges.push([st,rows.length,0],[st,rows.length,1])}
         if(wd===0)for(let i=st;i<rows.length;i++)sun.push(i);
       }
@@ -2731,6 +3069,7 @@ async function backupMonth(){
       merges.forEach(([s,e,c])=>fmt.push({mergeCells:{range:{sheetId:id,startRowIndex:s,endRowIndex:e,startColumnIndex:c,endColumnIndex:c+1},mergeType:"MERGE_ALL"}}));
       sun.forEach(r=>fmt.push({repeatCell:{range:{sheetId:id,startRowIndex:r,endRowIndex:r+1,startColumnIndex:0,endColumnIndex:2},cell:{userEnteredFormat:{textFormat:{bold:true,foregroundColor:{red:.85,green:.19,blue:.15}}}},fields:"userEnteredFormat.textFormat"}}));
     }
+    fcells.forEach(x=>{x.rows[x.line][x.ci]=toSheetFml(x.f,x.b)});
     setBusy("Membuat "+sheets.length+" tab…");await gs("update_spreadsheet",{spreadsheetId:sid,requests:reqs});
     let k=0;for(const s of sheets){k++;setBusy(`Menulis ${s.title} (${k}/${sheets.length})…`);await gs("update_values",{spreadsheetId:sid,range:`'${s.title}'!A1`,values:s.rows})}
     setBusy("Merapikan format…");try{for(let i=0;i<fmt.length;i+=400)await gs("update_spreadsheet",{spreadsheetId:sid,requests:fmt.slice(i,i+400)})}catch(_){}
@@ -2815,7 +3154,12 @@ let zoom=1; try{zoom=+localStorage.getItem("cpig-zoom")||1}catch(_){}
 function setZoom(z){zoom=Math.round(Math.min(1.6,Math.max(.6,z))*10)/10;const sh=document.querySelector(".shell");sh.style.zoom=zoom;document.documentElement.style.setProperty("--z",zoom);document.getElementById("zoomLbl").textContent=Math.round(zoom*100)+"%";try{localStorage.setItem("cpig-zoom",zoom)}catch(_){}}
 window.addEventListener("wheel",e=>{if(!e.ctrlKey)return;e.preventDefault();setZoom(zoom+(e.deltaY<0?.1:-.1))},{passive:false});
 window.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey))return;if(e.key==="="||e.key==="+"){e.preventDefault();setZoom(zoom+.1)}else if(e.key==="-"){e.preventDefault();setZoom(zoom-.1)}else if(e.key==="0"){e.preventDefault();setZoom(1)}});
+const OWNER_COLOR=id=>id==="side"||id==="sideoff"||/^(b|th|thoff)\d+$/.test(id);
 function setColor(id,c){
+  if(OWNER_COLOR(id)&&!S.isOwner){toast("Hanya pemilik dashboard yang bisa mengubah warna brand, bar judul dan sidebar");return}
+  if(id==="sideoff"){S.sideCustom=false;S.sideColor="#FFFFFF";render();toast("Sidebar kembali ke tampilan bawaan");return}
+  if(/^th\d+$/.test(id)){const b=all()[+id.slice(2)];if(b){b.color=c;b.thOn=true}render();toast("Warna bar judul "+(b?b.name:"")+" diganti. Warna brand ikut berubah di semua tempat");return}
+  if(/^thoff\d+$/.test(id)){const b=all()[+id.slice(5)];if(b)b.thOn=false;render();toast("Bar judul "+(b?b.name:"")+" kembali cokelat");return}
   if(id==="side"){S.sideColor=c;S.sideCustom=true} else if(id==="accent"){S.accent=c;S.accentCustom=true} else if(id==="promo")S.promo=c;
   else if(id.startsWith("camp"))S.campaigns[+id.slice(4)].color=c; else if(id.startsWith("b"))all()[+id.slice(1)].color=c;
   render();
