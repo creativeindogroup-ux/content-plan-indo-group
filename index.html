@@ -1260,16 +1260,23 @@ async function claudeTeamStart(){if(!DB.db||!DB.user||typeof DB.user.id!=="funct
     if(!S.prunedActs){S.prunedActs=true;all_.filter(a=>a.t<=cut).slice(0,40).forEach(a=>DB.db.doc("activity/"+a.id).delete().catch(()=>{}))}},()=>{});
   DB.team={kind:"db",log:async items=>{for(const it of items){const prev=it.rowId&&S.team.acts.find(a=>a.by===uid&&a.rowId===it.rowId&&a.col===it.col&&a.code===it.code&&Date.now()-a.t<300000);
       await DB.db.doc("activity/"+(prev?prev.id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,7))).set(Object.assign({},it,{t:Date.now(),by:uid,nick:S.team.nick||"Tim"}))}}}}
-function refreshNick(){const me=window.CP_AUTH&&window.CP_AUTH.me;if(DB.team&&DB.team.kind==="server"){if(!me){S.team.nick="";return}S.team.nick=me.nick||"";if(!S.team.nick)askNick()}
-  else if(DB.team||S.team.uid||DB.user){if(!S.team.nick&&S.settingsReady)askNick()}}
-async function askNick(){if(S.askingNick||document.querySelector(".modal"))return;S.askingNick=true;
-  try{const o=await formBox("Tuliskan nama panggilanmu",`<p class="sub" style="margin:0">Dipakai untuk sapaan di beranda, daftar yang sedang online, dan catatan aktivitas. Samakan dengan namamu di kolom PIC supaya tugas harianmu terhitung.</p><label class="field">Nama panggilan<input name="nick" required maxlength="24" value="${esc(S.team.nick||"")}" placeholder="misalnya Rani" autocomplete="nickname"></label>`,"Simpan");
+/* the nickname is asked once per person: kept on the server and on this device (per email / account), changeable via "ubah" */
+function nickKey(){const me=window.CP_AUTH&&window.CP_AUTH.me;return "cp-nick:"+(me&&me.email?String(me.email).toLowerCase():S.team.uid||"local")}
+function refreshNick(){const me=window.CP_AUTH&&window.CP_AUTH.me;
+  if(DB.team&&DB.team.kind==="server"){if(!me){S.team.nick="";return}
+    const local=lsGet(nickKey(),"");S.team.nick=me.nick||local||"";
+    if(me.nick){if(me.nick!==local)lsSet(nickKey(),me.nick)}else if(local){DB.team.setNick(local).catch(()=>{})}else askNick();return}
+  if(!S.team.nick){S.team.nick=lsGet(nickKey(),"")||lsGet("cp-nick","");if(S.team.nick&&DB.db&&!S.ro&&S.team.uid)DB.db.doc("people/"+S.team.uid).set({nick:S.team.nick}).catch(()=>{})}
+  if(S.team.nick)lsSet(nickKey(),S.team.nick);
+  else if(DB.team||S.team.uid||DB.user){if(S.settingsReady)askNick()}}
+async function askNick(change){if(S.askingNick||document.querySelector(".modal"))return;if(!change&&S.team.nick)return;S.askingNick=true;
+  try{const o=await formBox(change?"Ubah nama panggilan":"Tuliskan nama panggilanmu",`<p class="sub" style="margin:0">Dipakai untuk sapaan di beranda, daftar yang sedang online, dan catatan aktivitas. Samakan dengan namamu di kolom PIC supaya tugas harianmu terhitung.</p><label class="field">Nama panggilan<input name="nick" required maxlength="24" value="${esc(S.team.nick||"")}" placeholder="misalnya Rani" autocomplete="nickname"></label>`,"Simpan");
     if(o&&String(o.nick||"").trim())await saveNick(String(o.nick).trim())}finally{S.askingNick=false}}
 async function saveNick(n){n=n.replace(/[<>]/g,"").slice(0,24);
   try{if(DB.team&&DB.team.kind==="server")n=await DB.team.setNick(n);else if(DB.db&&!S.ro&&S.team.uid)await DB.db.doc("people/"+S.team.uid).set({nick:n});else lsSet("cp-nick",n)}
   catch(e){toast("Nama panggilan belum tersimpan: "+(e.message||e.code));return}
-  S.team.nick=n;lsSet("cp-nick",n);toast("Halo, "+n+"!");S.greeted=false;render();if(S.team.tick)S.team.tick()}
-document.addEventListener("click",e=>{if(e.target.closest("[data-chnick],.topbar .authtx"))askNick();if(e.target.closest("[data-actall]")){S.actAll=true;render()}});
+  S.team.nick=n;lsSet("cp-nick",n);lsSet(nickKey(),n);toast("Halo, "+n+"!");S.greeted=false;render();if(S.team.tick)S.team.tick()}
+document.addEventListener("click",e=>{if(e.target.closest("[data-chnick]"))askNick(true);if(e.target.closest("[data-actall]")){S.actAll=true;render()}});
 function renderOnline(){const el=document.getElementById("online");if(!el)return;const others=(S.team.online||[]).filter(x=>!x.me);
   el.innerHTML=others.slice(0,5).map(x=>`<span class="oav" style="--c:${nameColor(x.name+x.id)}" title="${esc(x.name||"Tamu")}${x.guest?" (tamu)":""} · ${esc(x.page||"Beranda")}">${esc(String(x.name||"?").charAt(0).toUpperCase())}</span>`).join("")+(others.length>5?`<span class="oav more" title="${esc(others.slice(5).map(x=>x.name).join(", "))}">+${others.length-5}</span>`:"");
   el.hidden=!others.length;el.setAttribute("aria-label",others.length+" orang lain sedang membuka dashboard")}
@@ -1495,7 +1502,7 @@ function sheetTable(b,rows,ctx){
   const fchips=Object.entries(flt).map(([k,vals])=>`<span class="fchip">${esc(colLabel(k))}: ${esc(vals.slice(0,3).join(", "))}${vals.length>3?" +"+(vals.length-3):""}<button data-fdel="${k}" aria-label="Hapus filter ${esc(colLabel(k))}">✕</button></span>`).join("");
   return `${guideHtml(b.ig)}
   <div class="tbar"><span class="hint">${cols.length} kolom · klik kanan pada sel, nomor baris atau huruf kolom untuk semua opsi${hid.size&&!S.ro?` · <button class="linkb" data-unhide>Tampilkan lagi ${hid.size} baris kosong yang dihapus</button>`:""}</span>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${S.isOwner&&!S.ro?`<button class="btn sm press" data-adddate title="Munculkan lagi tanggal yang hilang atau terhapus">+ Tanggal</button>`:""}<button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${!S.ro?`<button class="btn sm press" data-pdf title="Export konten bulan ini ke PDF">Export PDF</button>`:""}${S.isOwner&&!S.ro?`<button class="btn sm press" data-adddate title="Munculkan lagi tanggal yang hilang atau terhapus">+ Tanggal</button>`:""}<button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
     <div class="seg" role="group" aria-label="Ukuran tabel">${[["normal","Normal"],["dense","Ringkas"],["fit","Muat layar"]].map(([k,l])=>`<button data-density="${k}" aria-pressed="${dn===k}">${l}</button>`).join("")}</div></div></div>
   ${fon?`<div class="fbar"><b>Filter</b>${fchips||`<span class="sub">Klik ▾ di judul kolom untuk memfilter atau mengurutkan.</span>`}<span style="flex:1"></span><span class="sub">Berlaku untuk:</span><div class="seg" role="group" aria-label="Filter berlaku untuk"><button data-fscope="me" aria-pressed="${scope==="me"}">Saya saja</button><button data-fscope="all" aria-pressed="${scope==="all"}">Semua tim</button></div>${filtering?`<button class="btn sm press" data-fclear>Hapus semua filter</button>`:""}</div>`:""}
   <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code],b.ig)}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
@@ -2003,6 +2010,65 @@ function openAddDate(){const b=curB();if(!b)return;if(!S.isOwner){toast("Hanya p
     setTimeout(()=>{const tr=document.querySelector(`.sheet tbody tr[data-date="${list[0]}"]`)||document.querySelector(`.sheet tbody tr[data-sund="${list[0]}"]`);if(tr)tr.scrollIntoView({block:"center"})},60)};
   document.body.append(sc,m);m.querySelector("#adIn").focus()}
 document.addEventListener("click",e=>{if(e.target.closest("[data-adddate]"))openAddDate()});
+/* ---- Export PDF (editors & owner): a month of one brand, or the selected cells, as content cards (A4, no colors) ---- */
+let jsPdfP=null;
+function loadJsPdf(){if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve(window.jspdf.jsPDF);
+  return jsPdfP||(jsPdfP=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";s.onload=()=>window.jspdf?res(window.jspdf.jsPDF):rej(new Error("jsPDF"));s.onerror=()=>{jsPdfP=null;rej(new Error("Pustaka PDF tidak bisa dimuat. Periksa koneksi internet."))};document.head.appendChild(s)}))}
+function pdfVal(r,col,b){if(!r)return "";const t=cellText(r,col),fm=r.fmt&&r.fmt[col.key]||null;
+  let v=col.type==="check"?(r[col.key]?"Ya":""):col.type==="motif"?(r.motifs||[]).filter(Boolean).join(", "):col.type==="shot"?(r.shot?"(ada screenshot)":""):TEXTY.includes(col.type)&&col.type!=="date"&&(isFml(t)||(fm&&fm.nf))?cellDisplay(t,fm||{}):t;
+  return String(v??"").replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF]/g,c=>({"–":"-","—":"-","‘":"'","’":"'","“":'"',"”":'"',"…":"...","•":"-"}[c]||"")).trim()}
+async function pdfLogo(){try{const id=S.logo&&S.logo.id;if(!id)return null;return await new Promise(res=>{const im=new Image();im.crossOrigin="anonymous";const to=setTimeout(()=>res(null),3000);
+  im.onload=()=>{clearTimeout(to);try{const c=document.createElement("canvas"),k=Math.min(1,240/Math.max(im.width,im.height));c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res({src:c.toDataURL("image/png"),w:c.width,h:c.height})}catch(_){res(null)}};im.onerror=()=>{clearTimeout(to);res(null)};im.src=blobUrl(id)})}catch(_){return null}}
+function pdfColsBox(b){const cols=colsOf(b).filter(c=>!c.hidden&&!["tgl","hari"].includes(c.key));let saved=null;try{saved=JSON.parse(lsGet("cpig-pdfcols-"+b.code,"null"))}catch(_){}
+  return new Promise(res=>{const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+    m.innerHTML=`<h2>Export PDF · ${esc(b.name)}</h2><p class="sub" style="margin:0 0 8px">Seluruh konten ${esc(perMonthLabel())}, satu kartu per konten, termasuk tanggal yang belum ada kontennya. Pilih kolom yang ikut dicetak.</p>
+      <div style="display:flex;gap:10px;margin-bottom:6px"><button type="button" class="linkb" data-pa="1">Pilih semua</button><button type="button" class="linkb" data-pa="0">Kosongkan</button></div>
+      <div class="pdfcols" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 10px;max-height:46vh;overflow:auto">${cols.map(c=>`<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" value="${esc(c.key)}" ${!saved||saved.includes(c.key)?"checked":""}>${esc(c.label)}</label>`).join("")}</div>
+      <div class="acts"><button class="btn" data-x>Batal</button><button class="btn acc" data-pok>Export PDF</button></div>`;
+    const done=v=>{sc.remove();m.remove();res(v)};sc.onclick=()=>done(null);
+    m.onclick=e=>{if(e.target.closest("[data-x]"))return done(null);const pa=e.target.closest("[data-pa]");if(pa){m.querySelectorAll(".pdfcols input").forEach(x=>x.checked=pa.dataset.pa==="1");return}
+      if(e.target.closest("[data-pok]")){const ks=[...m.querySelectorAll(".pdfcols input:checked")].map(x=>x.value);if(!ks.length){toast("Pilih minimal 1 kolom");return}lsSet("cpig-pdfcols-"+b.code,JSON.stringify(ks));done(cols.filter(c=>ks.includes(c.key)))}};
+    document.body.append(sc,m)})}
+const perMonthLabel=()=>BULAN[+S.ym.slice(5)-1]+" "+S.ym.slice(0,4);
+async function exportPdf(sel){if(S.ro){toast("Export PDF hanya untuk editor dan pemilik");return}const b=curB();if(!b)return;
+  const nd=daysIn(S.ym),[y,mo]=S.ym.split("-").map(Number);let cols,groups;
+  if(sel){const R=rect();if(!R){toast("Blok dulu sel yang ingin di-export");return}
+    cols=R.cols.filter(c=>!["tgl","hari"].includes(c.key));if(!cols.length)cols=R.cols;const by=new Map();
+    R.rows.forEach(rk=>{const r=rowById(rk),d=r?r.d:+String(rk).replace(/\D/g,"");if(!d)return;if(!by.has(d))by.set(d,[]);if(r&&hasContent(r))by.get(d).push(r)});
+    groups=[...by.entries()].sort((a,c)=>a[0]-c[0]).map(([d,rs])=>({d,rows:rs}))}
+  else{cols=await pdfColsBox(b);if(!cols)return;const rows=rowsOf(b.code);
+    groups=Array.from({length:nd},(_,i)=>({d:i+1,rows:rows.filter(r=>r.d===i+1&&hasContent(r))}))}
+  if(!groups.length){toast("Tidak ada baris di sel yang dipilih");return}
+  toast("Menyiapkan PDF…");
+  let JsPDF;try{JsPDF=await loadJsPdf()}catch(e){toast(e.message);return}
+  const logo=await pdfLogo(),doc=new JsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+  const W=210,H=297,M=14,LW=38,VW=W-2*M-LW-8,now=new Date(),printed=`Dicetak ${now.getDate()} ${BULAN[now.getMonth()]} ${now.getFullYear()} ${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  let yy=0;
+  const head=()=>{let x=M;if(logo){const h=12,w=Math.min(30,h*logo.w/logo.h);try{doc.addImage(logo.src,"PNG",M,10,w,h);x=M+w+4}catch(_){}}
+    doc.setFont("helvetica","bold");doc.setFontSize(14);doc.setTextColor(20);doc.text(pdfSafe(b.name),x,15);
+    doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(90);doc.text(pdfSafe(`Content plan ${b.ig?"Instagram":"TikTok"} · ${perMonthLabel()}`+(sel?" · sel terpilih":"")),x,20.5);
+    doc.text(pdfSafe(printed),W-M,15,{align:"right"});doc.text("Indo Group",W-M,20.5,{align:"right"});
+    doc.setDrawColor(180);doc.setLineWidth(.3);doc.line(M,25,W-M,25);yy=32};
+  const room=h=>{if(yy+h>H-16){doc.addPage();head()}};
+  head();
+  groups.forEach(g=>{const wd=new Date(y,mo-1,g.d).getDay();room(16);
+    doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(20);doc.text(pdfSafe(`${HARI[wd]}, ${g.d} ${BULAN[mo-1]} ${y}`),M,yy);
+    doc.setDrawColor(210);doc.line(M,yy+1.6,W-M,yy+1.6);yy+=7;
+    if(!g.rows.length){doc.setFont("helvetica","italic");doc.setFontSize(9);doc.setTextColor(120);doc.text("Belum ada konten",M+2,yy);yy+=8;return}
+    g.rows.forEach((r,ix)=>{const lines=cols.map(c=>({l:c.label,v:doc.setFontSize(9)&&doc.splitTextToSize(pdfVal(r,c,b)||"-",VW)}));
+      const hgt=lines.reduce((s,x)=>s+Math.max(1,x.v.length)*4.1+1.4,0)+6;room(Math.min(hgt,40));
+      const top=yy-3;doc.setFont("helvetica","bold");doc.setFontSize(8.5);doc.setTextColor(60);doc.text(`Konten ${ix+1}`,M+3,yy);yy+=5;
+      lines.forEach(x=>{const need=Math.max(1,x.v.length)*4.1+1.4;if(yy+need>H-16){doc.setDrawColor(200);doc.line(M,top,M,yy-2);doc.addPage();head()}
+        doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(110);doc.text(pdfSafe(doc.splitTextToSize(x.l,LW)[0]),M+3,yy);
+        doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(25);doc.text(x.v,M+3+LW+2,yy);yy+=need});
+      doc.setDrawColor(200);doc.setLineWidth(.4);doc.line(M,Math.max(top,26),M,yy-2.5);yy+=4})});
+  const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(130);doc.text(`Halaman ${i} / ${n}`,W/2,H-8,{align:"center"})}
+  const name=`Content Plan ${b.name} ${perMonthLabel()}${sel?" (pilihan)":""}.pdf`.replace(/[\\/:*?"<>|]/g,"");
+  const blob=doc.output("blob");
+  try{const dl=window.claude&&window.claude.use?await window.claude.use("downloads").catch(()=>null):null;if(dl){await dl.save({filename:name,data:blob});toast("PDF siap: "+name);return}}catch(e){if(e&&/declin|cancel|dismiss/i.test(String(e.code||e.message)))return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("PDF diunduh: "+name)}
+const pdfSafe=s=>String(s).replace(/[^\x20-\x7E\xA0-\xFF]/g,c=>c==="·"?"\xB7":"");
+document.addEventListener("click",e=>{if(e.target.closest("[data-pdf]"))exportPdf(false)});
 /* content whose date is empty or outside this month never shows in the table: list it so it can be moved */
 const validDay=(r,nd)=>Number.isInteger(r.d)&&r.d>=1&&r.d<=nd;
 function rowSummary(r){return ["slot","pil","brief","judul","ide","scr","pic","st"].map(k=>r[k]).filter(v=>typeof v==="string"&&v.trim()).join(" · ").slice(0,140)||"(baris tanpa judul)"}
@@ -2100,7 +2166,7 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
   if(S.ro){m.innerHTML=`<div class="mhead">Mode baca saja</div>`+MI("copy","Salin","Ctrl+C")+MS+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter");placeMenu(m,x,y);return}
   m.innerHTML=MI("cut","Potong","Ctrl+X")+MI("copy","Salin","Ctrl+C")+MI("paste","Tempel","Ctrl+V")+
     `<div class="msub"><span>Tempel khusus</span>${MI("pv","Hanya nilai","Ctrl+Shift+V",!S.gclip)}${MI("pf","Hanya format","",!S.gclip)}${MI("pdd","Dropdown (jadikan kolom dropdown)","",!(S.gclip&&S.gclip.cells.some(l=>l.some(c=>c.dd))))}</div>`+MS+
-    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MS+
+    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+(S.ro?"":MI("pdfsel","Export PDF (sel terpilih)"))+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MS+
     (fullCols&&!fullRows?"":MI("delrows",R.rows.length>1?`Hapus ${R.rows.length} baris`:"Hapus baris"))+(fullRows&&!fullCols?"":MI("delcols",R.cols.length>1?`Hapus ${R.cols.length} kolom`:"Hapus kolom"))+MI("clear","Hapus isi sel","Delete")+MS+
     MI("dup",rows.length>1?`Duplikat ${rows.length} baris`:"Duplikat baris","",!rows.length)+MI("move","Pindahkan baris ke tanggal…","",!rows.length)+MS+
     MI("asc",`Urutkan A → Z <small>(${esc(col?col.label:"")})</small>`)+MI("desc",`Urutkan Z → A <small>(${esc(col?col.label:"")})</small>`)+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter")+MS+
@@ -2173,6 +2239,7 @@ document.addEventListener("click",async e=>{
     case "colright":{const R=rect();insertCol("right",R.cols[R.cols.length-1].key);break}
     case "delrows":deleteRows();break;
     case "adddate":openAddDate();break;
+    case "pdfsel":exportPdf(true);break;
     case "delsun":if(canWrite()){pushUndo(true);hideDates(b.code,[+m.dataset.sund]);touch();render();toast("1 baris dihapus","Urungkan",undo)}break;
     case "opensun":S.openSun.add(b.code+"|"+S.ym+"|"+m.dataset.sund);render();break;
     case "delcols":deleteCol(rect().cols.map(c=>c.key));break;
