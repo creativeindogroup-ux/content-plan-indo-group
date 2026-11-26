@@ -1970,11 +1970,22 @@ document.addEventListener("mousedown",e=>{
   const c=ctrlOf(td),editing=c&&document.activeElement===c&&!S.fresh;
   setSel(k,k);S.drag=true;
   if(c&&c.classList.contains("tpick")){e.preventDefault();S.drag=false;focusCell(k.rk,k.ck,false);openTpick(c);return}
+  /* dropdown cell like Google Sheets: a click selects the cell (and can be dragged into a range); the list opens from the ▾ at the right edge,
+     a double click, Enter, F2 or Alt+↓ */
+  if(c&&c.tagName==="SELECT"&&document.activeElement!==c){e.preventDefault();const rr=td.getBoundingClientRect();
+    if(e.clientX>rr.right-26&&!S.ro){S.drag=false;openDrop(c);return}
+    S.fresh=false;td.closest(".sheet-wrap").focus({preventScroll:true});return}
   if(c&&isText(c)&&!editing&&!td.querySelector(".mcell")&&!/^(date|time)$/.test(c.type)){e.preventDefault();focusCell(k.rk,k.ck,true);return}
   S.fresh=false;
   if(!c){e.preventDefault();td.closest(".sheet-wrap").focus({preventScroll:true})}
 });
-document.addEventListener("dblclick",e=>{const td=e.target.closest(".sheet tbody td[data-col]");if(!td||e.target.closest(".fillh,.rrz,a,button"))return;const c=ctrlOf(td);if(c&&isText(c))enterEdit(c)});
+document.addEventListener("dblclick",e=>{const td=e.target.closest(".sheet tbody td[data-col]");if(!td||e.target.closest(".fillh,.rrz,a,button"))return;const c=ctrlOf(td);if(c&&c.tagName==="SELECT"){if(!S.ro)openDrop(c);return}if(c&&isText(c))enterEdit(c)});
+function openDrop(c){c.focus({preventScroll:true});try{if(c.showPicker)c.showPicker()}catch(_){}}
+/* Enter / F2 / Alt+↓ on a selected dropdown cell opens its list */
+document.addEventListener("keydown",e=>{if(S.ro||!S.cs||!(e.key==="Enter"&&!e.shiftKey&&!e.ctrlKey&&!e.altKey||e.key==="F2"||(e.altKey&&e.key==="ArrowDown")))return;
+  const R=rect();if(!R||R.n!==1)return;const td=cellTd(S.cs.f.rk,S.cs.f.ck),c=td&&ctrlOf(td);if(!c||c.tagName!=="SELECT"||document.activeElement===c)return;
+  const a=document.activeElement;if(a&&a!==document.body&&!(a.classList&&a.classList.contains("sheet-wrap")))return;
+  e.preventDefault();e.stopPropagation();openDrop(c)},true);
 function enterEdit(c,txt){if(!c)return;if(txt!==undefined)c.value=txt;else if(c.dataset.raw!==undefined&&c.value===c.dataset.disp)c.value=c.dataset.raw;c.focus({preventScroll:true});const n=c.value.length;try{c.setSelectionRange(n,n)}catch(_){}S.fresh=false;if(txt!==undefined)c.dispatchEvent(new Event("input",{bubbles:true}));syncFx()}
 /* row height: drag the line under a row number */
 function startRowResize(e,tr){e.preventDefault();e.stopPropagation();if(!canWrite())return;const r=rowById(tr.dataset.id);if(!r)return;const bar=e.target.closest(".rrz");bar.classList.add("on");
