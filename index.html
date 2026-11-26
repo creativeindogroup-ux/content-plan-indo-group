@@ -1332,8 +1332,15 @@ function labelOf(k){if(LIST_LABEL[k])return LIST_LABEL[k];if(k.startsWith("cx:")
 function addToList(k,v){
   if(k==="brand"){const name=v.toUpperCase();if(!S.brands.some(b=>b.name===name)){const code="B"+Date.now().toString(36).toUpperCase();setTimeout(()=>{if(S.tpl){applyTemplate(code);toast("Brand "+name+" memakai template format tabel dari "+S.tpl.from)}},0);S.brands.push({code,name,abbr:name.replace(/^BATIK\s*/,"").slice(0,3),color:SWATCH[S.brands.length%SWATCH.length],pics:[],talents:[],total:0,done:0,pending:0,pil:S.lists["pil:tt"].map(()=>0),motifs:[]})}renderNav();return name}
   if(k.startsWith("mot:")){const b=byCode(k.slice(4));if(b){b.motifLib=b.motifLib||[];if(!b.motifLib.some(m=>m.name.toLowerCase()===v.toLowerCase()))b.motifLib.push({name:v,ih:"",lv:"",af:""})}return v}
-  const l=listRef(k);if(l&&!l.includes(v))l.push(v);return v;
+  unDel(k);const l=listRef(k);if(l){if(!l.includes(v))l.push(v)}else if(k.startsWith("cx:")||LIST_LABEL[k])S.lists[k]=[v];return v;
 }
+/* ---- deleting whole dropdown cards (Pengaturan → Isi dropdown, owner only) ----
+   S.listDel keeps the deleted keys so another device's copy cannot bring them back; adding an option again revives the card */
+S.listDel=[];
+function unDel(k){const i=S.listDel.indexOf(k);if(i>=0)S.listDel.splice(i,1)}
+function listUnused(k){if(!k.startsWith("cx:"))return false;const [,c]=k.split(":"),b=byCode(c);return !b||!colsOf(b).some(col=>col.type==="dropdown"&&colList(col,b)===k)}
+function listShown(k){return !S.listDel.includes(k)||getList(k).length>0}
+function dropList(k){if(LIST_LABEL[k]){const l=S.lists[k];if(l)l.splice(0,l.length)}else delete S.lists[k];delete S.optColor[k];if(!S.listDel.includes(k))S.listDel.push(k)}
 function removeFromList(k,i){if(k.startsWith("mot:")){byCode(k.slice(4)).motifLib.splice(i,1);return}const l=listRef(k);if(l)l.splice(i,1)}
 /* colors per dropdown option (Pengaturan → Isi dropdown); pillars and statuses start colored */
 S.optColor={
@@ -1657,7 +1664,9 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
   </section>
   <h2 style="margin:6px 0 0;font-size:17px">Isi dropdown</h2>
   <p class="note">Pilihan untuk setiap dropdown di tabel. Pilihan juga bisa ditambah langsung dari tabel lewat "+ Tambah pilihan…".</p>
-  <section class="sgrid">${Object.keys(LIST_LABEL).concat(Object.keys(S.lists).filter(k=>k.startsWith("cx:"))).map(k=>`<article class="card" style="display:flex;flex-direction:column;gap:10px"><h2>${esc(labelOf(k))}</h2>${chips(k)}</article>`).join("")}</section>
+  ${(()=>{const keys=Object.keys(LIST_LABEL).concat(Object.keys(S.lists).filter(k=>k.startsWith("cx:"))).filter(listShown),junk=keys.filter(listUnused),gone=Object.keys(LIST_LABEL).filter(k=>!listShown(k));
+    return `${S.isOwner&&(junk.length||gone.length)?`<div style="display:flex;gap:8px;flex-wrap:wrap">${junk.length?`<button class="btn sm press" data-lclean>Bersihkan ${junk.length} kartu tidak terpakai</button>`:""}${gone.length?`<button class="btn sm press" data-lrestore>Kembalikan ${gone.length} kartu bawaan yang dihapus</button>`:""}</div>`:""}
+  <section class="sgrid">${keys.map(k=>`<article class="card" style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;align-items:flex-start;gap:8px"><h2 style="flex:1">${esc(labelOf(k))}${listUnused(k)?` <span class="pill gray" title="Kolom dropdown ini sudah tidak ada di tabel">tidak terpakai</span>`:""}</h2>${S.isOwner?`<button class="icon-del" data-ldel="${esc(k)}" title="Hapus kartu ini" aria-label="Hapus kartu ${esc(labelOf(k))}">✕</button>`:""}</div>${chips(k)}</article>`).join("")}</section>`})()}
   <h2 style="margin:6px 0 0;font-size:17px">Brand & channel</h2>
   <p class="note">PIC, talent dan motif di sini menjadi isi dropdown di tabel brand tersebut.</p>
   <section class="sgrid">${all().map((b,bi)=>`<article class="card scard" style="--c:${b.color}"><div class="bch">${av(b)}<div><b>${esc(b.name)}</b><small>${b.ig?"Instagram":"TikTok"}</small></div></div>
@@ -1984,7 +1993,7 @@ function pasteDropdown(){if(!canWrite())return;const R=rect(),b=curB();if(!R||!b
   const src=S.gclip.cells[0]||[],w=src.length;if(!src.some(c=>c&&c.dd)){toast("Sel yang disalin bukan dropdown");return}
   const FIX=["check","motif","shot","brand","tgl","hari"];const done=[],skip=[];pushUndo(true);
   R.cols.forEach((col,j)=>{const s=src[j%w];if(!s||!s.dd)return;if(FIX.includes(col.type)){skip.push(col.label);return}
-    const k="cx:"+b.code+":"+col.key;col.type="dropdown";col.list=k;S.lists[k]=s.dd.opts.slice();if(Object.keys(s.dd.oc).length)S.optColor[k]=Object.assign({},s.dd.oc);else delete S.optColor[k];done.push(col.label)});
+    const k="cx:"+b.code+":"+col.key;col.type="dropdown";col.list=k;unDel(k);S.lists[k]=s.dd.opts.slice();if(Object.keys(s.dd.oc).length)S.optColor[k]=Object.assign({},s.dd.oc);else delete S.optColor[k];done.push(col.label)});
   if(!done.length){S.undo.pop();toast(skip.length?`Kolom ${skip.join(", ")} tidak bisa dijadikan dropdown`:"Tidak ada kolom yang diubah");return}
   touch();render();maybeSaveSettings();toast(`Kolom ${done.join(", ")} sekarang dropdown (${src.find(c=>c&&c.dd).dd.opts.length} pilihan)${skip.length?" · dilewati: "+skip.join(", "):""}`,"Urungkan",undo)}
 
@@ -2117,14 +2126,15 @@ function colForm(col,b){const special=col&&["motif","shot","brand","tgl","hari"]
   return `<label class="field">Nama kolom<input name="label" required value="${esc(col?col.label:"")}" placeholder="misalnya: BUDGET"></label>
   ${special?`<p class="note">Jenis kolom ini (${esc(TYPE_LABEL[col.type]||col.type)}) tetap.</p>`:`<label class="field">Jenis isi<select name="type" class="cin" style="border:1px solid var(--line)">${COL_TYPES.map(([k,l])=>`<option value="${k}" ${(col?col.type:"text")===k?"selected":""}>${l}</option>`).join("")}</select></label>
   <label class="field" data-showif="type=dropdown">Pilihan dropdown (satu per baris)<textarea name="opts" rows="5" class="cin" style="border:1px solid var(--line)">${esc(opts)}</textarea></label>`}`}
-function setColList(col,b,opts){if(col.type!=="dropdown")return;if(!col.list)col.list="cx:"+b.code+":"+col.key;const k=colList(col,b);const vals=String(opts||"").split(/\n/).map(s=>s.trim()).filter(Boolean);
+function setColList(col,b,opts){if(col.type!=="dropdown")return;if(!col.list)col.list="cx:"+b.code+":"+col.key;const k=colList(col,b);unDel(k);const vals=String(opts||"").split(/\n/).map(s=>s.trim()).filter(Boolean);
   const l=listRef(k);if(l){l.splice(0,l.length,...vals)}else S.lists[k]=vals}
-async function insertCol(side,refKey){if(!canWrite())return;const b=curB();if(!b)return;const cols=colsOf(b);let i=cols.findIndex(c=>c.key===refKey);if(i<0)i=cols.length-1;let at=side==="left"?i:i+1;at=Math.max(2,at);
-  const o=await formBox("Sisipkan kolom "+(side==="left"?"di kiri":"di kanan"),colForm(null,b),"Sisipkan");if(!o||!o.label.trim())return;
+async function insertCol(side,refKey,blank){if(!canWrite())return;const b=curB();if(!b)return;const cols=colsOf(b);let i=cols.findIndex(c=>c.key===refKey);if(i<0)i=cols.length-1;let at=side==="left"?i:i+1;at=Math.max(2,at);
+  /* blank: an untitled Teks column appears right away (name it later via Edit kolom) */
+  const o=blank?{label:"",type:"text"}:await formBox("Sisipkan kolom "+(side==="left"?"di kiri":"di kanan"),colForm(null,b),"Sisipkan");if(!o||(!blank&&!o.label.trim()))return;
   pushUndo(true);const col={key:"x"+Date.now().toString(36),label:o.label.trim(),type:o.type||"text",list:""};if(col.type==="dropdown")setColList(col,b,o.opts);cols.splice(at,0,col);
-  touch();render();toast(`Kolom ${col.label} ditambahkan di ${b.name}`,"Urungkan",undo)}
+  touch();render();toast(blank?`Kolom kosong ditambahkan di ${b.name} · klik kanan judulnya → Edit kolom untuk memberi nama`:`Kolom ${col.label} ditambahkan di ${b.name}`,"Urungkan",undo)}
 async function editCol(key){if(!canWrite())return;const b=curB();const col=colsOf(b).find(c=>c.key===key);if(!col)return;
-  const o=await formBox("Edit kolom",colForm(col,b),"Simpan");if(!o||!o.label.trim())return;pushUndo(true);col.label=o.label.trim();
+  const o=await formBox("Edit kolom",colForm(col,b),"Simpan");if(!o||(!o.label.trim()&&col.label))return;pushUndo(true);col.label=o.label.trim();
   if(o.type&&o.type!==col.type){col.type=o.type;if(col.type!=="dropdown"&&String(col.list).startsWith("cx:"))col.list=""}
   if(col.type==="dropdown"&&o.opts!==undefined)setColList(col,b,o.opts);touch();render();toast("Kolom disimpan")}
 function moveCol(key,dir){if(!canWrite())return;const b=curB(),cols=colsOf(b);const i=cols.findIndex(c=>c.key===key),j=i+dir;if(i<2||j<2||j>=cols.length)return;pushUndo(true);[cols[i],cols[j]]=[cols[j],cols[i]];touch();render()}
@@ -2185,7 +2195,7 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
   if(S.ro){m.innerHTML=`<div class="mhead">Mode baca saja</div>`+MI("copy","Salin","Ctrl+C")+MS+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter");placeMenu(m,x,y);return}
   m.innerHTML=MI("cut","Potong","Ctrl+X")+MI("copy","Salin","Ctrl+C")+MI("paste","Tempel","Ctrl+V")+
     `<div class="msub"><span>Tempel khusus</span>${MI("pv","Hanya nilai","Ctrl+Shift+V",!S.gclip)}${MI("pf","Hanya format","",!S.gclip)}${MI("pdd","Dropdown (jadikan kolom dropdown)","",!(S.gclip&&S.gclip.cells.some(l=>l.some(c=>c.dd))))}</div>`+MS+
-    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+(S.ro?"":MI("pdfsel","Export PDF (sel terpilih)"))+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MS+
+    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+(S.ro?"":MI("pdfsel","Export PDF (sel terpilih)"))+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MI("colleft0","Sisipkan kolom kosong di kiri")+MI("colright0","Sisipkan kolom kosong di kanan")+MS+
     (fullCols&&!fullRows?"":MI("delrows",R.rows.length>1?`Hapus ${R.rows.length} baris`:"Hapus baris"))+(fullRows&&!fullCols?"":MI("delcols",R.cols.length>1?`Hapus ${R.cols.length} kolom`:"Hapus kolom"))+MI("clear","Hapus isi sel","Delete")+MS+
     MI("dup",rows.length>1?`Duplikat ${rows.length} baris`:"Duplikat baris","",!rows.length)+MI("move","Pindahkan baris ke tanggal…","",!rows.length)+MS+
     MI("asc",`Urutkan A → Z <small>(${esc(col?col.label:"")})</small>`)+MI("desc",`Urutkan Z → A <small>(${esc(col?col.label:"")})</small>`)+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter")+MS+
@@ -2206,7 +2216,7 @@ function headMenu(key,x,y){const b=curB(),cols=colsOf(b),col=cols.find(c=>c.key=
   if(S.ro){m.innerHTML=`<div class="mhead">${esc(col.label)}</div>`+MI("hfilt","Filter kolom ini…");placeMenu(m,x,y);return}
   m.innerHTML=`<div class="mhead">${esc(col.label)} <small>${esc(TYPE_LABEL[col.type]||(fixed?"Tetap":col.type))}</small></div>`+
     (fixed?MI("hfilt","Filter kolom ini…")+MS:MI("hasc","Urutkan A → Z")+MI("hdesc","Urutkan Z → A")+MI("hfilt","Filter kolom ini…")+MS)+
-    (col.type==="tgl"?"":MI("hleft","Sisipkan 1 kolom di kiri","",fixed))+MI("hright","Sisipkan 1 kolom di kanan","",col.type==="tgl")+MS+
+    (col.type==="tgl"?"":MI("hleft","Sisipkan 1 kolom di kiri","",fixed))+MI("hright","Sisipkan 1 kolom di kanan","",col.type==="tgl")+(col.type==="tgl"?"":MI("hleft0","Sisipkan kolom kosong di kiri","",fixed))+MI("hright0","Sisipkan kolom kosong di kanan","",col.type==="tgl")+MS+
     MI("hedit",fixed?"Ganti nama kolom":"Edit kolom (nama, jenis, pilihan)…")+(fixed?"":MI("hml","Geser ke kiri","",i<=2)+MI("hmr","Geser ke kanan","",i>=cols.length-1)+MI("hdel",multi.length>1?`Hapus ${multi.length} kolom`:"Hapus kolom"))+MS+
     (fixed?"":MI("hhide",multi.length>1?`Sembunyikan ${multi.length} kolom`:"Sembunyikan kolom"))+MI("hunhide",`Tampilkan kolom tersembunyi${cols.some(c=>c.hidden)?" ("+cols.filter(c=>c.hidden).length+")":""}`,"",!cols.some(c=>c.hidden))+MI("hcf","Format bersyarat…")+(b.ig?"":MI("hcopyfmt","Salin format tabel ke brand lain…"))+(S.isOwner?MI("hthc","Warna bar judul (warna brand)…"):"")+MS+
     MI("hrestore",`Kembalikan kolom bawaan${miss.length?" ("+miss.length+")":""}`,"",!miss.length)+MI("hreset","Kembalikan susunan kolom awal");
@@ -2256,6 +2266,8 @@ document.addEventListener("click",async e=>{
     case "rowbelow":insertRow("below");break;
     case "colleft":insertCol("left",rect().cols[0].key);break;
     case "colright":{const R=rect();insertCol("right",R.cols[R.cols.length-1].key);break}
+    case "colleft0":insertCol("left",rect().cols[0].key,true);break;
+    case "colright0":{const R=rect();insertCol("right",R.cols[R.cols.length-1].key,true);break}
     case "delrows":deleteRows();break;
     case "adddate":openAddDate();break;
     case "pdfsel":exportPdf(true);break;
@@ -2278,6 +2290,8 @@ document.addEventListener("click",async e=>{
     case "hfilt":{lsSet("cpig-fon-"+b.code,"1");render();setTimeout(()=>{const fb=document.querySelector(`.fbtn[data-filt="${CSS.escape(hk)}"]`);if(fb)openFilter(hk,fb)},30);break}
     case "hleft":insertCol("left",hk);break;
     case "hright":insertCol("right",hk);break;
+    case "hleft0":insertCol("left",hk,true);break;
+    case "hright0":insertCol("right",hk,true);break;
     case "hedit":{const col=colByKey(hk);if(col&&(col.type==="tgl"||col.type==="hari")){const o=await formBox("Ganti nama kolom",`<label class="field">Nama kolom<input name="label" required value="${esc(col.label)}"></label>`,"Simpan");if(o&&o.label.trim()){pushUndo(true);col.label=o.label.trim();touch();render()}}else editCol(hk);break}
     case "hml":moveCol(hk,-1);break;
     case "hmr":moveCol(hk,1);break;
@@ -2806,7 +2820,7 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 function listFor(col,code){return String(col.list||"").startsWith("cx:")?"cx:"+code+":"+col.key:col.list}
 /* a column of another brand, with its own dropdown list (custom dropdown options are copied, not shared) */
 function colFor(col,fromCode,toCode,mode,lists){const c=clone(col);if(String(c.list||"").startsWith("cx:")){const sk=String(col.list).replace("@",fromCode),src=lists?lists[c.key]||[]:getList(sk).slice(),k=listFor(c,toCode);c.list=k;
-    const cur=S.lists[k]||[];S.lists[k]=mode==="add"?[...new Set([...cur,...src])]:src;
+    unDel(k);const cur=S.lists[k]||[];S.lists[k]=mode==="add"?[...new Set([...cur,...src])]:src;
     const oc=!lists&&S.optColor[sk];if(oc)S.optColor[k]=mode==="add"?Object.assign({},oc,S.optColor[k]||{}):Object.assign({},oc)}
   return c}
 function copyFormatTo(src,t,parts,mode){
@@ -3198,7 +3212,7 @@ async function migrateLegacy(ym){
 /* ---- settings shared by everyone: colors, lists, motif & PID lists, PIC/talent, column widths, font, logos ---- */
 function settingsObj(){return {brands:S.brands.map(b=>({code:b.code,name:b.name,abbr:b.abbr,color:b.color,pics:b.pics||[],talents:b.talents||[],motifLib:b.motifLib||[],logo:b.logo||null,thOn:!!b.thOn})),
   channels:S.channels.map(c=>({code:c.code,name:c.name,abbr:c.abbr,sub:c.sub,color:c.color,pics:c.pics||[],logo:c.logo||null,thOn:!!c.thOn})),
-  lists:S.lists,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
+  lists:S.lists,listDel:S.listDel,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
   logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,frzR:S.frzR,cf:S.cf,tpl:S.tpl,theme2:true,theme3:true,aiTone:S.aiTone}}
 let lastSettings="",setT=null;
 function applySettings(d){
@@ -3207,6 +3221,7 @@ function applySettings(d){
   if(Array.isArray(d.channels)&&d.channels.length)S.channels=d.channels.map(c=>Object.assign({talents:[],pics:[]},c,{ig:true}));
   if(d.lists)Object.assign(S.lists,d.lists);
   if(d.optColor)Object.assign(S.optColor,d.optColor);
+  if(Array.isArray(d.listDel)){S.listDel=d.listDel.slice();S.listDel.forEach(k=>{if(LIST_LABEL[k])return;if(!(d.lists&&d.lists[k]&&d.lists[k].length)){delete S.lists[k];delete S.optColor[k]}})}
   if(Array.isArray(d.campaigns))S.campaigns=d.campaigns;
   if(d.colW)S.colW=Object.assign({tt:{},ig:{}},d.colW);
   if(d.cols&&typeof d.cols==="object")S.cols=JSON.parse(JSON.stringify(d.cols));
@@ -3475,6 +3490,14 @@ function applyFont(){S.font="Inter";document.documentElement.style.removePropert
 document.addEventListener("click",e=>{const f=e.target.closest("[data-font]");if(!f)return;S.font=f.dataset.font;try{localStorage.setItem("cpig-font",S.font)}catch(_){}applyFont();render();toast("Font diganti ke "+S.font)});
 /* ---- option colors from Pengaturan ---- */
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||t.dataset.optc===undefined)return;const k=t.dataset.optc;S.optColor[k]=S.optColor[k]||{};S.optColor[k][t.dataset.opt]=t.value;render();toast("Warna "+t.dataset.opt+" disimpan")});
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-ldel],[data-lclean],[data-lrestore]");if(!t||!S.isOwner||S.ro)return;
+  if(t.dataset.lrestore!==undefined){Object.keys(LIST_LABEL).forEach(k=>{if(!listShown(k)){unDel(k);if(!S.lists[k])S.lists[k]=[]}});render();maybeSaveSettings();toast("Kartu bawaan dikembalikan (pilihannya kosong, isi lagi bila perlu)");return}
+  if(t.dataset.lclean!==undefined){const ks=Object.keys(S.lists).filter(k=>listUnused(k)&&listShown(k));if(!ks.length)return;
+    if(!(await confirmBox(`Hapus ${ks.length} kartu tidak terpakai?`,`Kartu dropdown yang kolomnya sudah tidak ada di tabel: ${ks.map(labelOf).join(", ")}. Isi tabel tidak berubah.`,"Hapus")))return;
+    ks.forEach(dropList);render();maybeSaveSettings();toast(ks.length+" kartu tidak terpakai dihapus");return}
+  const k=t.dataset.ldel,used=!listUnused(k);
+  if(!(await confirmBox(`Hapus kartu ${labelOf(k)}?`,used?"Semua pilihan di kartu ini terhapus. Kolom yang memakainya tetap ada, tapi dropdown-nya jadi kosong. Isi sel yang sudah terisi tidak berubah.":"Kolom dropdown ini sudah tidak ada di tabel. Isi tabel tidak berubah.","Hapus kartu")))return;
+  dropList(k);render();maybeSaveSettings();toast("Kartu "+labelOf(k)+" dihapus")});
 document.addEventListener("click",e=>{const t=e.target.closest("[data-optclear]");if(!t)return;const k=t.dataset.optclear;if(S.optColor[k])delete S.optColor[k][t.dataset.opt];render()});
 /* table density; "Muat layar" scales the table so every column fits the card width */
 S.density="normal"; try{S.density=localStorage.getItem("cpig-density2")||"normal"}catch(_){}
