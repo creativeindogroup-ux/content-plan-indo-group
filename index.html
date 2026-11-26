@@ -1460,7 +1460,7 @@ function defW(col){if(col.key==="scr")return 300;if(col.key==="st")return 150;if
 function colW(kind,col,dense){const u=S.colW[kind]&&S.colW[kind][col.key];return u||Math.round(defW(col)*(dense?.85:1))}
 function frzOf(b){const v=S.frz[b.code];if(v!=null)return v;const cols=colsOf(b);if(b.ig){const i=cols.findIndex(c=>c.key==="brand");return i>=0?i+1:2}const j=cols.findIndex(c=>c.key==="jam");return j>=0&&j<=4?j+1:2}
 /* row layout of one brand tab (unfiltered): row numbers and formula references use it, also from other tabs (=OLIVER!E5) */
-function layoutOf(b,rows){const cols=colsOf(b),nd=daysIn(S.ym),G={rows:[null,{head:true}],cols,code:b.code},lay=[];let n=1;const hid=new Set(metaOf(b.code).hideG||[]);
+function layoutOf(b,rows){const cols=colsOf(b),nd=daysIn(S.ym),G={rows:[null,{head:true}],cols,code:b.code},lay=[];let n=1;const hid=new Set(); /* dates never disappear any more: every date always keeps one empty row (old hideG is ignored) */
   for(let d=1;d<=nd;d++){const its=rows.filter(r=>r.d===d),wd=dow(d),sunKey=b.code+"|"+S.ym+"|"+d;
     if(hid.has(d)&&!its.length)continue; /* deleted date */
     if(!its.length&&wd===0&&!S.openSun.has(sunKey)){n++;G.rows.push({d});lay.push({d,sun:sunKey,num:n});continue}
@@ -1651,7 +1651,10 @@ window.addEventListener("resize",()=>setTimeout(syncHbar,150));
 document.addEventListener("input",e=>{const x=e.target;if(x&&x.type==="time"&&x.classList)x.classList.toggle("tempty",!x.value)});
 document.addEventListener("click",e=>{if(e.target.closest("[data-cplogin]")&&window.CP_AUTH)window.CP_AUTH.login()});
 window.addEventListener("cp-auth",()=>{setTimeout(()=>{refreshNick();if(S.team.tick)S.team.tick()},50)});
-window.addEventListener("cp-auth",async()=>{if(!DB.user)return;try{S.isOwner=await DB.user.isOwner();S.ro=!(await DB.user.canEdit())}catch(_){S.ro=true}S.roUnknown=false;applyRO();render()});
+window.addEventListener("cp-auth",async()=>{if(!DB.user)return;const was=S.ro;try{S.isOwner=await DB.user.isOwner();S.ro=!(await DB.user.canEdit())}catch(_){S.ro=true}S.roUnknown=false;applyRO();
+  /* logged in (again): changes kept on this device from before are sent now */
+  if(!S.ro){if(!S.jRestored){const fresh=Object.keys(S.pend).length===0&&!S.pendSet;if(fresh)restoreJournals()}if(was||pendCount())setTimeout(retryAll,300)}
+  render()});
 function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua perubahan langsung tersimpan untuk seluruh tim.</small></h1></div>
   ${accessCard()}
   ${sheetCard()}
@@ -2005,18 +2008,16 @@ function insertRow(where){if(!canWrite())return;const R=rect(),rs=curRows();if(!
   S.cs.a=S.cs.f={rk:nr.id,ck:S.cs.f.ck};S.cs.a=Object.assign({},S.cs.f);touch();S.refocus=Object.assign({},S.cs.f);render();toast("1 baris disisipkan di tanggal "+nr.d,"Urungkan",undo)}
 /* delete the selected rows like Google Sheets: content rows go away; an empty row goes too (a date with no rows left disappears from this sheet) */
 function deleteRows(){if(!canWrite())return;const R=rect(),rs=curRows(),b=curB();if(!R||!rs)return;
-  const rows=R.rows.map(rowById).filter(Boolean),ghosts=R.rows.filter(rk=>rk[0]==="g"&&!rowById(rk)).map(rk=>+rk.slice(1));
-  const ds=R.rows.map(rk=>{const r=rowById(rk);return r?r.d:+rk.slice(1)}),lo=Math.min(...ds),hi=Math.max(...ds);
-  const folds=[...document.querySelectorAll(".sheet tbody tr.minggu[data-sund]")].map(tr=>+tr.dataset.sund).filter(d=>d>lo&&d<hi);
-  if(!rows.length&&!ghosts.length&&!folds.length)return;
-  pushUndo(true);rows.forEach(r=>{const i=rs.indexOf(r);if(i>=0)rs.splice(i,1)});hideDates(b.code,[...ghosts,...folds]);
-  S.cs=null;touch();render();toast(`${rows.length+ghosts.length+folds.length} baris dihapus`,"Urungkan",undo)}
-function hideDates(code,ds){if(!ds.length)return;const mt=metaOf(code),h=new Set(mt.hideG||[]);ds.forEach(d=>h.add(d));mt.hideG=[...h].sort((a,c)=>a-c)}
+  const rows=R.rows.map(rowById).filter(Boolean);
+  if(!rows.length){toast("Baris kosong tidak dihapus: setiap tanggal selalu punya 1 baris kosong");return}
+  pushUndo(true);rows.forEach(r=>{const i=rs.indexOf(r);if(i>=0)rs.splice(i,1)});
+  S.cs=null;touch();render();toast(`${rows.length} baris dihapus`,"Urungkan",undo)}
+function hideDates(){} /* deleting rows no longer hides a date */
 function unhideAll(){if(!canWrite())return;const b=curB();if(!b)return;pushUndo(true);delete metaOf(b.code).hideG;touch();render();toast("Baris kosong dan tanggal yang dihapus ditampilkan lagi")}
 /* owner only: bring back a date that went missing (its empty rows were deleted), via calendar or a list of hidden dates */
 function openAddDate(){const b=curB();if(!b)return;if(!S.isOwner){toast("Hanya pemilik yang bisa menambah tanggal");return}if(!canWrite())return;
   const nd=daysIn(S.ym),[y,mo]=S.ym.split("-").map(Number),rows=rowsOf(b.code),mt=metaOf(b.code);
-  const hid=[...new Set(mt.hideG||[])].filter(d=>d>=1&&d<=nd&&!rows.some(r=>r.d===d)).sort((a,c)=>a-c);
+  const hid=[...new Set([])].filter(d=>d>=1&&d<=nd&&!rows.some(r=>r.d===d)).sort((a,c)=>a-c);
   const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
   m.innerHTML=`<h2>Tambah tanggal · ${esc(b.name)}</h2><p class="sub" style="margin:0 0 10px">Pilih tanggal di ${esc(BULAN[mo-1])} ${y}. Baris kosong tanggal itu langsung muncul di urutan yang benar.</p>
     <label class="field">Tanggal<input type="date" id="adIn" class="cin" style="border:1px solid var(--line)" min="${ISO(y,mo,1)}" max="${ISO(y,mo,nd)}"></label>
@@ -2228,7 +2229,7 @@ document.addEventListener("contextmenu",e=>{
   if(td){e.preventDefault();closeMenus();const k=keyOfTd(td),R=rect();if(!(R&&R.rows.includes(k.rk)&&R.cols.some(c=>c.key===k.ck)))setSel(k,k);cellMenu(e.clientX,e.clientY);return}
   const sun=e.target.closest(".sheet tbody tr.minggu[data-sund]");
   if(sun){e.preventDefault();closeMenus();if(S.ro)return;const m=document.createElement("div");m.className="cmenu";m.setAttribute("role","menu");m.dataset.sund=sun.dataset.sund;
-    m.innerHTML=`<div class="mhead">Minggu, ${sun.dataset.sund} ${esc(BULAN[+S.ym.slice(5)-1])}</div>`+MI("opensun","Isi konten hari Minggu")+MI("delsun","Hapus baris");placeMenu(m,e.clientX,e.clientY);return}
+    m.innerHTML=`<div class="mhead">Minggu, ${sun.dataset.sund} ${esc(BULAN[+S.ym.slice(5)-1])}</div>`+MI("opensun","Isi konten hari Minggu");placeMenu(m,e.clientX,e.clientY);return}
   const rnc=e.target.closest(".sheet tbody td.rn");
   if(rnc){e.preventDefault();closeMenus();if(rect())cellMenu(e.clientX,e.clientY);return}
   const dt=e.target.closest(".sheet tbody td.tgl,.sheet tbody td.hari");
@@ -3034,7 +3035,7 @@ S.saved={};
 /* per sheet extras (deleted empty rows, Motif Baru, 10 Motif Teratas) live next to the rows as months/{ym}/tabs/{TAB}_meta */
 S.meta={};
 function metaOf(code,ym){ym=ym||S.ym;const m=S.meta[ym]||(S.meta[ym]={});return m[code]||(m[code]={})}
-function cleanMeta(mt){const o={};if(mt.hideG&&mt.hideG.length)o.hideG=mt.hideG.slice();["nw","top"].forEach(k=>{const l=(mt[k]||[]).map(x=>{const y={};Object.entries(x||{}).forEach(([a,v])=>{if(String(v??"").trim())y[a]=v});return y});while(l.length&&!Object.keys(l[l.length-1]).length)l.pop();if(l.length)o[k]=l});return Object.keys(o).length?o:null}
+function cleanMeta(mt){const o={};if(mt.hideG&&mt.hideG.length)o.hideG=mt.hideG.slice(); /* kept as stored (ignored on screen) so meta docs are not rewritten just for this */["nw","top"].forEach(k=>{const l=(mt[k]||[]).map(x=>{const y={};Object.entries(x||{}).forEach(([a,v])=>{if(String(v??"").trim())y[a]=v});return y});while(l.length&&!Object.keys(l[l.length-1]).length)l.pop();if(l.length)o[k]=l});return Object.keys(o).length?o:null}
 const docSig=v=>JSON.stringify(v.meta?{rows:v.rows||[],meta:v.meta}:(v.rows||[]));
 function groupDocs(ym){const out={};for(const [code,rows] of Object.entries(S.data[ym]||{}))rows.forEach(r=>{const id=code+"_w"+weekOf(r.d);(out[id]=out[id]||{code,week:weekOf(r.d),rows:[]}).rows.push(r)});
   for(const [code,mt] of Object.entries(S.meta[ym]||{})){const c=cleanMeta(mt);if(c)out[code+"_meta"]={code,week:0,rows:[],meta:c}}return out}
@@ -3100,6 +3101,30 @@ function applyOps(doc,ops,hdr){
   doc.rows=rows.map((r,i)=>[r,i]).sort((a,b)=>(Number(a[0].d)||0)-(Number(b[0].d)||0)||a[1]-b[1]).map(x=>x[0]);
   return doc}
 const docEmpty=d=>!d||(!(d.rows&&d.rows.length)&&!d.meta);
+/* ---- settings are saved per part too: only the paths this person changed (one brand's columns, one list, one color…)
+   are sent, so a tab left open for hours can no longer put back old columns, lists or logos ---- */
+const isPlain=x=>x&&typeof x==="object"&&!Array.isArray(x);
+const pathId=x=>isPlain(x)?(x.code!=null?"c:"+x.code:x.key!=null?"k:"+x.key:null):null;
+function keyedIds(a){if(!Array.isArray(a)||!a.length)return null;const ids=a.map(pathId);if(ids.some(i=>!i)||new Set(ids).size!==ids.length)return null;return ids}
+function diffPaths(b,m,p,out){const J=JSON.stringify;p=p||[];out=out||[];if(J(b)===J(m))return out;
+  if(isPlain(b)&&isPlain(m)){new Set([...Object.keys(b),...Object.keys(m)]).forEach(k=>diffPaths(b[k],m[k],p.concat(k),out));return out}
+  const bi=keyedIds(b),mi=keyedIds(m);
+  if(bi&&mi&&J(bi)===J(mi)){m.forEach((x,i)=>diffPaths(b[i],x,p.concat("@"+bi[i]),out));return out}
+  out.push(m===undefined?{t:"path",p,del:true}:{t:"path",p,v:jclone(m)});return out}
+/* same function as applyPaths_ in Code.gs (Apps Script): keep both in step */
+function applyPaths(doc,ops){doc=JSON.parse(JSON.stringify(doc||{}));
+  const findIn=(arr,seg)=>Array.isArray(arr)?arr.findIndex(x=>pathId(x)===seg.slice(1)):-1;
+  for(const o of ops||[]){if(!o||o.t!=="path"||!Array.isArray(o.p)||!o.p.length)continue;let cur=doc,ok=true;
+    for(let i=0;i<o.p.length-1&&ok;i++){const seg=String(o.p[i]),nxt=String(o.p[i+1]);
+      if(seg[0]==="@"){const j=findIn(cur,seg);if(j<0){ok=false;break}cur=cur[j];continue}
+      if(cur[seg]==null||typeof cur[seg]!=="object"){if(nxt[0]==="@"||o.del){ok=false;break}cur[seg]={}}cur=cur[seg]}
+    if(!ok||cur==null||typeof cur!=="object")continue;const last=String(o.p[o.p.length-1]);
+    if(last[0]==="@"){const j=findIn(cur,last);if(j<0)continue;if(o.del)cur.splice(j,1);else cur[j]=o.v}
+    else if(o.del)delete cur[last];else cur[last]=o.v}
+  return doc}
+async function patchSettings(ops){const ref=DB.db.doc("config/settings");
+  if(ref.patch&&!S.noPatch){try{return await tmo(ref.patch(ops,{kind:"obj"}),20000)}catch(e){if(!(e&&e.code==="bad_request"))throw e;S.noPatch=true}}
+  const s=await tmo(ref.get(),20000);const fin=applyPaths(s&&s.exists?s.data():{},ops);await tmo(ref.set(fin),20000);return fin}
 /* send one doc's changed cells; the server answers with its merged version */
 async function patchDoc(ym,id,ops,hdr){const ref=DB.db.doc(`months/${ym}/tabs/${id}`);
   if(ref.patch&&!S.noPatch){try{return await tmo(ref.patch(ops,hdr),20000)}catch(e){if(!(e&&e.code==="bad_request"))throw e;S.noPatch=true}}
@@ -3158,7 +3183,7 @@ async function persistMonth(ym){
   finally{persisting=false}
 }
 /* journals left by an earlier visit (offline, closed tab, refresh) come back on load and are sent */
-function restoreJournals(){if(S.ro)return;let ks=[];try{ks=Object.keys(localStorage).filter(k=>k.startsWith(JK)&&k!==JSET)}catch(_){}
+function restoreJournals(){if(S.ro)return;S.jRestored=true;let ks=[];try{ks=Object.keys(localStorage).filter(k=>k.startsWith(JK)&&k!==JSET)}catch(_){}
   ks.forEach(k=>{try{const j=JSON.parse(localStorage.getItem(k));const ym=k.slice(JK.length);if(!j||!/^\d{4}-\d{2}$/.test(ym))return;
     S.pend[ym]={base:j.base||{},baseDocs:j.baseDocs||{},n:j.n||1,v:1,failed:true};S.data[ym]=j.data||{};S.meta[ym]=j.meta||{}}catch(_){}});
   try{const s=JSON.parse(lsGet(JSET,"null"));if(s&&s.data){S.pendSet=Object.assign(s,{failed:true})}}catch(_){}
@@ -3259,14 +3284,14 @@ function maybeSaveSettings(){if(S.ro)return;
 async function persistSettings(){const ps=S.pendSet;if(!ps||setBusyS||!DB.db)return;
   if(navigator.onLine===false){ps.failed=true;lsSet(JSET,JSON.stringify(ps));setSync("bad",offlineMsg());schedRetry();return}
   setBusyS=true;const j=ps.data;
-  try{let out=JSON.parse(j);
-    if(ps.failed){const s=await tmo(DB.db.doc("config/settings").get(),20000);const raw=s.exists?JSON.stringify(s.data()):"";
-      if(raw&&raw!==ps.baseRaw){const [c]=await conflictBox([{label:"Pengaturan (warna, kolom, format, daftar pilihan)"}]);
-        if(c!=="mine"){const sv=s.data();if(c==="merge"){let base={};try{base=JSON.parse(ps.baseObj||"{}")}catch(_){}const mine=JSON.parse(S.pendSet.data);Object.keys(mine).forEach(k=>{if(JSON.stringify(mine[k])!==JSON.stringify(base[k]))sv[k]=mine[k]})}
-          applySettings(sv);out=settingsObj();render()}}}
-    await tmo(DB.db.doc("config/settings").set(out),20000);
-    const sent=JSON.stringify(out);lastSettings=sent;srvSetRaw=sent;retryN=0;
-    if(S.pendSet===ps&&ps.data===j){S.pendSet=null;lsDel(JSET)}else if(S.pendSet){S.pendSet.baseObj=sent;S.pendSet.baseRaw=sent;S.pendSet.failed=false;lsSet(JSET,JSON.stringify(S.pendSet));setTimeout(persistSettings,300)}
+  try{let base={};try{base=JSON.parse(ps.baseObj||"{}")}catch(_){}
+    const ops=diffPaths(base,JSON.parse(j));
+    const fin=ops.length?await patchSettings(ops):null;
+    retryN=0;
+    if(S.pendSet===ps&&ps.data===j){S.pendSet=null;lsDel(JSET);
+      /* show the merged result (includes other people's changes) */
+      if(fin){srvSetRaw=JSON.stringify(fin);applySettings(fin);lastSettings=JSON.stringify(settingsObj());if(sheetBusy())S.needRender=true;else render()}else lastSettings=j}
+    else if(S.pendSet){S.pendSet.baseObj=j;S.pendSet.failed=false;lsSet(JSET,JSON.stringify(S.pendSet));setTimeout(persistSettings,300)}
     syncIdle();
   }catch(e){ps.failed=true;lsSet(JSET,JSON.stringify(ps));const c=e&&e.code;
     if(c==="invalid_argument"||c==="quota_exceeded"){setSync("bad","Pengaturan gagal disimpan · aman di perangkat");toast("Pengaturan gagal disimpan: "+dbErr(e),"Coba lagi",persistSettings)}
@@ -3457,7 +3482,9 @@ async function boot(){
     if(S.settingsReady&&S.pendSet){if(!setBusyS)setTimeout(persistSettings,300);return} /* my unsent settings win until sent */
     if(S.settingsReady&&d&&JSON.stringify(d)===lastSettings)return;
     applySettings(d);lastSettings=JSON.stringify(settingsObj());const first=!S.settingsReady;S.settingsReady=true;
-    if(first&&S.pendSet&&!S.ro){try{applySettings(JSON.parse(S.pendSet.data))}catch(_){}setTimeout(persistSettings,1200)}
+    /* settings changed on an earlier visit and not sent yet: only those parts go on top of the fresh server copy */
+    if(first&&S.pendSet&&!S.ro){try{const ops=diffPaths(JSON.parse(S.pendSet.baseObj||"{}"),JSON.parse(S.pendSet.data));const cur=JSON.parse(lastSettings);
+      S.pendSet.baseObj=lastSettings;applySettings(applyPaths(cur,ops));S.pendSet.data=JSON.stringify(settingsObj());lsSet(JSET,JSON.stringify(S.pendSet))}catch(_){}setTimeout(persistSettings,1200)}
     if(first&&Object.keys(S.pend).length)setTimeout(retryAll,1500);
     if(first&&!S.subscribed){S.subscribed=true;S.view=viewFromHash();subMonth(S.ym);teamStart()}
     if(sheetBusy())S.needRender=true;else render();

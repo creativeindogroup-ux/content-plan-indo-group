@@ -15,9 +15,17 @@
   const mkErr = (code, message) => Object.assign(new Error(message || code), { code });
 
   /* ---------- login ---------- */
-  let auth = null; // {token, exp, email, role, canEdit}
-  try { auth = JSON.parse(sessionStorage.getItem(KEY) || "null"); if (auth && auth.exp * 1000 < Date.now() + 60000) auth = null; } catch (_) { auth = null; }
-  function setAuth(a) { auth = a; try { a ? sessionStorage.setItem(KEY, JSON.stringify(a)) : sessionStorage.removeItem(KEY); } catch (_) {} renderAuth(); window.dispatchEvent(new Event("cp-auth")); }
+  /* login disimpan di perangkat (localStorage) dan berlaku sampai klik Keluar: server memberi sesi sendiri ("s1.…")
+     sehingga tidak ikut habis bersama token Google (±1 jam). Hak akses tetap dicek server di setiap simpanan. */
+  let auth = null; // {token, exp, email, role, canEdit, nick}
+  const isSess = a => !!(a && String(a.token || "").indexOf("s1.") === 0);
+  try {
+    auth = JSON.parse(localStorage.getItem(KEY) || sessionStorage.getItem(KEY) || "null");
+    if (auth && !isSess(auth) && auth.exp * 1000 < Date.now() + 60000) auth = null;
+  } catch (_) { auth = null; }
+  function setAuth(a) { auth = a; try { if (a) localStorage.setItem(KEY, JSON.stringify(a)); else localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch (_) {} renderAuth(); window.dispatchEvent(new Event("cp-auth")); }
+  /* login dari tab lain di browser yang sama ikut terbaca */
+  window.addEventListener("storage", e => { if (e.key !== KEY) return; try { auth = JSON.parse(e.newValue || "null"); } catch (_) { auth = null; } renderAuth(); window.dispatchEvent(new Event("cp-auth")); });
   function jwtPayload(t) { try { const p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (_) { return {}; } }
 
   async function api(action, body) {
@@ -39,16 +47,24 @@
     const p = jwtPayload(token);
     const tmp = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: p.email || "", role: "Viewer", canEdit: false };
     auth = tmp;
-    try { const me = await api("me"); setAuth(Object.assign(tmp, { email: me.email, role: me.role, canEdit: !!me.canEdit, nick: me.nick || "" })); toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)"); }
+    try {
+      const me = await api("me");
+      const a = Object.assign(tmp, { email: me.email, role: me.role, canEdit: !!me.canEdit, nick: me.nick || "" });
+      if (me.session) { a.token = me.session; a.exp = 0; }   // server baru: sesi sampai klik Keluar
+      setAuth(a); toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)");
+    }
     catch (e) { setAuth(null); toastMsg("Gagal masuk: " + (e.message || e.code), 9000); }
   }
   function promptLogin() { try { if (window.google && google.accounts && google.accounts.id) google.accounts.id.prompt(); } catch (_) {} }
-  function logout() { try { google.accounts.id.disableAutoSelect(); } catch (_) {} setAuth(null); toastMsg("Anda sudah keluar"); }
+  async function logout() { const tk = auth && auth.token; try { google.accounts.id.disableAutoSelect(); } catch (_) {} if (isSess(auth)) { try { await api("logout"); } catch (_) {} } if (auth && auth.token === tk) setAuth(null); toastMsg("Anda sudah keluar"); }
+  /* peran diperbarui diam-diam saat dashboard dibuka (mis. baru dijadikan Editor di tab AKSES) */
+  setTimeout(async () => { if (!isSess(auth)) return; try { const me = await api("me"); if (me.role !== auth.role || !!me.canEdit !== auth.canEdit || (me.nick || "") !== (auth.nick || "")) setAuth(Object.assign({}, auth, { role: me.role, canEdit: !!me.canEdit, nick: me.nick || "" })); } catch (_) {} }, 1500);
   function toastMsg(m, ms) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = m; t.style.maxWidth = "min(560px, calc(100vw - 32px))"; t.style.borderRadius = "14px"; document.querySelectorAll(".toast").forEach(x => x.remove()); document.body.appendChild(t); setTimeout(() => t.remove(), ms || 3200); }
   /* tombol login Google di tempat lain (misalnya banner "Mode baca saja") */
   function mountButton(el) { if (!el || !gisReady || !CFG.CLIENT_ID) return false; try { el.innerHTML = ""; google.accounts.id.renderButton(el, { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "id" }); return true; } catch (_) { return false; } }
   /* sesi login Google berlaku ±1 jam: minta masuk ulang sebelum habis, dan beri tahu saat habis */
-  setInterval(() => { if (!auth) return; const left = auth.exp * 1000 - Date.now(); if (left < 0) { setAuth(null); toastMsg("Sesi login berakhir. Klik Masuk dengan Google untuk lanjut mengedit.", 7000); } else if (left < 150000) promptLogin(); }, 60000);
+  /* hanya untuk login lama (token Google): minta perpanjang sebelum habis; sesi "s1." tidak kedaluwarsa */
+  setInterval(() => { if (!auth || isSess(auth)) return; const left = auth.exp * 1000 - Date.now(); if (left < 0) { setAuth(null); toastMsg("Sesi login berakhir. Klik Masuk dengan Google untuk lanjut mengedit.", 7000); } else if (left < 150000) promptLogin(); }, 60000);
 
   let gisReady = false;
   function initGis() {
@@ -168,8 +184,24 @@
       return { id: j.id, url: window.CP_BLOB(j.id) };
     }
   };
-  /* gambar dari Google Drive (logo, screenshot) */
-  window.CP_BLOB = id => "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w1600";
+  /* gambar dari Google Drive (logo, screenshot). Bila gagal tampil: coba link thumbnail, lalu ambil lewat server. */
+  window.CP_BLOB = id => "https://lh3.googleusercontent.com/d/" + encodeURIComponent(id) + "=w1600";
+  const imgCache = new Map();
+  window.CP_IMG = async (im, id) => {
+    const step = Number(im.dataset.imgTry || 0); im.dataset.imgTry = step + 1;
+    if (step === 0) { im.src = "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w1600"; return; }
+    if (step > 1) return;
+    try {
+      let u = imgCache.get(id);
+      if (!u) { const j = await api("img", { id }); u = "data:" + (j.mime || "image/png") + ";base64," + j.b64; imgCache.set(id, u); }
+      im.src = u;
+    } catch (_) {}
+  };
+  document.addEventListener("error", e => {
+    const im = e.target; if (!im || im.tagName !== "IMG") return;
+    const m = /googleusercontent\.com\/d\/([\w-]+)/.exec(im.src) || /drive\.google\.com\/thumbnail\?id=([\w-]+)/.exec(im.src);
+    if (m) window.CP_IMG(im, m[1]);
+  }, true);
 
   /* ---------- tombol Backup / Impor Google Sheets ---------- */
   const mcp = {
