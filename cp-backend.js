@@ -139,6 +139,8 @@
       get: () => getOnce("doc", path),
       set: async v => { const s = JSON.stringify(v ?? {}); await api("set", { path, data: JSON.parse(s) }); store.set(path, s); },
       delete: async () => { await api("delete", { path }); store.delete(path); },
+      /* hanya sel yang berubah: server menggabungkannya ke versi terbarunya lalu mengembalikan hasilnya */
+      patch: async (ops, hdr) => { const j = await api("patch", { path, ops, hdr }); if (j.doc) store.set(path, JSON.stringify(j.doc)); else store.delete(path); return j.doc || null; },
       onSnapshot: (cb, err) => subscribe("doc", path, cb, err)
     }),
     collection: path => ({

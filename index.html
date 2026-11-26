@@ -3051,15 +3051,47 @@ function putDoc(ym,id,doc){
   const mt=id.match(/^(.*)_w(\d+)$/);if(!mt)return;const code=mt[1],w=+mt[2],m=S.data[ym]||(S.data[ym]={});
   const all=[...(m[code]||[]).filter(r=>weekOf(r.d)!==w),...(doc?jclone(doc.rows||[]):[])];
   m[code]=all.map((r,i)=>[r,i]).sort((a,b)=>weekOf(a[0].d)-weekOf(b[0].d)||a[1]-b[1]).map(x=>x[0])}
-/* merge per row: rows I changed/added use my version, rows I deleted go (unless the other person changed them), everything else is theirs */
-function mergeDoc(id,b,m,v){
-  if(/_meta$/.test(id))return m||v;
-  const J=JSON.stringify,rows=x=>(x&&x.rows)||[],key=r=>r.id||J(r);
-  const B=new Map(rows(b).map(r=>[key(r),J(r)])),M=new Map(rows(m).map(r=>[key(r),r]));
-  const out=rows(v).map(jclone),idx=new Map(out.map((r,i)=>[key(r),i]));
-  M.forEach((r,k)=>{if(B.get(k)===J(r))return;if(idx.has(k))out[idx.get(k)]=jclone(r);else{idx.set(k,out.length);out.push(jclone(r))}});
-  B.forEach((js,k)=>{if(!M.has(k)&&idx.has(k)&&J(out[idx.get(k)])===js)out[idx.get(k)]=null});
-  const res=out.filter(Boolean),src=m||v||b;return res.length?{code:src.code,week:src.week,rows:res}:null}
+/* ---- cell-level saving: only the cells this person changed are sent (set/unset one field, add/delete one row,
+   row order within a day, one Motif list key). The server applies them on top of its latest version, so other
+   people's edits in the same week are never overwritten. Same cell changed by two people: the last save wins. ---- */
+function diffOps(b,m){const J=JSON.stringify,ops=[],br=(b&&b.rows)||[],mr=(m&&m.rows)||[];
+  mr.forEach(r=>{if(!r.id)r.id=rid()});
+  const B=new Map(br.map(r=>[r.id,r])),M=new Map(mr.map(r=>[r.id,r]));
+  mr.forEach((r,i)=>{const o=B.get(r.id);
+    if(!o){let after=null;for(let j=i-1;j>=0;j--)if(mr[j].d===r.d){after=mr[j].id;break}ops.push({t:"add",row:jclone(r),after});return}
+    new Set([...Object.keys(o),...Object.keys(r)]).forEach(f=>{if(f==="id"||J(o[f])===J(r[f]))return;ops.push(r[f]===undefined?{t:"unset",id:r.id,f}:{t:"set",id:r.id,f,v:jclone(r[f])})})});
+  br.forEach(r=>{if(r.id&&!M.has(r.id))ops.push({t:"del",id:r.id})});
+  new Set(mr.map(r=>r.d)).forEach(d=>{const mi=mr.filter(r=>r.d===d&&B.has(r.id)&&B.get(r.id).d===d).map(r=>r.id),set=new Set(mi),bi=br.filter(r=>set.has(r.id)).map(r=>r.id);
+    if(J(mi)!==J(bi))ops.push({t:"order",d,ids:mr.filter(r=>r.d===d).map(r=>r.id)})});
+  const bm=(b&&b.meta)||{},mm=(m&&m.meta)||{};new Set([...Object.keys(bm),...Object.keys(mm)]).forEach(k=>{if(J(bm[k])!==J(mm[k]))ops.push({t:"meta",k,v:mm[k]===undefined?null:jclone(mm[k])})});
+  return ops}
+/* same function as applyOps_ in Code.gs (Apps Script): keep both in step */
+function applyOps(doc,ops,hdr){
+  doc=doc?JSON.parse(JSON.stringify(doc)):{code:hdr.code,week:hdr.week,ym:hdr.ym,rows:[]};
+  if(!Array.isArray(doc.rows))doc.rows=[];let rows=doc.rows;
+  const at=id=>{for(let i=0;i<rows.length;i++)if(rows[i]&&rows[i].id===id)return i;return -1};
+  const rank={add:0,set:1,unset:1,del:2,meta:3,order:4},rk=o=>o&&rank[o.t]!==undefined?rank[o.t]:9;
+  const list=(ops||[]).map((o,i)=>[o,i]).sort((a,b)=>rk(a[0])-rk(b[0])||a[1]-b[1]).map(x=>x[0]);
+  for(const o of list){if(!o||!o.t)continue;
+    if(o.t==="add"&&o.row&&o.row.id){const r=o.row,i=at(r.id);if(i>=0){rows[i]=r;continue}
+      let pos=-1;if(o.after){const a=at(o.after);if(a>=0)pos=a+1}
+      if(pos<0&&!o.after){pos=rows.findIndex(x=>Number(x.d)>=Number(r.d));if(pos<0)pos=rows.length}
+      if(pos<0){pos=0;rows.forEach((x,k)=>{if(Number(x.d)<=Number(r.d))pos=k+1})}
+      rows.splice(pos,0,r)}
+    else if((o.t==="set"||o.t==="unset")&&o.f!=="id"){const i=at(o.id);if(i<0)continue;if(o.t==="set")rows[i][o.f]=o.v;else delete rows[i][o.f]}
+    else if(o.t==="del"){const i=at(o.id);if(i>=0)rows.splice(i,1)}
+    else if(o.t==="meta"){const m=doc.meta||{};if(o.v==null)delete m[o.k];else m[o.k]=o.v;if(Object.keys(m).length)doc.meta=m;else delete doc.meta}
+    else if(o.t==="order"&&Array.isArray(o.ids)){const ix=[];rows.forEach((r,k)=>{if(r.d===o.d)ix.push(k)});const pos=new Map(o.ids.map((id,k)=>[id,k]));const day=ix.map(k=>rows[k]);
+      const nd=day.filter(r=>pos.has(r.id)).sort((a,b)=>pos.get(a.id)-pos.get(b.id)).concat(day.filter(r=>!pos.has(r.id)));ix.forEach((k,j)=>{rows[k]=nd[j]})}}
+  doc.rows=rows.map((r,i)=>[r,i]).sort((a,b)=>(Number(a[0].d)||0)-(Number(b[0].d)||0)||a[1]-b[1]).map(x=>x[0]);
+  return doc}
+const docEmpty=d=>!d||(!(d.rows&&d.rows.length)&&!d.meta);
+/* send one doc's changed cells; the server answers with its merged version */
+async function patchDoc(ym,id,ops,hdr){const ref=DB.db.doc(`months/${ym}/tabs/${id}`);
+  if(ref.patch&&!S.noPatch){try{return await tmo(ref.patch(ops,hdr),20000)}catch(e){if(!(e&&e.code==="bad_request"))throw e;S.noPatch=true}}
+  const snap=await tmo(ref.get(),20000);const cur=snap&&snap.exists?snap.data():null;const fin=applyOps(cur,ops,hdr);
+  if(docEmpty(fin)){if(cur)await tmo(ref.delete(),20000);return null}
+  fin.ym=ym;fin.updatedAt=new Date().toISOString();await tmo(ref.set(fin),20000);return fin}
 function docLabel(ym,id){const mt=id.match(/^(.*?)_(w(\d+)|meta)$/),b=mt&&byCode(mt[1]),nm=b?b.name:(mt?mt[1]:id);
   const [y,mo]=ym.split("-");const bl=new Date(+y,+mo-1,1).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
   return nm+" · "+(mt&&mt[3]?"Minggu "+mt[3]:"daftar motif")+" · "+bl}
@@ -3081,22 +3113,24 @@ async function persistMonth(ym){
   try{
     if(p.failed||ym!==S.ym||!S.loaded[ym]){const q=await tmo(DB.db.collection(`months/${ym}/tabs`).get(),20000);if(q.metadata&&q.metadata.fromCache)throw {code:"offline"};ingest(ym,q.docs)}
     const saved=S.saved[ym]||(S.saved[ym]={}),srv=S.srv[ym]||(S.srv[ym]={});
-    let docs=groupDocs(ym),changed=false;const conf=[];
+    let docs=groupDocs(ym),changed=false,reRender=false;const mine=[];
     for(const id of new Set([...Object.keys(docs),...Object.keys(saved),...Object.keys(p.base)])){
       const loc=docs[id]?docSig(docs[id]):undefined,base=p.base[id],cur=saved[id];
-      if(loc===cur)continue;
-      if(loc===base){putDoc(ym,id,srv[id]);changed=true;continue} /* only the other person changed it: take theirs */
-      if(cur!==base)conf.push(id)}
-    if(conf.length){const ch=await conflictBox(conf.map(id=>({id,label:docLabel(ym,id)})));docs=groupDocs(ym);
-      conf.forEach((id,i)=>{const c=ch[i],fin=c==="srv"?srv[id]:c==="mine"?docs[id]:mergeDoc(id,p.baseDocs[id],docs[id],srv[id]);putDoc(ym,id,fin||null)});changed=true}
+      if(loc===base){if(loc!==cur){putDoc(ym,id,srv[id]);changed=true}continue} /* only the other person changed it: take theirs */
+      mine.push(id)}
     if(changed){docs=groupDocs(ym);if(ym===S.ym){if(sheetBusy())S.needRender=true;else render()}}
     let acts=[];try{if(!S.ro&&!S.quietLog&&DB.team&&DB.team.log)acts=diffActs(ym,docs,saved)}catch(_){acts=[]}S.quietLog=false;
-    for(const id of new Set([...Object.keys(docs),...Object.keys(saved)])){
-      const d=docs[id],json=d?docSig(d):undefined;if(json===saved[id])continue;
-      const ref=DB.db.doc(`months/${ym}/tabs/${id}`);
-      if(d){const doc={code:d.code,week:d.week,ym,rows:jclone(d.rows),updatedAt:new Date().toISOString()};if(d.meta)doc.meta=jclone(d.meta);await tmo(ref.set(doc),20000);saved[id]=json;srv[id]=doc}
-      else{await tmo(ref.delete(),20000);delete saved[id];delete srv[id]}
-    }
+    /* only the cells I changed since my base go to the server, which merges them into its latest version */
+    for(const id of mine){
+      const d=docs[id],b=p.baseDocs[id],ops=diffOps(b,d);if(!ops.length)continue;
+      const src=d||b||{},mt=id.match(/^(.*)_w(\d+)$/),hdr={code:src.code||(mt?mt[1]:id.replace(/_meta$/,"")),week:src.week!=null?src.week:(mt?+mt[2]:0),ym};
+      const fin=await patchDoc(ym,id,ops,hdr);
+      if(fin){saved[id]=docSig(fin);srv[id]=jclone(fin)}else{delete saved[id];delete srv[id]}
+      /* show the merged result (it includes other people's cells); edits typed while saving stay on top */
+      const now=groupDocs(ym)[id],extra=diffOps(d,now),show=extra.length?applyOps(fin,extra,hdr):fin;
+      const sig=x=>docEmpty(x)?"":JSON.stringify({rows:(x.rows||[]).slice().sort((a,c)=>(+a.d||0)-(+c.d||0)),meta:x.meta||null});
+      if(sig(show)!==sig(now)){putDoc(ym,id,docEmpty(show)?null:show);reRender=true}}
+    if(reRender&&ym===S.ym){if(sheetBusy())S.needRender=true;else render()}
     p.failed=false;retryN=0;
     if(p.v===v0){delete S.pend[ym];lsDel(JK+ym)}else{p.base=Object.assign({},saved);p.baseDocs=jclone(srv);jSave(ym)}
     syncIdle();if(acts.length)DB.team.log(acts).catch(()=>{});
