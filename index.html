@@ -3297,11 +3297,13 @@ async function persistMonth(ym){
     /* only the cells I changed since my base go to the server, which merges them into its latest version */
     for(const id of mine){
       const d=docs[id],b=p.baseDocs[id],ops=diffOps(b,d);if(!ops.length)continue;
+      /* a frozen copy of what is sent: the live rows keep changing while the server answers (ticks, typing, dropdowns) */
+      const sent=jclone(d);
       const src=d||b||{},mt=id.match(/^(.*)_w(\d+)$/),hdr={code:src.code||(mt?mt[1]:id.replace(/_meta$/,"")),week:src.week!=null?src.week:(mt?+mt[2]:0),ym};
       const fin=await patchDoc(ym,id,ops,hdr);
       if(fin){saved[id]=docSig(fin);srv[id]=jclone(fin)}else{delete saved[id];delete srv[id]}
-      /* show the merged result (it includes other people's cells); edits typed while saving stay on top */
-      const now=groupDocs(ym)[id],extra=diffOps(d,now),show=extra.length?applyOps(fin,extra,hdr):fin;
+      /* show the merged result (it includes other people's cells); edits made while saving stay on top */
+      const now=groupDocs(ym)[id],extra=diffOps(sent,now),show=extra.length?applyOps(fin,extra,hdr):fin;
       const sig=x=>docEmpty(x)?"":JSON.stringify({rows:(x.rows||[]).slice().sort((a,c)=>(+a.d||0)-(+c.d||0)),meta:x.meta||null});
       if(sig(show)!==sig(now)){putDoc(ym,id,docEmpty(show)?null:show);reRender=true}}
     if(reRender&&ym===S.ym){if(sheetBusy())S.needRender=true;else render()}
