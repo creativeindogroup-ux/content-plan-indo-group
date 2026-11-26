@@ -966,7 +966,12 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .ibtn.ring svg{animation:bellshake 1.2s ease-in-out 2,bellblink .6s steps(2,jump-none) 4;transform-origin:50% 15%}
 @keyframes bellshake{0%,100%{transform:rotate(0)}15%{transform:rotate(16deg)}30%{transform:rotate(-14deg)}45%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
 @keyframes bellblink{0%{opacity:1}100%{opacity:.25}}
-@media (prefers-reduced-motion:reduce){.ibtn.ring svg{animation:bellblink .6s steps(2,jump-none) 4}}</style>
+@media (prefers-reduced-motion:reduce){.ibtn.ring svg{animation:bellblink .6s steps(2,jump-none) 4}}
+/* ==== jumlah konten per PIC ==== */
+.card.picsum{max-width:560px}.pictbl td{padding:8px}.pictbl .num{text-align:right;font-variant-numeric:tabular-nums;width:1%;white-space:nowrap;font-weight:700}
+.pictbl th.num{font-weight:400}.pictbl tfoot td{font-weight:800;border-top:2px solid var(--ink)}
+.pictbl tr.pgrp td{border-top:2px solid var(--line)}.pictbl td[rowspan]{vertical-align:top}
+.pich{font-size:13px;margin:16px 0 4px}</style>
 
 </head>
 <body>
@@ -1188,7 +1193,7 @@ function brandCard(items){const list=all();if(!S.homeBrand||!byCode(S.homeBrand)
 function displayName(){if(S.team&&S.team.nick)return S.team.nick;const me=window.CP_AUTH&&window.CP_AUTH.me;if(me&&me.email)return me.email.split("@")[0].replace(/[._-]+/g," ").replace(/\b\w/g,c=>c.toUpperCase());return "Tim Indo Group"}
 function beranda(){const items=itemsIn(perRange());
   return `<section class="hello"><div><h1>Selamat datang, ${esc(displayName())}${S.team&&S.team.nick?` <button class="linkb chn" data-chnick title="Ubah nama panggilan">ubah</button>`:""}</h1><p>Ringkasan content plan ${esc(perLabel())}.</p></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="">+ Konten baru</button></div></section>
-  <div class="dash"><div class="dcol">${statsHtml(items)}${brandTable(items)}${boardHtml(items)}</div><div class="dcol">${calHtml()}${brandCard(items)}${S.ro?"":actCard()}</div></div>`}
+  <div class="dash"><div class="dcol">${statsHtml(items)}${brandTable(items)}${picPanel()}${boardHtml(items)}</div><div class="dcol">${calHtml()}${brandCard(items)}${S.ro?"":actCard()}</div></div>`}
 function brandDash(b){const items=itemsIn(perRange(),b.code);
   return `<section class="hello"><div class="band" style="--c:${b.color}">${av(b)}<div class="tt"><div class="lbl">${b.ig?"CONTENT PLAN INSTAGRAM · SEMUA BRAND":"CONTENT PLAN TIKTOK"}</div><h2>${esc(b.ig?"Instagram":b.name)}</h2><div class="pics">${b.pics.length?b.pics.map(p=>`<span>PIC ${esc(p)}</span>`).join(""):`<span>PIC belum diisi</span>`}</div></div></div><div class="hello-act">${perCtl()}<button class="btn dark" data-newc="${b.code}">+ Konten baru</button></div></section>
   <div class="bdash"><div class="dcol">${statsHtml(items,true)}${boardHtml(items)}</div><div class="dcol">${calHtml(b.code)}</div></div>
@@ -1551,6 +1556,18 @@ document.addEventListener("change",e=>{const el=e.target;if(!el.dataset||el.data
 document.addEventListener("click",e=>{const a=e.target.closest("[data-tadd]"),d=e.target.closest("[data-tdel]");if(!a&&!d)return;const b=curB();if(!b||!canWrite())return;const mt=metaOf(b.code);
   if(a){const k=a.dataset.tadd;pushUndo(true);const l=mt[k]=(mt[k]||[]).slice();if(!l.length)l.push({});l.push({});touch();render();setTimeout(()=>{const ins=document.querySelectorAll(`[data-tl="${k}"][data-tf="name"]`);ins[ins.length-1]?.focus()},30);return}
   const k=d.dataset.tdel,i=+d.dataset.ti,l=(mt[k]||[]).slice();if(i>=l.length)return;pushUndo(true);if(k==="top")l[i]={};else l.splice(i,1);mt[k]=l;touch();render()});
+/* ---- content count per PIC for the open month (TERMINATED excluded, empty PIC shown as "Belum ada PIC") ---- */
+function picCount(rows){const m=new Map();(rows||[]).forEach(r=>{if(!hasContent(r)||String(r.st||"").trim().toUpperCase()==="TERMINATED")return;const k=String(r.pic||"").trim().replace(/\s+/g," ").toUpperCase();m.set(k,(m.get(k)||0)+1)});return m}
+function picSorted(m){return [...m.entries()].sort((a,c)=>(a[0]?0:1)-(c[0]?0:1)||c[1]-a[1]||a[0].localeCompare(c[0]))}
+function picName(k){return k?esc(k):`<span class="sub">Belum ada PIC</span>`}
+function picCard(b){const m=picCount(rowsOf(b.code)),L=picSorted(m),tot=L.reduce((s,x)=>s+x[1],0);
+  return `<article class="card picsum"><div class="head"><div><h2>Jumlah konten per PIC</h2><p class="sub">${esc(b.ig?"Instagram":b.name)} · ${esc(ymLabel(S.ym))} · tanpa status TERMINATED</p></div></div>
+  ${L.length?`<table class="btbl pictbl"><thead><tr><th>PIC</th><th class="num">Jumlah konten</th></tr></thead><tbody>${L.map(([k,n])=>`<tr><td>${picName(k)}</td><td class="num">${n}</td></tr>`).join("")}</tbody><tfoot><tr><td>Total</td><td class="num">${tot}</td></tr></tfoot></table>`:`<p class="sub" style="margin:0">Belum ada konten bulan ini.</p>`}</article>`}
+function picPanel(){const per=all().map(b=>[b,picSorted(picCount(rowsOf(b.code)))]).filter(x=>x[1].length),g=new Map();per.forEach(([,L])=>L.forEach(([k,n])=>g.set(k,(g.get(k)||0)+n)));const G=picSorted(g),tot=G.reduce((s,x)=>s+x[1],0);
+  const body=per.map(([b,L])=>L.map(([k,n],i)=>`<tr${i?"":` class="pgrp"`}>${i?"":`<td rowspan="${L.length}" data-go="${b.code}" style="cursor:pointer"><div class="bnm">${av(b)}<div><b>${esc(b.ig?"Instagram":b.name)}</b><small>${L.reduce((s,x)=>s+x[1],0)} konten</small></div></div></td>`}<td>${picName(k)}</td><td class="num">${n}</td></tr>`).join("")).join("");
+  return `<article class="panel picsum"><div class="phead"><div><h2>Konten per PIC</h2><p>Jumlah konten tiap PIC per brand · ${esc(ymLabel(S.ym))} · tanpa TERMINATED</p></div></div>
+  ${per.length?`<div style="overflow-x:auto"><table class="btbl pictbl"><thead><tr><th>Brand</th><th>PIC</th><th class="num">Jumlah</th></tr></thead><tbody>${body}</tbody></table></div>
+  <h3 class="pich">Total per PIC · semua brand</h3><table class="btbl pictbl"><tbody>${G.map(([k,n])=>`<tr><td>${picName(k)}</td><td class="num">${n}</td></tr>`).join("")}</tbody><tfoot><tr><td>Total</td><td class="num">${tot}</td></tr></tfoot></table>`:`<p class="sub" style="margin:0">Belum ada konten bulan ini.</p>`}</article>`}
 function emptyRecap(){return `<section class="card" style="border-left:5px solid var(--line)"><h2>Rekap ${esc(ymLabel(S.ym))}</h2><p class="sub">Rekap motif, pilar, campaign dan grafik harian muncul setelah konten bulan ini diisi.</p></section>`}
 function brandPage(b){
   const rows=rowsOf(b.code);
@@ -1560,6 +1577,7 @@ function brandPage(b){
   return `${brandDash(b)}
   ${table}
   <p class="note">Setiap bulan otomatis berisi semua tanggal dengan nama hari yang benar. Baris paling bawah setiap tanggal adalah baris kosong: isi salah satu kolomnya untuk menambah konten. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
+  ${picCard(b)}
   ${undatedCard(b)}${pendingCard(b.code)}
   ${mlSection(b)}
   <section class="recap">
@@ -1577,6 +1595,7 @@ function igPage(b){
   return `${brandDash(b)}
   ${table}
   <p class="note">Kolom awal sama dengan tab INSTAGRAM di Google Sheets. Setiap bulan otomatis berisi semua tanggal. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
+  ${picCard(b)}
   ${undatedCard(b)}${pendingCard(b.code)}
   ${mlSection(b)}
   <section class="recap">
