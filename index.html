@@ -967,6 +967,25 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 @keyframes bellshake{0%,100%{transform:rotate(0)}15%{transform:rotate(16deg)}30%{transform:rotate(-14deg)}45%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
 @keyframes bellblink{0%{opacity:1}100%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.ibtn.ring svg{animation:bellblink .6s steps(2,jump-none) 4}}
+/* ==== day stripes: alternate dates A / B, Sunday own color; colors + strength per brand (bar above the table) ==== */
+.sheet-wrap.stc{--stA:var(--raised);--stB:var(--ink);--stSun:var(--sun);--stK:9%}
+.sheet-wrap.stc .sheet tr.dayA{--rowbg:color-mix(in srgb,var(--stA) var(--stK),var(--raised))}
+.sheet-wrap.stc .sheet tr.alt{--rowbg:color-mix(in srgb,var(--stB) var(--stK),var(--raised))}
+.sheet-wrap.stc .sheet tr.dayA td.tgl,.sheet-wrap.stc .sheet tr.dayA td.hari{background:color-mix(in srgb,var(--stA) calc(var(--stK) * 1.7),var(--raised))}
+.sheet-wrap.stc .sheet tr.alt td.tgl,.sheet-wrap.stc .sheet tr.alt td.hari{background:color-mix(in srgb,var(--stB) calc(var(--stK) * 1.7),var(--raised))}
+.sheet-wrap.stc .sheet tr.sun{--rowbg:color-mix(in srgb,var(--stSun) calc(var(--stK) * 1.5),var(--raised))}
+.sheet-wrap.stc .sheet tr.sun td.tgl,.sheet-wrap.stc .sheet tr.sun td.hari{background:color-mix(in srgb,var(--stSun) calc(var(--stK) * 3),var(--raised))}
+.stpop .strow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0}.stpop input[type=color]{width:42px;height:30px;border:1px solid var(--line);border-radius:6px;padding:0;background:none;cursor:pointer}
+.stpop .stprev{display:grid;gap:2px;border-radius:8px;overflow:hidden;border:1px solid var(--line);margin:8px 0}.stpop .stprev span{padding:5px 10px;font-size:12px}
+/* ==== warna dashboard & online avatars ==== */
+.thgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 14px}.thgrid input[type=color]{width:38px;height:28px;border:1px solid var(--line);border-radius:6px;padding:0;background:none;cursor:pointer}
+.oav.pic{padding:0;overflow:hidden;background:var(--raised);box-shadow:0 0 0 2px var(--c)}.oav.pic img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.jtoast{position:fixed;right:16px;top:64px;z-index:9999;display:flex;align-items:center;gap:10px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 14px 8px 8px;box-shadow:0 8px 28px rgba(0,0,0,.16);font-size:13px;max-width:min(360px,calc(100vw - 32px));animation:jin .25s ease}
+.jtoast .jav{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:700;background:var(--c);overflow:hidden}.jtoast .jav img{width:100%;height:100%;object-fit:cover}
+@keyframes jin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+/* ==== sheet lama ==== */
+.hello-act .mnav{display:flex;gap:6px}.hello-act .mnav button{width:34px;height:34px;border-radius:50%;border:0;background:var(--raised);color:var(--ink);box-shadow:var(--sh-card);cursor:pointer}
+.oldwrap{padding:8px}.oldframe{display:block;width:100%;height:calc(100vh - 260px);min-height:420px;border:1px solid var(--line);border-radius:10px;background:#fff}
 /* ==== jumlah konten per PIC ==== */
 .card.picsum{max-width:560px}.pictbl td{padding:8px}.pictbl .num{text-align:right;font-variant-numeric:tabular-nums;width:1%;white-space:nowrap;font-weight:700}
 .pictbl th.num{font-weight:400}.pictbl tfoot td{font-weight:800;border-top:2px solid var(--ink)}
@@ -1071,10 +1090,59 @@ const stClass=s=>/upload|posted|sudah/i.test(s)&&!/schedul|tinggal/i.test(s)?"do
 
 /* ---- sidebar ---- */
 const lum=h=>{const m=String(h||"").replace("#","");if(m.length<6)return 1;return [0,2,4].map(i=>parseInt(m.slice(i,i+2),16)/255).map(c=>c<=.03928?c/12.92:((c+.055)/1.055)**2.4).reduce((a,c,i)=>a+c*[.2126,.7152,.0722][i],0)};
+/* ---- day stripes per brand: {a, b, sun, k} (owner only, button "Warna hari" above the table) ---- */
+S.stripe={};
+const STRIPE_PRESETS={"Bawaan":{},"Abu tegas":{a:"#FFFFFF",b:"#5F5A55",sun:"#C8473B",k:14},"Krem":{a:"#FFFFFF",b:"#B8864B",sun:"#C8473B",k:16},
+  "Biru":{a:"#FFFFFF",b:"#3E63DD",sun:"#C8473B",k:12},"Hijau":{a:"#FFFFFF",b:"#2D8A6E",sun:"#C8473B",k:13},"Dua warna":{a:"#3E63DD",b:"#D6A92C",sun:"#C8473B",k:12}};
+const hexOk=v=>/^#[0-9a-f]{6}$/i.test(String(v||""));
+function stripeVars(code){const s=S.stripe[code]||{};let o="";if(hexOk(s.a))o+=`--stA:${s.a};`;if(hexOk(s.b))o+=`--stB:${s.b};`;if(hexOk(s.sun))o+=`--stSun:${s.sun};`;if(s.k>=2&&s.k<=60)o+=`--stK:${+s.k}%;`;return o}
+function stripeLive(code){const w=document.querySelector(`.sheet-wrap[data-code="${code}"]`);if(!w)return;["--stA","--stB","--stSun","--stK"].forEach(p=>w.style.removeProperty(p));stripeVars(code).split(";").filter(Boolean).forEach(x=>{const i=x.indexOf(":");w.style.setProperty(x.slice(0,i),x.slice(i+1))})}
+function openStripe(){const b=curB();if(!b||!S.isOwner||S.ro){toast("Hanya pemilik dashboard yang bisa mengubah warna hari");return}closeMenus();
+  const before=JSON.stringify(S.stripe[b.code]||null),cur=()=>S.stripe[b.code]||{},val=(k,def)=>hexOk(cur()[k])?cur()[k]:def;
+  const sc=document.createElement("div");sc.className="scrim";const m=document.createElement("div");m.className="modal stpop";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  const draw=()=>{const k=cur().k||9;m.innerHTML=`<h2>Warna selang-seling hari · ${esc(b.ig?"Instagram":b.name)}</h2><p class="sub" style="margin:0 0 6px">Tanggal ganjil memakai warna A, tanggal genap warna B, hari Minggu warnanya sendiri. Berlaku untuk tabel brand ini.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">${Object.keys(STRIPE_PRESETS).map(n=>`<button class="btn sm press" data-stp="${esc(n)}">${esc(n)}</button>`).join("")}</div>
+    <div class="strow"><span>Warna hari A (tanggal ganjil)</span><input type="color" data-stk="a" value="${val("a","#ffffff")}"></div>
+    <div class="strow"><span>Warna hari B (tanggal genap)</span><input type="color" data-stk="b" value="${val("b","#1c1b1a")}"></div>
+    <div class="strow"><span>Warna hari Minggu</span><input type="color" data-stk="sun" value="${val("sun","#c8473b")}"></div>
+    <label class="strow"><span>Kepekatan <b data-stkv>${k}%</b></span><input type="range" min="3" max="40" step="1" value="${k}" data-stk="k" style="flex:1;max-width:220px"></label>
+    <div class="acts"><button class="btn" data-stx>Batal</button><button class="btn acc" data-stok>Simpan</button></div>`};
+  const set=(k,v)=>{const s=Object.assign({a:val("a","#ffffff"),b:val("b","#1c1b1a"),sun:val("sun","#c8473b"),k:cur().k||9},cur());s[k]=v;S.stripe=Object.assign({},S.stripe,{[b.code]:s});stripeLive(b.code)};
+  const close=ok=>{sc.remove();m.remove();if(!ok){const o=JSON.parse(before);const n=Object.assign({},S.stripe);if(o)n[b.code]=o;else delete n[b.code];S.stripe=n;stripeLive(b.code);return}
+    render();toast("Warna hari "+(b.ig?"Instagram":b.name)+" disimpan")};
+  m.addEventListener("input",e=>{const k=e.target.dataset.stk;if(!k)return;if(k==="k"){set("k",+e.target.value);const t=m.querySelector("[data-stkv]");if(t)t.textContent=e.target.value+"%"}else set(k,e.target.value)});
+  m.addEventListener("click",e=>{const p=e.target.closest("[data-stp]");if(p){const pr=STRIPE_PRESETS[p.dataset.stp];const n=Object.assign({},S.stripe);if(pr&&Object.keys(pr).length)n[b.code]=Object.assign({},pr);else delete n[b.code];S.stripe=n;stripeLive(b.code);draw();return}
+    if(e.target.closest("[data-stx]"))close(false);else if(e.target.closest("[data-stok]"))close(true)});
+  sc.onclick=()=>close(false);draw();document.body.append(sc,m);m.querySelector("[data-stok]").focus()}
+document.addEventListener("click",e=>{if(e.target.closest("[data-stripe]"))openStripe()});
+/* ---- dashboard colors set by hand (Pengaturan → Warna dashboard, owner only); empty = built-in light/dark colors ---- */
+S.theme={};
+const THEME_KEYS=[["bg","Latar halaman"],["surface","Kartu & panel"],["raised","Isi kartu & tabel"],["ink","Teks utama"],["muted","Teks samar"],["line","Garis kartu"],["grid","Garis tabel"],["th-bg","Judul tabel"],["th-ink","Teks judul tabel"]];
+const THEME_PRESETS={"Bawaan":{},
+  "Krem hangat":{bg:"#EFE8DD",surface:"#F7F1E8",raised:"#FFFBF5",ink:"#2B2118",muted:"#8A7A68",line:"#E3D8C8",grid:"#E8DFD2","th-bg":"#6B4B33","th-ink":"#FFF6EC"},
+  "Abu dingin":{bg:"#E6E9EE",surface:"#F1F3F6",raised:"#FAFBFC",ink:"#1B2330",muted:"#6B7686",line:"#D9DEE6",grid:"#DFE3EA","th-bg":"#3B4A5E","th-ink":"#F2F5F9"},
+  "Hijau sage":{bg:"#E4EAE4",surface:"#EFF3EE",raised:"#F9FBF8",ink:"#1D2A22",muted:"#6E8075",line:"#D5DFD6",grid:"#DCE4DC","th-bg":"#3F5E4B","th-ink":"#F1F7F2"},
+  "Biru laut":{bg:"#E3EAF2",surface:"#EEF3F8",raised:"#F9FBFD",ink:"#14243A",muted:"#647892",line:"#D3DDE9",grid:"#DAE2EC","th-bg":"#24476E","th-ink":"#EEF4FB"},
+  "Gelap":{bg:"#141312",surface:"#1E1C1A",raised:"#262422",ink:"#EDE9E4",muted:"#A09991",line:"#34302C",grid:"#2F2B28","th-bg":"#4A3A2E","th-ink":"#F6ECE1"}};
+function applyColors(){const rs=document.documentElement.style,t=S.theme||{};
+  THEME_KEYS.forEach(([k])=>{if(t[k])rs.setProperty("--"+k,t[k]);else rs.removeProperty("--"+k)});
+  if(t.bg)rs.setProperty("--bg-2",`color-mix(in srgb,${t.bg} 55%,${t.surface||"#fff"})`);else rs.removeProperty("--bg-2");
+  if(t.raised||t.line)rs.setProperty("--hdr",`color-mix(in srgb,${t.raised||"var(--raised)"} 70%,${t.line||"var(--line)"})`);else rs.removeProperty("--hdr");
+  if(t.grid)rs.setProperty("--th-line",`color-mix(in srgb,${t["th-bg"]||"var(--th-bg)"} 80%,#fff)`);else rs.removeProperty("--th-line")}
+function themeVal(k){const v=(S.theme||{})[k];if(v)return v;const c=getComputedStyle(document.documentElement).getPropertyValue("--"+k).trim();return /^#[0-9a-f]{6}$/i.test(c)?c:"#888888"}
+function themeCard(){if(!S.isOwner)return "";const t=S.theme||{};
+  return `<article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Warna dashboard</h2><p class="note" style="margin:0">Ubah warna seluruh dashboard secara manual, berlaku untuk semua orang dan untuk mode terang maupun gelap. Sidebar dan aksen diatur di kartu Warna tema.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">${Object.entries(THEME_PRESETS).map(([n,p])=>`<button class="btn sm press thp" data-themep="${esc(n)}" style="${p.bg?`background:${p.surface};color:${p.ink};border:2px solid ${p["th-bg"]}`:""}">${esc(n)}</button>`).join("")}</div>
+    <div class="thgrid">${THEME_KEYS.map(([k,l])=>`<label class="colrow" style="margin:0;justify-content:space-between;gap:8px"><span>${esc(l)}</span><span style="display:flex;gap:6px;align-items:center"><input type="color" data-themek="${k}" value="${esc(themeVal(k))}" aria-label="${esc(l)}">${t[k]?`<button class="linkb" data-themex="${k}" title="Kembali ke bawaan">bawaan</button>`:""}</span></label>`).join("")}</div></article>`}
+document.addEventListener("input",e=>{const k=e.target.dataset&&e.target.dataset.themek;if(!k||!S.isOwner)return;S.theme=Object.assign({},S.theme,{[k]:e.target.value});applyColors()});
+document.addEventListener("change",e=>{const k=e.target.dataset&&e.target.dataset.themek;if(!k||!S.isOwner)return;S.theme=Object.assign({},S.theme,{[k]:e.target.value});applyColors();render();toast("Warna disimpan")});
+document.addEventListener("click",e=>{if(!S.isOwner)return;const p=e.target.closest("[data-themep]");if(p){S.theme=Object.assign({},THEME_PRESETS[p.dataset.themep]||{});applyColors();render();toast("Tema "+p.dataset.themep+" dipakai");return}
+  const x=e.target.closest("[data-themex]");if(x){const t=Object.assign({},S.theme);delete t[x.dataset.themex];S.theme=t;applyColors();render()}});
 function renderNav(){
   const ic={home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>'};
   const item=b=>`<button class="navb" data-go="${b.code}" title="${esc(b.name)}" ${S.view===b.code?'aria-current="page"':""}><span class="dot" style="--c:${b.color}">${logoUrl(b.logo)?`<img src="${logoUrl(b.logo)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:esc(b.abbr)}</span><span class="nm"><b>${esc(b.name)}</b>${b.sub?`<small>${esc(b.sub)}</small>`:""}</span><span class="ct num">${stats(b)[0]}</span></button>`;
   document.getElementById("nav").innerHTML=`<button class="navb" data-go="beranda" ${S.view==="beranda"?'aria-current="page"':""}>${ic.home}<span class="nm"><b>Beranda</b></span></button>
+    <button class="navb" data-go="lama" ${S.view==="lama"?'aria-current="page"':""}><svg viewBox="0 0 24 24"><path d="M4 3h11l5 5v13H4z M14 3v6h6 M8 13h8 M8 17h8"/></svg><span class="nm"><b>Sheet lama</b></span></button>
     <h3>TikTok</h3>${S.brands.map(item).join("")}<h3>Instagram</h3>${S.channels.map(item).join("")}`;
   const mini=document.querySelector(".shell").classList.contains("mini");document.getElementById("monthLbl").textContent=mini?BULAN[+S.ym.slice(5)-1].slice(0,3)+" "+S.ym.slice(2,4):ymLabel(S.ym);
   document.querySelector('.side-foot [data-go="pengaturan"]').toggleAttribute("aria-current",S.view==="pengaturan");
@@ -1084,7 +1152,7 @@ function renderNav(){
   document.querySelector(".shell").classList.toggle("sidec",!!S.sideCustom);
   if(S.sideCustom){const l=lum(S.sideColor)>.45;rs.setProperty("--side",S.sideColor);rs.setProperty("--side-ink",l?"#1E2B24":"#F3F6F4");rs.setProperty("--side-muted",l?"#6F8078":"#B9CBC3");rs.setProperty("--side-2",`color-mix(in srgb,${S.sideColor} 93%,${l?"#1E2B24":"#ffffff"})`)}else["--side","--side-ink","--side-muted","--side-2"].forEach(k=>rs.removeProperty(k));
   if(S.accentCustom){rs.setProperty("--accent",S.accent);rs.setProperty("--on-accent",lum(S.accent)>.42?"#1C241F":"#FFFFFF");rs.setProperty("--accent-soft",`color-mix(in srgb,${S.accent} 18%,var(--surface))`)}else["--accent","--on-accent","--accent-soft"].forEach(k=>rs.removeProperty(k));
-  document.documentElement.style.setProperty("--promo",S.promo);
+  document.documentElement.style.setProperty("--promo",S.promo);applyColors();
 }
 
 /* ---- numbers, all computed from the rows ---- */
@@ -1243,7 +1311,7 @@ document.addEventListener("click",e=>{
    GitHub version: claude.use("team") from cp-backend.js (Apps Script). Claude version: db docs people/, presence/, activity/ (editors). */
 S.team={online:[],acts:[],actRev:-1,nick:"",uid:""};
 const TODAY_DONE=/^(UPLOAD SCHEDULED|UPLOADED|SUDAH UPLOAD|TERJADWAL|POSTED)$/i;
-function pageName(){const b=byCode(S.view);return S.view==="pengaturan"?"Pengaturan":b?(b.ig?"Instagram":b.name):"Beranda"}
+function pageName(){const b=byCode(S.view);return S.view==="lama"?"Sheet lama":S.view==="pengaturan"?"Pengaturan":b?(b.ig?"Instagram":b.name):"Beranda"}
 const nameColor=s=>{let h=0;for(const c of String(s||"?"))h=(h*31+c.charCodeAt(0))>>>0;return AUTO_COL[h%AUTO_COL.length]};
 function agoTxt(t){const d=Date.now()-t,m=Math.round(d/60000),dt=new Date(t),hm=pad2(dt.getHours())+":"+pad2(dt.getMinutes());
   if(m<1)return "baru saja · "+hm;if(m<60)return m+" mnt lalu · "+hm;if(dt.toDateString()===new Date().toDateString())return "hari ini · "+hm;return dt.getDate()+" "+BULAN[dt.getMonth()].slice(0,3)+" · "+hm}
@@ -1282,9 +1350,20 @@ async function saveNick(n){n=n.replace(/[<>]/g,"").slice(0,24);
   catch(e){toast("Nama panggilan belum tersimpan: "+(e.message||e.code));return}
   S.team.nick=n;lsSet("cp-nick",n);lsSet(nickKey(),n);toast("Halo, "+n+"!");S.greeted=false;render();if(S.team.tick)S.team.tick()}
 document.addEventListener("click",e=>{if(e.target.closest("[data-chnick]"))askNick(true);if(e.target.closest("[data-actall]")){S.actAll=true;render()}});
+/* who else has the dashboard open, like Google Sheets: Google profile photo (initial when there is none), name, email, page */
+const picOk=u=>/^https:\/\/[a-z0-9.-]*googleusercontent\.com\//i.test(String(u||""));
+function avHtml(x,cls){const c=nameColor(x.name+x.id),ini=esc(String(x.name||"?").charAt(0).toUpperCase());
+  return picOk(x.pic)?`<span class="${cls} pic" style="--c:${c}" data-i="${ini}"><img src="${esc(x.pic)}" alt="" referrerpolicy="no-referrer" onerror="var p=this.parentNode;p.classList.remove('pic');p.textContent=p.dataset.i"></span>`:`<span class="${cls}" style="--c:${c}">${ini}</span>`}
 function renderOnline(){const el=document.getElementById("online");if(!el)return;const others=(S.team.online||[]).filter(x=>!x.me);
-  el.innerHTML=others.slice(0,5).map(x=>`<span class="oav" style="--c:${nameColor(x.name+x.id)}" title="${esc(x.name||"Tamu")}${x.guest?" (tamu)":""} · ${esc(x.page||"Beranda")}">${esc(String(x.name||"?").charAt(0).toUpperCase())}</span>`).join("")+(others.length>5?`<span class="oav more" title="${esc(others.slice(5).map(x=>x.name).join(", "))}">+${others.length-5}</span>`:"");
-  el.hidden=!others.length;el.setAttribute("aria-label",others.length+" orang lain sedang membuka dashboard")}
+  el.innerHTML=others.slice(0,5).map(x=>avHtml(x,"oav").replace(/^<span /,`<span title="${esc(x.name||"Tamu")}${x.email?" · "+esc(x.email):""}${x.guest?" (tamu)":""} · sedang di ${esc(x.page||"Beranda")}" `)).join("")+(others.length>5?`<span class="oav more" title="${esc(others.slice(5).map(x=>x.name).join(", "))}">+${others.length-5}</span>`:"");
+  el.hidden=!others.length;el.setAttribute("aria-label",others.length+" orang lain sedang membuka dashboard");
+  /* "X bergabung" when someone new opens the dashboard (not for the people already there when I arrived) */
+  const ids=new Set(others.filter(x=>!x.guest).map(x=>x.id));
+  if(S.team.seenIds){others.forEach(x=>{if(!x.guest&&!S.team.seenIds.has(x.id))joinToast(x)})}
+  S.team.seenIds=ids}
+function joinToast(x){const t=document.createElement("div");t.className="jtoast";t.setAttribute("role","status");
+  t.innerHTML=`${avHtml(x,"jav")}<span><b>${esc(x.name||"Seseorang")}</b> bergabung${x.page?` · ${esc(x.page)}`:""}</span>`;
+  document.querySelectorAll(".jtoast").forEach((o,i)=>{o.style.top=(64+(i+1)*54)+"px"});document.body.appendChild(t);setTimeout(()=>t.remove(),5000)}
 function actCard(){const all_=S.team.acts||[],show=S.actAll?all_:all_.slice(0,20);
   return `<article class="panel actw"><div class="phead"><div><h2>Aktivitas</h2><p>Perubahan oleh tim · 30 hari terakhir</p></div></div>${show.length?`<div class="alist">${show.map(a=>{const b=byCode(a.code);return `<button class="aitem" ${b?`data-go="${esc(a.code)}" ${a.rowId?`data-jump="${esc(a.rowId)}"`:""} ${a.ym?`data-jym="${esc(a.ym)}"`:""}`:""}><span class="aav" style="--c:${nameColor(a.nick+a.by)}">${esc(String(a.nick||"?").charAt(0).toUpperCase())}</span><span class="atx"><span><b>${esc(a.nick||"Tim")}</b> ${esc(a.text)}${b?` · ${esc(b.ig?"Instagram":b.name)}`:""}</span><small>${esc(agoTxt(a.t))}</small></span></button>`}).join("")}</div>`:`<p class="sub" style="margin:0">Belum ada aktivitas. Perubahan di tabel akan muncul di sini.</p>`}${!S.actAll&&all_.length>20?`<button class="btn full" data-actall style="margin-top:10px">Lihat semua (${all_.length})</button>`:""}</article>`}
 /* activity from what this person changed: compares the saved month with the one about to be written */
@@ -1464,7 +1543,8 @@ function layoutOf(b,rows){const cols=colsOf(b),nd=daysIn(S.ym),G={rows:[null,{he
   for(let d=1;d<=nd;d++){const its=rows.filter(r=>r.d===d),wd=dow(d),sunKey=b.code+"|"+S.ym+"|"+d;
     if(hid.has(d)&&!its.length)continue; /* deleted date */
     if(!its.length&&wd===0&&!S.openSun.has(sunKey)){n++;G.rows.push({d});lay.push({d,sun:sunKey,num:n});continue}
-    lay.push({d,items:(hid.has(d)?its:[...its,null]).map(r=>{n++;G.rows.push({d,r});return {r,num:n}})})}
+    /* like a spreadsheet: 1 row per date; filling it adds no extra row (insert more via right-click → Sisipkan baris) */
+    lay.push({d,items:(its.length?its:[null]).map(r=>{n++;G.rows.push({d,r});return {r,num:n}})})}
   return {G,lay,hid}}
 function gridOf(b){if(!b)return null;if(S.grid&&S.grid.code===b.code&&S.view===b.code)return S.grid;const k=b.code+"|"+S.ym;return S.gcache[k]||(S.gcache[k]=layoutOf(b,rowsOf(b.code)).G)}
 function sheetTable(b,rows,ctx){
@@ -1475,7 +1555,7 @@ function sheetTable(b,rows,ctx){
   const {G,lay,hid}=layoutOf(b,rows);
   S.grid=G;
   let body="";
-  for(const L of lay){const d=L.d,wd=dow(d),alt=wd===0?"sun":(wd%2===0)?"alt":"",fz=k=>ctx.frz.has(k)?"stk":"";
+  for(const L of lay){const d=L.d,wd=dow(d),alt=wd===0?"sun":(d%2===0)?"alt":"dayA",fz=k=>ctx.frz.has(k)?"stk":"";
     if(L.sun){if(filtering)continue;body+=`<tr class="minggu daystart" data-n="${L.num}" data-sund="${d}"><td class="rn">${L.num}</td><td class="tgl ${fz("tgl")}" data-k="tgl">${d}</td><td class="hari ${fz("hari")}" data-k="hari">MINGGU</td><td colspan="${span-2}"><button class="btn sm press" data-opensun="${esc(L.sun)}">+ Isi konten hari Minggu</button></td></tr>`;continue}
     let its=L.items;if(filtering){its=its.filter(x=>x.r&&passFilter(x.r,flt,cols));if(!its.length)continue}
     /* merged cells: stored on the top-left row as mg[key]=[rows,cols]; only inside one date, not while filtering */
@@ -1513,11 +1593,11 @@ function sheetTable(b,rows,ctx){
   let tot=COLRN;const cg=cols.map(col=>{const w=colW(kind,col,dense);tot+=w;return `<col data-col="${col.key}" style="width:${w}px">`}).join("");
   const fchips=Object.entries(flt).map(([k,vals])=>`<span class="fchip">${esc(colLabel(k))}: ${esc(vals.slice(0,3).join(", "))}${vals.length>3?" +"+(vals.length-3):""}<button data-fdel="${k}" aria-label="Hapus filter ${esc(colLabel(k))}">✕</button></span>`).join("");
   return `${guideHtml(b.ig)}
-  <div class="tbar"><span class="hint">${cols.length} kolom · klik kanan pada sel, nomor baris atau huruf kolom untuk semua opsi${hid.size&&!S.ro?` · <button class="linkb" data-unhide>Tampilkan lagi ${hid.size} baris kosong yang dihapus</button>`:""}</span>
+  <div class="tbar">${S.isOwner&&!S.ro?`<button class="btn sm press" data-stripe title="Atur warna selang-seling hari di tabel ini">🎨 Warna hari</button>`:""}<span class="hint">${cols.length} kolom · klik kanan pada sel, nomor baris atau huruf kolom untuk semua opsi${hid.size&&!S.ro?` · <button class="linkb" data-unhide>Tampilkan lagi ${hid.size} baris kosong yang dihapus</button>`:""}</span>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${!S.ro?`<button class="btn sm press" data-pdf title="Export konten bulan ini ke PDF">Export PDF</button>`:""}${S.isOwner&&!S.ro?`<button class="btn sm press" data-adddate title="Munculkan lagi tanggal yang hilang atau terhapus">+ Tanggal</button>`:""}<button class="btn sm press ${fon?"acc":""}" data-ftoggle title="Tampilkan / sembunyikan tombol filter di judul kolom">${fon?"Matikan filter":"Buat filter"}</button><button class="btn sm press" data-colreset="${kind}" title="Kembalikan semua lebar kolom ke ukuran awal">Reset lebar kolom</button>
     <div class="seg" role="group" aria-label="Ukuran tabel">${[["normal","Normal"],["dense","Ringkas"],["fit","Muat layar"]].map(([k,l])=>`<button data-density="${k}" aria-pressed="${dn===k}">${l}</button>`).join("")}</div></div></div>
   ${fon?`<div class="fbar"><b>Filter</b>${fchips||`<span class="sub">Klik ▾ di judul kolom untuk memfilter atau mengurutkan.</span>`}<span style="flex:1"></span><span class="sub">Berlaku untuk:</span><div class="seg" role="group" aria-label="Filter berlaku untuk"><button data-fscope="me" aria-pressed="${scope==="me"}">Saya saja</button><button data-fscope="all" aria-pressed="${scope==="all"}">Semua tim</button></div>${filtering?`<button class="btn sm press" data-fclear>Hapus semua filter</button>`:""}</div>`:""}
-  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""}" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code],b.ig)}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
+  <div class="tzone">${gbar()}<div class="sheet-wrap ${dense?"dense":""} ${dn==="fit"?"fit":""} ${S.fmlOn?"fml":""} ${b.thOn?"thc":""} stc" tabindex="-1" data-kind="${kind}" data-code="${b.code}" style="--c:${b.color};${stripeVars(b.code)}${b.thOn?`;--thc:${b.color};--thc-ink:${lum(b.color)>.55?"#1E1B18":"#FFFFFF"}`:""}">${motifDatalists(b.ig?S.brands.map(x=>x.code):[b.code],b.ig)}<table class="sheet" style="width:${tot}px"><colgroup><col style="width:${COLRN}px">${cg}</colgroup><thead><tr class="letters"><th class="rn corner" data-all title="Pilih semua sel"></th>${letters}</tr><tr class="labels"><th class="rn" data-all title="Pilih semua sel">1</th>${th}</tr></thead><tbody>${body}</tbody></table></div><div class="hbar" hidden aria-hidden="true"><div></div></div></div>`;
 }
 /* rekap motif TikTok: keranjang kuning vs non keranjang */
 function motifKKTable(b){
@@ -1583,7 +1663,7 @@ function brandPage(b){
   const campCount=S.campaigns.map(c=>[c.name,rows.filter(r=>campOf(r)===c).length,c.color]);
   return `${brandDash(b)}
   ${table}
-  <p class="note">Setiap bulan otomatis berisi semua tanggal dengan nama hari yang benar. Baris paling bawah setiap tanggal adalah baris kosong: isi salah satu kolomnya untuk menambah konten. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
+  <p class="note">Setiap bulan otomatis berisi semua tanggal dengan nama hari yang benar. Setiap tanggal punya 1 baris. Butuh lebih? Klik kanan → Sisipkan baris. Klik kanan pada sel untuk potong, salin, tempel, sisipkan baris/kolom, dan lainnya.</p>
   ${picCard(b)}
   ${undatedCard(b)}${pendingCard(b.code)}
   ${mlSection(b)}
@@ -1663,6 +1743,7 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
     ${aiCard()}
     <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Warna tema</h2><div class="field">Sidebar${S.isOwner?`${pal("side",S.sideCustom?S.sideColor:"",SIDE_SW)}<div class="colrow"><label class="colrow" style="margin:0">Kustom <input type="color" data-colorpick="side" value="${esc(S.sideCustom?S.sideColor:"#4A3527")}" aria-label="Warna sidebar kustom"></label>${S.sideCustom?`<button class="linkb" data-color="sideoff" data-c="">Kembali ke bawaan</button>`:""}</div><small class="note">Bisa juga klik kanan pada sidebar.</small>`:`<p class="note" style="margin:4px 0 0">Hanya pemilik dashboard yang bisa mengganti warna sidebar.</p>`}</div><label class="field">Aksen (tombol, menu aktif, tanda hari ini)${pal("accent",S.accent,["#5B6BD6","#4F5BD5","#3E63DD","#2A8FC4","#2D8A6E","#7C5CC4","#C4507A","#D6A92C"])}</label></article>
     
+    ${themeCard()}
     <article class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Campaign & promo</h2><p class="note">Baris yang pilar/script/hook/catatannya memuat kata kunci campaign diberi garis warna campaign.</p>${S.campaigns.map((c,i)=>`<div class="field campf"><div style="display:flex;gap:6px"><input class="cin" data-campf="name" data-ci="${i}" value="${esc(c.name)}" aria-label="Nama campaign" style="border:1px solid var(--line);font-weight:800"><input class="cin" data-campf="kw" data-ci="${i}" value="${esc(c.kw||"")}" placeholder="kata kunci, pisah koma" aria-label="Kata kunci" style="border:1px solid var(--line)"><button class="icon-del" data-campdel="${i}" aria-label="Hapus campaign ${esc(c.name)}">✕</button></div>${pal("camp"+i,c.color,CSW)}</div>`).join("")}<button class="btn sm press" data-campadd style="align-self:flex-start">+ Campaign</button><label class="field">Promo (baris berpilar Promo)${pal("promo",S.promo,CSW)}</label></article>
   </section>
   <h2 style="margin:6px 0 0;font-size:17px">Isi dropdown</h2>
@@ -1679,6 +1760,20 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
     <label class="btn sm press" style="align-self:flex-start">Upload logo${b.ig?"":" brand"}<input type="file" accept="image/*" data-uplogo="${bi}" hidden></label></article>`).join("")}</section>
   ${motifLibCard()}`;
 }
+/* ---- Sheet lama: the old content plan spreadsheet of a month, shown as it is (view only). One link per month, set by the owner ---- */
+S.oldSheets={};
+function oldSheetInfo(url){const m=/\/spreadsheets\/d\/([a-zA-Z0-9_-]{20,})/.exec(String(url||""));if(!m)return null;const g=/[#&?]gid=(\d+)/.exec(url);
+  return {view:`https://docs.google.com/spreadsheets/d/${m[1]}/htmlview?rm=minimal${g?"&gid="+g[1]:""}`,open:`https://docs.google.com/spreadsheets/d/${m[1]}/edit${g?"#gid="+g[1]:""}`}}
+function oldPage(){const url=S.oldSheets[S.ym]||"",inf=oldSheetInfo(url),own=S.isOwner&&!S.ro;
+  return `<section class="hello"><div><h1>Sheet lama · ${esc(ymLabel(S.ym))}</h1><p>Spreadsheet content plan lama bulan ini, tampil persis seperti aslinya (hanya lihat). Ganti bulan dengan tombol ‹ ›.</p></div>
+    <div class="hello-act"><div class="mnav"><button data-month="-1" aria-label="Bulan sebelumnya">‹</button><button data-month="1" aria-label="Bulan berikutnya">›</button></div>${inf?`<a class="btn" href="${esc(inf.open)}" target="_blank" rel="noopener">Buka di Google Sheets ↗</a>`:""}</div></section>
+  ${own?`<section class="card" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label class="field" style="flex:1;min-width:240px;margin:0">Link spreadsheet lama untuk ${esc(ymLabel(S.ym))}<input class="cin" id="oldIn" value="${esc(url)}" placeholder="https://docs.google.com/spreadsheets/d/…" style="border:1px solid var(--line)"></label><button class="btn acc press" data-oldsave>Simpan link</button>${url?`<button class="btn" data-olddel>Hapus link</button>`:""}</section>`:""}
+  ${inf?`<section class="card oldwrap"><iframe class="oldframe" src="${esc(inf.view)}" title="Spreadsheet lama ${esc(ymLabel(S.ym))}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+    <p class="note" style="margin:8px 0 0">Tidak tampil? Pastikan kamu sudah login Google di browser ini dan punya akses ke spreadsheet itu, lalu pakai tombol "Buka di Google Sheets".</p></section>`
+   :`<section class="card empty"><b>Belum ada sheet lama untuk ${esc(ymLabel(S.ym))}</b><p>${own?"Tempel link spreadsheet lama di atas lalu klik Simpan link.":"Pemilik dashboard belum menautkan spreadsheet lama untuk bulan ini."}</p></section>`}`}
+document.addEventListener("click",e=>{
+  if(e.target.closest("[data-oldsave]")){const v=(document.getElementById("oldIn")||{}).value||"";if(!oldSheetInfo(v)){toast("Link harus berupa link Google Sheets (docs.google.com/spreadsheets/d/…)");return}S.oldSheets[S.ym]=v.trim();render();toast("Sheet lama "+ymLabel(S.ym)+" disimpan");return}
+  if(e.target.closest("[data-olddel]")){delete S.oldSheets[S.ym];render();toast("Link sheet lama "+ymLabel(S.ym)+" dihapus")}});
 function render(){
   renderNav();
   const m=document.getElementById("main"); const b=byCode(S.view);
@@ -1688,7 +1783,7 @@ function render(){
   const w0=m.querySelector(".sheet-wrap"), keep=w0?[w0.scrollTop,w0.scrollLeft,S.lastView===S.view]:null;
   const waiting=()=>`<div class="top"><h1>CONTENT PLAN INDO GROUP<small>${esc(ymLabel(S.ym))}</small></h1></div><section class="card empty"><b>${S.err?"Data belum bisa dimuat":"Memuat content plan…"}</b><p>${esc(S.err||"Mengambil data "+ymLabel(S.ym)+" dari database.")}</p></section>`;
   if(S.ro&&S.view==="pengaturan")S.view="beranda";
-  m.innerHTML=(S.ro?`<div class="robar" role="status"><b>Mode baca saja</b><span>Anda bisa melihat, menyalin dan memfilter. ${window.CP_CONFIG?"Untuk mengedit, masuk dengan akun Google yang terdaftar sebagai Editor di tab AKSES.":"Untuk mengubah content plan, minta pemilik menambahkan email Anda sebagai Editor."}</span>${window.CP_CONFIG&&!(window.CP_AUTH&&window.CP_AUTH.me)?`<div id="roLogin" class="rologin"></div>`:""}</div>`:"")+(S.view==="pengaturan"&&S.settingsReady?settings():(S.err||!S.settingsReady||(DB.db&&!S.loaded[S.ym]))?waiting():S.view==="beranda"&&!hasData()?empty():S.view==="beranda"?beranda():b?(b.ig?igPage(b):brandPage(b)):beranda());
+  m.innerHTML=(S.ro?`<div class="robar" role="status"><b>Mode baca saja</b><span>Anda bisa melihat, menyalin dan memfilter. ${window.CP_CONFIG?"Untuk mengedit, masuk dengan akun Google yang terdaftar sebagai Editor di tab AKSES.":"Untuk mengubah content plan, minta pemilik menambahkan email Anda sebagai Editor."}</span>${window.CP_CONFIG&&!(window.CP_AUTH&&window.CP_AUTH.me)?`<div id="roLogin" class="rologin"></div>`:""}</div>`:"")+(S.view==="lama"&&S.settingsReady?oldPage():S.view==="pengaturan"&&S.settingsReady?settings():(S.err||!S.settingsReady||(DB.db&&!S.loaded[S.ym]))?waiting():S.view==="beranda"&&!hasData()?empty():S.view==="beranda"?beranda():b?(b.ig?igPage(b):brandPage(b)):beranda());
   if(S.ro)m.querySelectorAll(".sheet input.cin,.sheet textarea.cin").forEach(x=>x.readOnly=true);
   S.lastView=S.view;
   if(keep&&keep[2]){const w=m.querySelector(".sheet-wrap");if(w){w.scrollTop=keep[0];w.scrollLeft=keep[1]}}
@@ -1700,7 +1795,7 @@ function render(){
   const rl=document.getElementById("roLogin");if(rl&&window.CP_AUTH&&window.CP_AUTH.mountButton&&!window.CP_AUTH.mountButton(rl))rl.innerHTML="<button class='btn dark' data-cplogin>Masuk dengan Google</button>"; if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
-function go(v){const sc=document.getElementById("selCount");if(sc)sc.hidden=true;if(v==="pengaturan"&&S.ro)v="beranda";S.view=v;S.cs=null;closeMenus();const h=v==="beranda"?"beranda":v==="pengaturan"?"pengaturan":"b-"+v;if(location.hash.slice(1)!==h)history.replaceState(null,"","#"+h);render();if(!S.jump)window.scrollTo({top:0,behavior:"smooth"})}
+function go(v){const sc=document.getElementById("selCount");if(sc)sc.hidden=true;if(v==="pengaturan"&&S.ro)v="beranda";S.view=v;S.cs=null;closeMenus();const h=v==="beranda"?"beranda":v==="pengaturan"?"pengaturan":v==="lama"?"lama":"b-"+v;if(location.hash.slice(1)!==h)history.replaceState(null,"","#"+h);render();if(!S.jump)window.scrollTo({top:0,behavior:"smooth"})}
 
 /* ---- events ---- */
 document.addEventListener("click",e=>{
@@ -1763,10 +1858,23 @@ function formBox(title,html,ok){return new Promise(res=>{const sc=document.creat
 /* ---- undo ---- */
 S.undo=[]; S.redo=[]; S.guideOpen=false; S.gclip=null;
 const snapOf=ym=>({ym,snap:JSON.stringify(S.data[ym]||{}),cols:JSON.stringify(S.cols),meta:JSON.stringify(S.meta[ym]||{}),cf:JSON.stringify(S.cf||{}),frzR:JSON.stringify(S.frzR||{}),frz:JSON.stringify(S.frz||{}),lists:JSON.stringify(S.lists),bc:JSON.stringify(all().map(b=>[b.code,b.color,!!b.thOn]))});
-function pushUndo(quiet){S.undo.push(snapOf(S.ym));if(S.undo.length>60)S.undo.shift();S.redo=[];if(!quiet)touch()}
+/* undo/redo like Google Sheets: only the cells MY action changed are put back, on top of the current data,
+   so other people's edits (any brand) and other brands are never reverted. Each entry keeps the state just before
+   the action and the state right after it (taken once the action has finished). */
+function pushUndo(quiet){const u=snapOf(S.ym);S.undo.push(u);setTimeout(()=>{if(!u.after)u.after=snapOf(u.ym)},0);if(S.undo.length>60)S.undo.shift();S.redo=[];if(!quiet)touch()}
+function applyDelta(ym,F,T){const P=s=>s?JSON.parse(s):null,J=JSON.stringify;
+  const fr=P(F.snap)||{},tr=P(T.snap)||{},m=S.data[ym]||(S.data[ym]={});
+  new Set([...Object.keys(fr),...Object.keys(tr)]).forEach(code=>{const a=fr[code]||[],b=tr[code]||[];if(J(a)===J(b))return;const ops=diffOps({rows:a},{rows:b});if(ops.length)m[code]=applyOps({rows:m[code]||[]},ops,{}).rows});
+  const fm=P(F.meta)||{},tm=P(T.meta)||{},mm=S.meta[ym]||(S.meta[ym]={});
+  new Set([...Object.keys(fm),...Object.keys(tm)]).forEach(code=>{const ops=diffPaths(fm[code]||{},tm[code]||{});if(ops.length)mm[code]=applyPaths(mm[code]||{},ops)});
+  ["cols","cf","frzR","frz"].forEach(k=>{if(F[k]==null||T[k]==null)return;const ops=diffPaths(P(F[k]),P(T[k]));if(ops.length)S[k]=applyPaths(S[k],ops)});
+  if(F.lists!=null&&T.lists!=null){const ops=diffPaths(P(F.lists),P(T.lists));if(ops.length){const nl=applyPaths(S.lists,ops);Object.keys(S.lists).forEach(k=>{if(!(k in nl))delete S.lists[k]});Object.keys(nl).forEach(k=>{const l=S.lists[k];if(Array.isArray(l)&&Array.isArray(nl[k]))l.splice(0,l.length,...nl[k]);else S.lists[k]=nl[k]})}}
+  if(F.bc&&T.bc){const fa=new Map(P(F.bc).map(x=>[x[0],x]));P(T.bc).forEach(x=>{const f=fa.get(x[0]);if(f&&J(f)!==J(x)){const b=byCode(x[0]);if(b){b.color=x[1];b.thOn=x[2]}}})}}
+function stepUndo(u,back){if(!u.after)u.after=snapOf(u.ym);if(u.ym!==S.ym){S.ym=u.ym;subMonth(S.ym)}
+  if(back)applyDelta(u.ym,u.after,u);else applyDelta(u.ym,u,u.after);S.gcache={};S.grid=null;touch(u.ym);render();maybeSaveSettings()}
 function restoreSnap(u){S.data[u.ym]=JSON.parse(u.snap);if(u.cols)S.cols=JSON.parse(u.cols);if(u.meta)S.meta[u.ym]=JSON.parse(u.meta);if(u.cf)S.cf=JSON.parse(u.cf);if(u.frzR)S.frzR=JSON.parse(u.frzR);if(u.frz)S.frz=JSON.parse(u.frz);if(u.lists)Object.assign(S.lists,JSON.parse(u.lists));if(u.bc)JSON.parse(u.bc).forEach(([c,col,th])=>{const b=byCode(c);if(b){b.color=col;b.thOn=th}});if(u.ym!==S.ym){S.ym=u.ym;subMonth(S.ym)}touch();render()}
-function undo(){if(!canWrite())return;const u=S.undo.pop();if(!u){toast("Tidak ada perubahan yang bisa diurungkan");return}S.redo.push(snapOf(u.ym));restoreSnap(u);toast("Perubahan terakhir diurungkan","Ulangi",redo)}
-function redo(){if(!canWrite())return;const u=S.redo.pop();if(!u){toast("Tidak ada perubahan yang bisa diulangi");return}S.undo.push(snapOf(u.ym));restoreSnap(u);toast("Perubahan diulangi")}
+function undo(){if(!canWrite())return;const u=S.undo.pop();if(!u){toast("Tidak ada perubahan yang bisa diurungkan");return}stepUndo(u,true);S.redo.push(u);toast("Perubahan terakhir diurungkan","Ulangi",redo)}
+function redo(){if(!canWrite())return;const u=S.redo.pop();if(!u){toast("Tidak ada perubahan yang bisa diulangi");return}stepUndo(u,false);S.undo.push(u);toast("Perubahan diulangi")}
 
 /* ---- selection: S.cs = {code, a:{rk,ck}, f:{rk,ck}}; rk = row id, or "g"+date for the empty row of a date ---- */
 function slotKeys(){const w=document.querySelector(".sheet-wrap");if(!w)return [];return [...w.querySelectorAll("tbody tr[data-id],tbody tr.ghost")].map(tr=>tr.dataset.id||"g"+tr.dataset.date)}
@@ -1937,7 +2045,8 @@ function buildClip(){const R=rect();if(!R)return null;const b=curB(),full=colsOf
   return {code:b.code,cells,tsv:cells.map(row=>row.map(c=>tsvCell(String(c.disp))).join("\t")).join("\n"),html:clipHtml(cells)}}
 function copyRange(cut){const c=buildClip();if(!c)return null;S.gclip=c;
   document.querySelectorAll(".sheet .cclip").forEach(x=>x.classList.remove("cclip"));const R=rect();for(const rk of R.rows)for(const col of R.cols){const td=cellTd(rk,col.key);if(td)td.classList.add("cclip")}
-  if(cut)clearRange(true);
+  /* cut like Google Sheets: the source is only emptied when it is pasted somewhere (and only those cells) */
+  if(cut&&canWrite())c.cut={ym:S.ym,code:curB().code,cells:R.rows.flatMap(rk=>{const r=rowById(rk);return r?R.cols.filter(col=>col.type!=="tgl"&&col.type!=="hari").map(col=>[r.id,col.key]):[]})};
   toast(`${R.n} sel ${cut?"dipotong":"disalin"}. Pilih sel tujuan lalu Ctrl+V atau klik kanan → Tempel`);return c}
 function clearRange(quiet){if(!canWrite())return;const R=rect();if(!R)return;const b=curB();let n=0;pushUndo(true);
   for(const rk of R.rows){const r=rowById(rk);if(!r)continue;for(const col of R.cols){if(col.type==="tgl"||col.type==="hari")continue;clearCell(r,col);n++}}
@@ -1963,12 +2072,19 @@ function pasteGrid(cells,mode){if(!canWrite())return;
   }else{
     let i=R.r0;const sl=R.sl;
     for(const line of cells){if(i>=sl.length)break;const rk=sl[i];let r=rowById(rk),made=false;
-      if(!r){const d=+rk.slice(1);if(!d)break;r={id:rid(),d};const lastIx=rs.map(x=>x.d).lastIndexOf(d);rs.splice(lastIx<0?rs.length:lastIx+1,0,r);made=true}else i++;
+      /* like Google Sheets: each copied line lands on the next visible row (an empty date row becomes a real row); no rows are added */
+      if(!r){const d=+rk.slice(1);if(!d){i++;continue}r={id:rid(),d};const lastIx=rs.map(x=>x.d).lastIndexOf(d);rs.splice(lastIx<0?rs.length:lastIx+1,0,r);made=true}i++;
       if(!first)first=r.id;last=r.id;
-      line.forEach((c,j)=>{const col=cols[R.c0+j];if(col){apply(r,col,c,rk);n++}});if(made)created++;}
+      line.forEach((c,j)=>{const col=cols[R.c0+j];if(col){apply(r,col,c,rk);n++}});}
     const w=Math.max(...cells.map(l=>l.length));
     S.cs.a={rk:first,ck:cols[R.c0].key};S.cs.f={rk:last,ck:cols[Math.min(cols.length-1,R.c0+w-1)].key};
   }
+  /* a cut is finished by its paste: empty the source cells that were not just pasted over, then forget the clip */
+  const cutc=S.gclip&&S.gclip.cells===cells&&S.gclip.cut;
+  if(cutc){const src=((S.data[cutc.ym]||{})[cutc.code]||[]),sb=byCode(cutc.code),scols=sb?colsOf(sb):[],now=new Set();
+    if(cutc.ym===S.ym&&cutc.code===b.code){const R2=rect();if(R2)for(const rk of R2.rows){const r=rowById(rk);if(r)R2.cols.forEach(col=>now.add(r.id+"|"+col.key))}}
+    cutc.cells.forEach(([id,k])=>{if(now.has(id+"|"+k))return;const r=src.find(x=>x.id===id),col=scols.find(x=>x.key===k);if(r&&col)clearCell(r,col)});
+    S.gclip=null;document.querySelectorAll(".sheet .cclip").forEach(x=>x.classList.remove("cclip"));if(cutc.ym!==S.ym)touch(cutc.ym)}
   touch();render();toast(`${n} sel ditempel${mode==="values"?" (hanya nilai)":mode==="format"?" (hanya format)":""}`,"Urungkan",undo);
 }
 function clipOwner(){if(!gridActive()&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest(".sheet tbody td")))return false;const a=document.activeElement,R=rect();if(!R)return false;
@@ -2003,13 +2119,13 @@ function pasteDropdown(){if(!canWrite())return;const R=rect(),b=curB();if(!R||!b
 /* ---- rows ---- */
 function rangeRows(){const R=rect();if(!R)return [];return R.rows.map(rowById).filter(Boolean)}
 function insertRow(where){if(!canWrite())return;const R=rect(),rs=curRows();if(!R||!rs)return;const rk=where==="above"?R.rows[0]:R.rows[R.rows.length-1];let r=rowById(rk),nr;pushUndo(true);
-  if(!r){const d=+rk.slice(1);nr={id:rid(),d};const li=rs.map(x=>x.d).lastIndexOf(d);rs.splice(li<0?rs.length:li+1,0,nr)}
+  if(!r){const d=+rk.slice(1);const keep={id:rid(),d};nr={id:rid(),d};const li=rs.map(x=>x.d).lastIndexOf(d);rs.splice(li<0?rs.length:li+1,0,...(where==="above"?[nr,keep]:[keep,nr]))} /* the date's single row stays, plus the new one */
   else{nr={id:rid(),d:r.d};const i=rs.indexOf(r);rs.splice(where==="above"?i:i+1,0,nr)}
   S.cs.a=S.cs.f={rk:nr.id,ck:S.cs.f.ck};S.cs.a=Object.assign({},S.cs.f);touch();S.refocus=Object.assign({},S.cs.f);render();toast("1 baris disisipkan di tanggal "+nr.d,"Urungkan",undo)}
 /* delete the selected rows like Google Sheets: content rows go away; an empty row goes too (a date with no rows left disappears from this sheet) */
 function deleteRows(){if(!canWrite())return;const R=rect(),rs=curRows(),b=curB();if(!R||!rs)return;
   const rows=R.rows.map(rowById).filter(Boolean);
-  if(!rows.length){toast("Baris kosong tidak dihapus: setiap tanggal selalu punya 1 baris kosong");return}
+  if(!rows.length){toast("Baris ini tidak dihapus: setiap tanggal selalu punya minimal 1 baris");return}
   pushUndo(true);rows.forEach(r=>{const i=rs.indexOf(r);if(i>=0)rs.splice(i,1)});
   S.cs=null;touch();render();toast(`${rows.length} baris dihapus`,"Urungkan",undo)}
 function hideDates(){} /* deleting rows no longer hides a date */
@@ -3201,6 +3317,11 @@ window.addEventListener("beforeunload",e=>{flushTyping();if(hasPending()){e.prev
 window.addEventListener("online",()=>{retryN=0;if(hasPending()){setSync("wait","Tersambung lagi · mengirim…");retryAll()}else setSync("ok","Tersimpan")});
 window.addEventListener("offline",()=>setSync("bad",offlineMsg()));
 let unsubMonth=null,monthTimer=null;
+/* on first open: if this month is still empty, go to the nearest month that already has content (later months first) */
+async function openFilledMonth(from){if(!DB.db)return;
+  for(const k of [1,2,3,-1,-2,-3,4,5,6]){const ym=ymAdd(from,k);let q;try{q=await tmo(DB.db.collection(`months/${ym}/tabs`).get(),15000)}catch(_){return}
+    if(S.ym!==from)return; /* the user already moved to another month */
+    if(q.docs.some(d=>((d.data()||{}).rows||[]).some(hasContent))){S.ym=ym;S.cs=null;subMonth(ym);render();toast(`${ymLabel(from)} masih kosong · membuka ${ymLabel(ym)}`,"Kembali ke "+BULAN[+from.slice(5)-1],()=>{S.ym=from;subMonth(from);render()});return}}}
 function subMonth(ym){
   if(unsubMonth){unsubMonth();unsubMonth=null}
   if(!DB.db)return;
@@ -3215,7 +3336,7 @@ function subMonth(ym){
     q.docs.forEach(d=>{const v=d.data();if(v.meta)metaM[v.code]=JSON.parse(JSON.stringify(v.meta));(byTab[v.code]=byTab[v.code]||[]).push([v.week,v.rows||[]])});
     const m={};for(const [code,arr] of Object.entries(byTab))m[code]=JSON.parse(JSON.stringify(arr.sort((a,b)=>a[0]-b[0]).flatMap(x=>x[1])));
     S.data[ym]=m;S.meta[ym]=metaM;if(!S.ro&&!S.roUnknown&&normalizeRows(ym))setTimeout(()=>{if(!S.ro){S.quietLog=true;touch(ym)}},900);
-    if(first&&S.loaded[ym]){migrateLegacy(ym);restoreTyping(ym)}
+    if(first&&S.loaded[ym]){migrateLegacy(ym);restoreTyping(ym);if(ym===S.ym&&!S.autoMonth){S.autoMonth=true;if(!all().some(b=>(m[b.code]||[]).some(hasContent)))openFilledMonth(ym)}}
     if(ym===S.ym){if(sheetBusy())S.needRender=true;else render()}
   },err=>{S.err=dbErr(err);S.loaded[ym]=true;setSync("bad","Tidak tersambung");render()});
 }
@@ -3237,7 +3358,7 @@ async function migrateLegacy(ym){
 /* ---- settings shared by everyone: colors, lists, motif & PID lists, PIC/talent, column widths, font, logos ---- */
 function settingsObj(){return {brands:S.brands.map(b=>({code:b.code,name:b.name,abbr:b.abbr,color:b.color,pics:b.pics||[],talents:b.talents||[],motifLib:b.motifLib||[],logo:b.logo||null,thOn:!!b.thOn})),
   channels:S.channels.map(c=>({code:c.code,name:c.name,abbr:c.abbr,sub:c.sub,color:c.color,pics:c.pics||[],logo:c.logo||null,thOn:!!c.thOn})),
-  lists:S.lists,listDel:S.listDel,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
+  lists:S.lists,listDel:S.listDel,oldSheets:S.oldSheets,theme:S.theme,stripe:S.stripe,optColor:S.optColor,campaigns:S.campaigns,promo:S.promo,sideColor:S.sideColor,accent:S.accent,sideCustom:!!S.sideCustom,accentCustom:!!S.accentCustom,
   logo:S.logo||null,colW:S.colW,font:S.font,sheet:S.sheet,migrated:S.migrated||{},cols:S.cols,sharedFilters:S.sharedFilters,frz:S.frz,frzR:S.frzR,cf:S.cf,tpl:S.tpl,theme2:true,theme3:true,aiTone:S.aiTone}}
 let lastSettings="",setT=null;
 function applySettings(d){
@@ -3247,6 +3368,9 @@ function applySettings(d){
   if(d.lists)Object.assign(S.lists,d.lists);
   if(d.optColor)Object.assign(S.optColor,d.optColor);
   if(Array.isArray(d.listDel)){S.listDel=d.listDel.slice();S.listDel.forEach(k=>{if(LIST_LABEL[k])return;if(!(d.lists&&d.lists[k]&&d.lists[k].length)){delete S.lists[k];delete S.optColor[k]}})}
+  if(d.oldSheets&&typeof d.oldSheets==="object")S.oldSheets=Object.assign({},d.oldSheets);
+  if(d.theme&&typeof d.theme==="object")S.theme=Object.assign({},d.theme);
+  if(d.stripe&&typeof d.stripe==="object")S.stripe=JSON.parse(JSON.stringify(d.stripe));
   if(Array.isArray(d.campaigns))S.campaigns=d.campaigns;
   if(d.colW)S.colW=Object.assign({tt:{},ig:{}},d.colW);
   if(d.cols&&typeof d.cols==="object")S.cols=JSON.parse(JSON.stringify(d.cols));
@@ -3464,7 +3588,7 @@ document.addEventListener("click",e=>{
   const a=e.target.closest("[data-campadd]");if(a){S.campaigns.push({name:"Campaign baru",color:CSW[S.campaigns.length%CSW.length],kw:""});render();return}
   const d=e.target.closest("[data-campdel]");if(d){S.campaigns.splice(+d.dataset.campdel,1);render()}});
 /* ---- links: #beranda, #pengaturan, #b-KODE ---- */
-function viewFromHash(){const h=decodeURIComponent(location.hash.slice(1));if(h==="pengaturan")return S.ro?"beranda":"pengaturan";if(h.startsWith("b-")&&byCode(h.slice(2)))return h.slice(2);return "beranda"}
+function viewFromHash(){const h=decodeURIComponent(location.hash.slice(1));if(h==="lama")return "lama";if(h==="pengaturan")return S.ro?"beranda":"pengaturan";if(h.startsWith("b-")&&byCode(h.slice(2)))return h.slice(2);return "beranda"}
 window.addEventListener("hashchange",()=>{const v=viewFromHash();if(v!==S.view){S.view=v;S.cs=null;render()}});
 
 /* ---- start ---- */

@@ -45,7 +45,7 @@
   async function onCredential(resp) {
     const token = resp && resp.credential; if (!token) return;
     const p = jwtPayload(token);
-    const tmp = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: p.email || "", role: "Viewer", canEdit: false };
+    const tmp = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: p.email || "", role: "Viewer", canEdit: false, picture: p.picture || "" };
     auth = tmp;
     try {
       const me = await api("me");
@@ -71,14 +71,18 @@
     if (gisReady || !(window.google && google.accounts && google.accounts.id)) return false;
     if (!CFG.CLIENT_ID) { renderAuth(); return true; }
     google.accounts.id.initialize({ client_id: CFG.CLIENT_ID, callback: onCredential, auto_select: true, cancel_on_tap_outside: true, use_fedcm_for_prompt: true });
-    gisReady = true; renderAuth(); window.dispatchEvent(new Event("cp-gis")); if (!auth) promptLogin(); return true;
+    gisReady = true; renderAuth(); window.dispatchEvent(new Event("cp-gis"));
+    /* belum login → minta login; login lama tanpa foto profil → login ulang diam-diam sekali supaya fotonya ikut tampil */
+    if (!auth) promptLogin();
+    else if (isSess(auth) && !auth.picture && !sessionStorage.getItem("cp-picask")) { try { sessionStorage.setItem("cp-picask", "1"); } catch (_) {} promptLogin(); }
+    return true;
   }
   (function waitGis(n) { if (!initGis() && n < 100) setTimeout(() => waitGis(n + 1), 150); })(0);
 
   function renderAuth() {
     const box = document.getElementById("authBox"); if (!box) return;
     if (auth) {
-      box.innerHTML = `<div class="authme" title="${esc(auth.email)}"><span class="authav">${esc((auth.email || "?")[0].toUpperCase())}</span><span class="authtx"><b>${esc(auth.email)}</b><small>${esc(auth.canEdit ? auth.role : "Viewer · baca saja")}</small></span><button type="button" data-cplogout title="Keluar" aria-label="Keluar">⎋</button></div>`;
+      box.innerHTML = `<div class="authme" title="${esc(auth.email)}"><span class="authav">${/^https:\/\/[a-z0-9.-]*googleusercontent\.com\//i.test(auth.picture || "") ? `<img src="${esc(auth.picture)}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : esc((auth.email || "?")[0].toUpperCase())}</span><span class="authtx"><b>${esc(auth.email)}</b><small>${esc(auth.canEdit ? auth.role : "Viewer · baca saja")}</small></span><button type="button" data-cplogout title="Keluar" aria-label="Keluar">⎋</button></div>`;
     } else if (!CFG.CLIENT_ID) {
       box.innerHTML = `<small class="authnote">Login belum diatur (CLIENT_ID di config.js)</small>`;
     } else {
@@ -225,7 +229,7 @@
   const team = {
     kind: "server",
     me: () => auth,
-    ping: (page, since) => api("ping", { gid, page, since }),
+    ping: (page, since) => api("ping", { gid, page, since, pic: (auth && auth.picture) || "" }),
     setNick: async nick => { const j = await api("nick", { nick }); if (auth) { auth.nick = j.nick; setAuth(auth); } return j.nick; },
     log: items => api("log", { items })
   };
