@@ -985,7 +985,9 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 @keyframes jin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 /* ==== sheet lama ==== */
 .hello-act .mnav{display:flex;gap:6px}.hello-act .mnav button{width:34px;height:34px;border-radius:50%;border:0;background:var(--raised);color:var(--ink);box-shadow:var(--sh-card);cursor:pointer}
-.oldwrap{padding:8px}.oldframe{display:block;width:100%;height:calc(100vh - 260px);min-height:420px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.oldwrap{padding:8px}.ozbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 8px}.ozbar b{min-width:46px;text-align:center;font-variant-numeric:tabular-nums}.ozhint{margin-left:auto}
+.oldbox{--oz:1;position:relative;height:calc(100vh - 290px);min-height:420px;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#fff}
+.oldframe{position:absolute;left:0;top:0;border:0;width:calc(100% / var(--oz));height:calc(100% / var(--oz));transform:scale(var(--oz));transform-origin:0 0;background:#fff}
 /* ==== jumlah konten per PIC ==== */
 .card.picsum{max-width:560px}.pictbl td{padding:8px}.pictbl .num{text-align:right;font-variant-numeric:tabular-nums;width:1%;white-space:nowrap;font-weight:700}
 .pictbl th.num{font-weight:400}.pictbl tfoot td{font-weight:800;border-top:2px solid var(--ink)}
@@ -1762,13 +1764,19 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
 }
 /* ---- Sheet lama: the old content plan spreadsheet of a month, shown as it is (view only). One link per month, set by the owner ---- */
 S.oldSheets={};
+/* zoom of the old sheet (this device only): the frame is scaled inside a fixed box, so the page, sidebar and the sheet's own tabs stay put */
+S.oz=(()=>{const v=parseFloat(lsGet("cp-oldzoom","1"));return v>=.3&&v<=2.5?v:1})();
+function setOldZoom(z){z=Math.round(Math.min(2.5,Math.max(.3,z))*100)/100;S.oz=z;lsSet("cp-oldzoom",String(z));const box=document.querySelector(".oldbox");if(box)box.style.setProperty("--oz",z);
+  const t=document.querySelector("[data-ozv]");if(t)t.textContent=Math.round(z*100)+"%"}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-oz]");if(!b)return;const v=b.dataset.oz;setOldZoom(v==="1"?1:S.oz+(+v))});
 function oldSheetInfo(url){const m=/\/spreadsheets\/d\/([a-zA-Z0-9_-]{20,})/.exec(String(url||""));if(!m)return null;const g=/[#&?]gid=(\d+)/.exec(url);
   return {view:`https://docs.google.com/spreadsheets/d/${m[1]}/htmlview?rm=minimal${g?"&gid="+g[1]:""}`,open:`https://docs.google.com/spreadsheets/d/${m[1]}/edit${g?"#gid="+g[1]:""}`}}
 function oldPage(){const url=S.oldSheets[S.ym]||"",inf=oldSheetInfo(url),own=S.isOwner&&!S.ro;
   return `<section class="hello"><div><h1>Sheet lama · ${esc(ymLabel(S.ym))}</h1><p>Spreadsheet content plan lama bulan ini, tampil persis seperti aslinya (hanya lihat). Ganti bulan dengan tombol ‹ ›.</p></div>
     <div class="hello-act"><div class="mnav"><button data-month="-1" aria-label="Bulan sebelumnya">‹</button><button data-month="1" aria-label="Bulan berikutnya">›</button></div>${inf?`<a class="btn" href="${esc(inf.open)}" target="_blank" rel="noopener">Buka di Google Sheets ↗</a>`:""}</div></section>
   ${own?`<section class="card" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label class="field" style="flex:1;min-width:240px;margin:0">Link spreadsheet lama untuk ${esc(ymLabel(S.ym))}<input class="cin" id="oldIn" value="${esc(url)}" placeholder="https://docs.google.com/spreadsheets/d/…" style="border:1px solid var(--line)"></label><button class="btn acc press" data-oldsave>Simpan link</button>${url?`<button class="btn" data-olddel>Hapus link</button>`:""}</section>`:""}
-  ${inf?`<section class="card oldwrap"><iframe class="oldframe" src="${esc(inf.view)}" title="Spreadsheet lama ${esc(ymLabel(S.ym))}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+  ${inf?`<section class="card oldwrap"><div class="ozbar"><span class="sub">Zoom sheet</span><button class="btn sm" data-oz="-0.1" aria-label="Perkecil sheet">−</button><b data-ozv>${Math.round(S.oz*100)}%</b><button class="btn sm" data-oz="0.1" aria-label="Perbesar sheet">+</button><button class="btn sm" data-oz="1">100%</button><span class="sub ozhint">Ctrl+scroll di luar sheet atau Ctrl + / − juga bisa</span></div>
+    <div class="oldbox" style="--oz:${S.oz}"><iframe class="oldframe" src="${esc(inf.view)}" title="Spreadsheet lama ${esc(ymLabel(S.ym))}" loading="lazy" referrerpolicy="no-referrer"></iframe></div>
     <p class="note" style="margin:8px 0 0">Tidak tampil? Pastikan kamu sudah login Google di browser ini dan punya akses ke spreadsheet itu, lalu pakai tombol "Buka di Google Sheets".</p></section>`
    :`<section class="card empty"><b>Belum ada sheet lama untuk ${esc(ymLabel(S.ym))}</b><p>${own?"Tempel link spreadsheet lama di atas lalu klik Simpan link.":"Pemilik dashboard belum menautkan spreadsheet lama untuk bulan ini."}</p></section>`}`}
 document.addEventListener("click",e=>{
@@ -3677,8 +3685,10 @@ function setZoom(z,quiet){const old=zoom;z=Math.min(ZMAX,Math.max(ZMIN,z));let m
   if(z<old){ if(zFits()){applyZoom(old);if(!quiet)zPill(Math.round(old*100)+"% · semua isi sudah terlihat");return}
     applyZoom(z); if(zFits()){let lo=z,hi=old;for(let i=0;i<7;i++){const m=(lo+hi)/2;applyZoom(m);zFits()?lo=m:hi=m}z=Math.floor(lo*100)/100;msg=" · semua isi terlihat"} }
   applyZoom(Math.round(z*100)/100);document.getElementById("zoomLbl").textContent=Math.round(zoom*100)+"%";if(!quiet)zPill(Math.round(zoom*100)+"%"+msg)}
-window.addEventListener("wheel",e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const st=zoom<.5?.05:.1;setZoom(zoom+(e.deltaY<0?st:-st))},{passive:false});
-window.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey))return;if(e.key==="="||e.key==="+"){e.preventDefault();setZoom(zoom+.1)}else if(e.key==="-"||e.key==="_"){e.preventDefault();setZoom(zoom-(zoom<=.5?.05:.1))}else if(e.key==="0"){e.preventDefault();setZoom(1)}});
+/* on the Sheet lama page, Ctrl+scroll / Ctrl ± / Ctrl 0 zoom only the old spreadsheet (sidebar and page stay as they are) */
+const oldView=()=>S.view==="lama"&&!!document.querySelector(".oldbox");
+window.addEventListener("wheel",e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();if(oldView()){setOldZoom(S.oz+(e.deltaY<0?.1:-.1));return}const st=zoom<.5?.05:.1;setZoom(zoom+(e.deltaY<0?st:-st))},{passive:false});
+window.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey))return;const ov=oldView();if(e.key==="="||e.key==="+"){e.preventDefault();ov?setOldZoom(S.oz+.1):setZoom(zoom+.1)}else if(e.key==="-"||e.key==="_"){e.preventDefault();ov?setOldZoom(S.oz-.1):setZoom(zoom-(zoom<=.5?.05:.1))}else if(e.key==="0"){e.preventDefault();ov?setOldZoom(1):setZoom(1)}});
 document.addEventListener("click",e=>{if(e.target.closest("[data-zreset]"))setZoom(1)});
 /* pinch with two fingers (phone / tablet) */
 let pinch=null;const tDist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
