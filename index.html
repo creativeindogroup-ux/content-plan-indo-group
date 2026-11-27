@@ -2103,7 +2103,7 @@ function richEd(){return document.querySelector(".sheet .rted")}
 function openRich(c,selA,selB,plain){const td=c.closest("td[data-col]");if(!td||richEd())return false;const k=keyOfTd(td),r=rowById(k.rk),col=colByKey(k.ck);if(!col)return false;
   const text=plain!=null?plain:String(r?r[col.key]??"":c.value),runs=r&&(plain==null||plain===String(r[col.key]??""))?rtOf(r,col.key):null;
   const ed=document.createElement("div");ed.className="rted";ed.contentEditable="true";ed.spellcheck=false;ed.dataset.rk=k.rk;ed.dataset.ck=k.ck;ed.dataset.orig=JSON.stringify([text,runs]);
-  const cs=getComputedStyle(c);["paddingTop","paddingRight","paddingBottom","paddingLeft","fontSize","fontFamily","fontWeight","lineHeight","textAlign","color","fontStyle","textDecoration"].forEach(p=>ed.style[p]=cs[p]);
+  const cs=getComputedStyle(c);["paddingTop","paddingRight","paddingBottom","paddingLeft","fontSize","fontFamily","fontWeight","lineHeight","textAlign","fontStyle","textDecoration"].forEach(p=>ed.style[p]=cs[p]);ed.style.color=inkOf(c);
   ed.style.minHeight=c.offsetHeight+"px";ed.innerHTML=runs?rtHtml(runs):esc(text);c.style.display="none";td.querySelectorAll(".rtv").forEach(x=>x.style.display="none");c.after(ed);td.classList.add("rtediting");
   ed.focus({preventScroll:true});S.fresh=false;
   /* caret / selection by character offsets (end of the text by default) */
@@ -2799,9 +2799,13 @@ function applyFreeze(){const w=document.querySelector(".sheet-wrap[data-code]");
 const FS=!!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content"));
 function autoSizeOne(t){if(FS||!t||t.closest('[data-wr="clip"]'))return;t.style.height="auto";t.style.height=t.scrollHeight+"px"}
 function autoSize(){if(FS)return;const tas=[...document.querySelectorAll(".sheet textarea.cin")].filter(t=>!t.closest('[data-wr="clip"]'));tas.forEach(t=>t.style.height="auto");const hs=tas.map(t=>t.scrollHeight);tas.forEach((t,i)=>t.style.height=hs[i]+"px");syncRt()}
+/* text color of a cell: the textarea's own color, unless it was made transparent for the styled layer (then the cell's color) */
+function inkOf(t){const td=t.closest("td");const own=getComputedStyle(t).color;if(!t.classList.contains("hasrt")&&!/rgba\([^)]*,\s*0\)|transparent/.test(own))return own;
+  const fc=td&&td.style.getPropertyValue("--fc").trim();if(fc)return fc;
+  const c=td?getComputedStyle(td).color:"";return c&&!/rgba\([^)]*,\s*0\)|transparent/.test(c)?c:"var(--ink)"}
 /* the styled text layer sits exactly over its (transparent) textarea */
 function syncRt(){document.querySelectorAll(".sheet .rtv").forEach(v=>{const t=v.previousElementSibling;if(!t||t.tagName!=="TEXTAREA")return;const cs=getComputedStyle(t);
-  Object.assign(v.style,{left:t.offsetLeft+"px",top:t.offsetTop+"px",width:t.offsetWidth+"px",minHeight:t.offsetHeight+"px",paddingTop:cs.paddingTop,paddingRight:cs.paddingRight,paddingBottom:cs.paddingBottom,paddingLeft:cs.paddingLeft,fontSize:cs.fontSize,fontFamily:cs.fontFamily,lineHeight:cs.lineHeight,textAlign:cs.textAlign,color:cs.color,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,textDecoration:cs.textDecorationLine})})}
+  Object.assign(v.style,{left:t.offsetLeft+"px",top:t.offsetTop+"px",width:t.offsetWidth+"px",minHeight:t.offsetHeight+"px",paddingTop:cs.paddingTop,paddingRight:cs.paddingRight,paddingBottom:cs.paddingBottom,paddingLeft:cs.paddingLeft,fontSize:cs.fontSize,fontFamily:cs.fontFamily,lineHeight:cs.lineHeight,textAlign:cs.textAlign,color:inkOf(t),fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,textDecoration:cs.textDecorationLine})})}
 /* typing over a styled cell (type-to-replace) shows the plain text being typed */
 document.addEventListener("input",e=>{const t=e.target;if(t.classList&&t.classList.contains("hasrt")){t.classList.remove("hasrt");const v=t.nextElementSibling;if(v&&v.classList.contains("rtv"))v.remove()}},true);
 /* toolbar drop-down menus */
