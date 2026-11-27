@@ -983,6 +983,27 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .jtoast{position:fixed;right:16px;top:64px;z-index:9999;display:flex;align-items:center;gap:10px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 14px 8px 8px;box-shadow:0 8px 28px rgba(0,0,0,.16);font-size:13px;max-width:min(360px,calc(100vw - 32px));animation:jin .25s ease}
 .jtoast .jav{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:700;background:var(--c);overflow:hidden}.jtoast .jav img{width:100%;height:100%;object-fit:cover}
 @keyframes jin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+/* ==== Drive chips & link preview card ==== */
+.sheet a.lnk.dchip{display:inline-flex;align-items:center;gap:5px;max-width:calc(100% - 10px);margin:4px 5px;padding:2px 9px 2px 6px;border-radius:999px;background:color-mix(in srgb,var(--ink) 7%,var(--raised));border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:11.5px;font-weight:600}
+.sheet a.lnk.dchip .dnm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sheet a.lnk.dchip .dico{display:inline-flex;flex:none}
+.lnkpv{position:fixed;z-index:10000;width:320px;max-width:calc(100vw - 16px);background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.18);padding:10px 12px;font-size:12.5px}
+.lnkpv .pvh{display:flex;align-items:center;gap:8px}.lnkpv .pvi{display:inline-flex;flex:none;color:var(--muted)}
+.lnkpv .pvt{flex:1;min-width:0;font-weight:700;color:#1a73e8;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lnkpv .pvt:hover{text-decoration:underline}
+.lnkpv .pvb{display:flex;gap:2px;flex:none}.lnkpv .pvb button{border:0;background:none;color:var(--muted);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:14px}.lnkpv .pvb button:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+.lnkpv .pvu{color:var(--muted);font-size:11.5px;margin:2px 0 0 24px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lnkpv .pvimg{display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000;text-align:center}.lnkpv .pvimg img{max-width:100%;max-height:200px;display:inline-block;vertical-align:top}
+.lnkpv .pvl{color:var(--muted);margin-top:8px;font-size:11.5px}
+.lnkpv .pvc{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11.5px;color:var(--muted)}.lnkpv .pvc button{border:1px solid var(--line);background:var(--raised);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer;font-size:11.5px}.lnkpv .pvc button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+/* ==== rich text in a cell: styled layer over the transparent textarea, editor box while editing ==== */
+.sheet td:not(.stk):has(.rtv){position:relative}
+.sheet textarea.cin.hasrt{color:transparent!important;caret-color:var(--ink)}
+.sheet .rtv{position:absolute;pointer-events:none;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;overflow:hidden;box-sizing:border-box;margin:0;z-index:1}
+.sheet .rted{display:block;width:100%;box-sizing:border-box;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;outline:2px solid var(--accent);outline-offset:-2px;background:var(--raised);cursor:text;min-width:0;position:relative;z-index:3}
+.sheet td.rtediting{overflow:visible}
+/* ==== date & day stay visible while scrolling through a long day ==== */
+.sheet td.tgl.multi,.sheet td.hari.multi{vertical-align:top}
+.sheet td.tgl .dstk,.sheet td.hari .dstk{position:sticky;top:calc(var(--thh,52px) + 4px);display:flex;flex-direction:column;align-items:center;gap:1px}
+.sheet td.tgl.multi .dstk,.sheet td.hari.multi .dstk{padding-top:4px}
 /* ==== sheet lama ==== */
 .hello-act .mnav{display:flex;gap:6px}.hello-act .mnav button{width:34px;height:34px;border-radius:50%;border:0;background:var(--raised);color:var(--ink);box-shadow:var(--sh-card);cursor:pointer}
 .oldwrap{padding:8px}.ozbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 8px}.ozbar b{min-width:46px;text-align:center;font-variant-numeric:tabular-nums}.ozhint{margin-left:auto}
@@ -1367,7 +1388,7 @@ function joinToast(x){const t=document.createElement("div");t.className="jtoast"
   t.innerHTML=`${avHtml(x,"jav")}<span><b>${esc(x.name||"Seseorang")}</b> bergabung${x.page?` · ${esc(x.page)}`:""}</span>`;
   document.querySelectorAll(".jtoast").forEach((o,i)=>{o.style.top=(64+(i+1)*54)+"px"});document.body.appendChild(t);setTimeout(()=>t.remove(),5000)}
 function actCard(){const all_=S.team.acts||[],show=S.actAll?all_:all_.slice(0,20);
-  return `<article class="panel actw"><div class="phead"><div><h2>Aktivitas</h2><p>Perubahan oleh tim · 30 hari terakhir</p></div></div>${show.length?`<div class="alist">${show.map(a=>{const b=byCode(a.code);return `<button class="aitem" ${b?`data-go="${esc(a.code)}" ${a.rowId?`data-jump="${esc(a.rowId)}"`:""} ${a.ym?`data-jym="${esc(a.ym)}"`:""}`:""}><span class="aav" style="--c:${nameColor(a.nick+a.by)}">${esc(String(a.nick||"?").charAt(0).toUpperCase())}</span><span class="atx"><span><b>${esc(a.nick||"Tim")}</b> ${esc(a.text)}${b?` · ${esc(b.ig?"Instagram":b.name)}`:""}</span><small>${esc(agoTxt(a.t))}</small></span></button>`}).join("")}</div>`:`<p class="sub" style="margin:0">Belum ada aktivitas. Perubahan di tabel akan muncul di sini.</p>`}${!S.actAll&&all_.length>20?`<button class="btn full" data-actall style="margin-top:10px">Lihat semua (${all_.length})</button>`:""}</article>`}
+  return `<article class="panel actw"><div class="phead"><div><h2>Aktivitas</h2><p>Perubahan oleh tim · 30 hari terakhir</p></div></div>${show.length?`<div class="alist">${show.map(a=>{const b=byCode(a.code);return `<button class="aitem" ${b?`data-go="${esc(a.code)}" ${a.rowId?`data-jump="${esc(a.rowId)}"`:""} ${a.ym?`data-jym="${esc(a.ym)}"`:""}`:""}><span class="aav" style="--c:${nameColor(a.nick+a.by)}">${esc(String(a.nick||"?").charAt(0).toUpperCase())}</span><span class="atx"><span><b>${esc(a.nick||"Tim")}</b> ${esc(a.text)}${b&&!String(a.col||"").startsWith("view:")?` · ${esc(b.ig?"Instagram":b.name)}`:""}</span><small>${esc(agoTxt(a.t))}</small></span></button>`}).join("")}</div>`:`<p class="sub" style="margin:0">Belum ada aktivitas. Perubahan di tabel akan muncul di sini.</p>`}${!S.actAll&&all_.length>20?`<button class="btn full" data-actall style="margin-top:10px">Lihat semua (${all_.length})</button>`:""}</article>`}
 /* activity from what this person changed: compares the saved month with the one about to be written */
 const SKIPK=new Set(["fmt","rh","mg","id","d"]);
 const emptyV=v=>v==null||v===""||v===false||(Array.isArray(v)&&!v.length)||(typeof v==="object"&&!Array.isArray(v)&&!Object.keys(v).length);
@@ -1474,7 +1495,7 @@ function setCellText(r,col,txt,b){txt=String(txt??"");
   if(col.type==="date"){const t=txt.trim();const m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);r[col.key]=m?m[3]+"-"+pad2(+m[2])+"-"+pad2(+m[1]):t;return}
   r[col.key]=(col.type==="long"||col.type==="text")?txt:txt.replace(/\n/g," ");
 }
-function clearCell(r,col){if(col.type==="check")r[col.key]=false;else if(col.type==="motif")r.motifs=[];else if(col.type==="shot")r.shot="";else r[col.key]="";if(r.fmt)delete r.fmt[col.key];if(r.notes)delete r.notes[col.key];if(r.lk)delete r.lk[col.key]}
+function clearCell(r,col){if(col.type==="check")r[col.key]=false;else if(col.type==="motif")r.motifs=[];else if(col.type==="shot")r.shot="";else r[col.key]="";if(r.fmt)delete r.fmt[col.key];setRt(r,col.key,null);if(r.notes)delete r.notes[col.key];if(r.lk)delete r.lk[col.key]}
 
 /* ---- filters: per column like Google Sheets; for me only (this browser) or for the whole team ---- */
 S.pf={};S.sharedFilters={};
@@ -1496,14 +1517,16 @@ function cellHtml(col,v,ctx){
   /* text cells are wrapping text areas: the row grows to fit a long script, like "Wrap" in Google Sheets; a value starting with = is a formula */
   const f0=fmtOf(v,key);
   const TA=(extra,c2)=>{const raw=String(val),fm=isFml(raw)&&f0.nf!=="text",disp=fm||f0.nf?cellDisplay(raw,f0):raw;if(isFml(raw))S.hasF=true;const alt=fm||disp!==raw,nv=f0.nf&&f0.nf!=="text"&&disp!==raw;
-    return `<textarea class="cin ${c2||""}${nv?" numv":""}" ${F} rows="1" spellcheck="false" ${extra||""} ${alt?`data-raw="${esc(raw)}" data-disp="${esc(disp)}"`:""} aria-label="${esc(col.label)}">${esc(disp)}</textarea>`};
+    const runs=(col.type==="text"||col.type==="long")&&!alt?rtOf(v,key):null;
+    return `<textarea class="cin ${c2||""}${nv?" numv":""}${runs?" hasrt":""}" ${F} rows="1" spellcheck="false" ${extra||""} ${alt?`data-raw="${esc(raw)}" data-disp="${esc(disp)}"`:""} aria-label="${esc(col.label)}">${esc(disp)}</textarea>${runs?`<div class="rtv" aria-hidden="true">${rtHtml(runs)}</div>`:""}`};
   switch(col.type){
     case "check":cls+=" ctr";inner=`<input type="checkbox" ${F} ${val?"checked":""} aria-label="${esc(col.label)}">`;break;
     case "dropdown":inner=selHtml(colList(col,b),val,key==="st"?"st-"+stClass(val):"",key)+(key==="pil"&&ctx.tag?`<span class="camp-tag">${esc(ctx.tag)}</span>`:"");break;
     case "brand":{const br=byCode(val);inner=`<span class="bdot" style="--bc:${br?br.color:"var(--line)"}"><i></i>${selHtml("brand",val,"",key)}</span>`;break}
     case "motif":cls+=" w-mot";inner=motifCell(v,byCode(v.brand)||(b.ig?null:b),b.ig);break;
     case "shot":cls+=" shot";inner=v.shot?`<a class="thumb" href="${esc(blobUrl(v.shot))}" target="_blank" rel="noopener" title="Buka screenshot"><img src="${esc(blobUrl(v.shot))}" alt="Screenshot"></a><button class="shotx" data-shotdel title="Hapus screenshot" aria-label="Hapus screenshot">✕</button>`:v.id?`<label class="btn sm press">Upload<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-shot hidden></label>`:"";break;
-    case "link":{cls+=" w-link";const url=linkUrl(val);if(url)cls+=" haslink";inner=TA()+(url?`<a class="lnk" href="${esc(url)}" target="_blank" rel="noopener" title="${esc(url)}">${esc(shortUrl(url))}</a>`:"");break}
+    case "link":{cls+=" w-link";const url=linkUrl(val);if(url)cls+=" haslink";const ch=url&&driveIdOf(url)&&v.chip&&v.chip[key];if(ch)cls+=" haschip";
+      inner=TA()+(url?(ch?`<a class="lnk dchip" href="${esc(url)}" target="_blank" rel="noopener"><span class="dico">${driveIcon(ch.m,ch.f)}</span><span class="dnm">${esc(ch.n||"File Google Drive")}</span></a>`:`<a class="lnk" href="${esc(url)}" target="_blank" rel="noopener">${esc(shortUrl(url))}</a>`):"");break}
     case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=key==="scr"?TA(`placeholder="Hook · Body · CTA"`)+(v.id?`<button class="aibtn" data-ai title="Buat script dari Ide/Brief dengan AI" aria-label="Buat script dengan AI">✨</button>`:""):TA(key==="brief"||key==="ide"?`placeholder="Tulis ide / brief konten…"`:"");break;
     case "number":inner=TA('inputmode="decimal"',"num");break;
     case "date":inner=`<input class="cin" type="date" ${F} value="${esc(val)}" aria-label="${esc(col.label)}">`;break;
@@ -1522,12 +1545,12 @@ function motifCell(v,br,ig){
     const m=br&&name?findMotif(br.code,name):null;
     if(ig){/* Instagram: product name only, no PID */
       const info=name&&br&&!m?`<small class="pid miss">Belum ada di daftar ${esc(br.name)} <button class="addmot" data-addmot="${br.code}" data-name="${esc(name)}">+ Tambahkan ke daftar</button></small>`:"";
-      return `<div class="mslot"><input class="cin min" list="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ produk "+(i+1):"Ketik produk…"}" autocomplete="off" aria-label="Produk ${i+1}">${info}</div>`}
+      return `<div class="mslot"><input class="cin min" data-mlist="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ produk "+(i+1):"Ketik produk…"}" autocomplete="off" aria-label="Produk ${i+1}">${info}</div>`}
     const pid=m?[m.ih&&"IH "+m.ih,m.lv&&"LV "+m.lv,m.af&&"AF "+m.af,m.kl&&"KL "+m.kl].filter(Boolean).join(" · "):"";
     const use=(v.pidUse&&v.pidUse[m?m.name:""])||[];
     const info=!name?"":m?(pid?`<div class="pids" title="Centang PID yang dipakai untuk konten ini">${["ih","lv","af","kl"].filter(k=>m[k]).map(k=>{const on=use.includes(k);return `<span class="pidw"><label class="pidc ${on?"on":""}"><input type="checkbox" data-pidk="${k}" data-pidm="${esc(m.name)}" ${on?"checked":""} ${v.id?"":"disabled"} aria-label="Pakai PID ${k.toUpperCase()} ${esc(m[k])}"><b>${k.toUpperCase()}</b>${esc(m[k])}</label><button type="button" class="pidcp" data-copy="${esc(m[k])}" data-copyk="${k.toUpperCase()}" title="Salin PID ${k.toUpperCase()}" aria-label="Salin PID ${k.toUpperCase()} ${esc(m[k])}">⧉</button></span>`}).join("")}</div>`:`<small class="pid">PID belum diisi di daftar ${esc(br.name)}</small>`)
       :br?`<small class="pid miss">Belum ada di daftar ${esc(br.name)} <button class="addmot" data-addmot="${br.code}" data-name="${esc(name)}">+ Tambahkan ke daftar</button></small>`:`<small class="pid">Pilih Brand dulu agar PID terdeteksi</small>`;
-    return `<div class="mslot"><input class="cin min" list="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ motif "+(i+1):"Ketik motif…"}" autocomplete="off" aria-label="Motif ${i+1}">${info}</div>`}).join("")}</div>`;
+    return `<div class="mslot"><input class="cin min" data-mlist="${list}" data-mi="${i}" value="${esc(name)}" placeholder="${i?"+ motif "+(i+1):"Ketik motif…"}" autocomplete="off" aria-label="Motif ${i+1}">${info}</div>`}).join("")}</div>`;
 }
 function motifDatalists(codes,ig){
   const opt=(m,c)=>`<option value="${esc(m.name)}">${esc(ig?((byCode(c)||{}).name||""):[m.ih&&"IH "+m.ih,m.lv&&"LV "+m.lv].filter(Boolean).join(" · ")||"PID belum diisi")}</option>`;
@@ -1572,8 +1595,9 @@ function sheetTable(b,rows,ctx){
       body+=`<tr class="${alt} ${ix===0?"daystart":""} ${r?"":"ghost"} ${c?"camp":""} ${promo?"promo":""}" ${r?`data-id="${r.id}"`:`data-date="${d}"`} data-n="${x.num}" style="${c?`--cc:${c.color};`:""}${r&&r.rh?`height:${+r.rh}px`:""}">`;
       body+=`<td class="rn" title="Baris ${x.num}">${x.num}${r?`<span class="rrz" data-rrz title="Tarik untuk mengubah tinggi baris, klik dua kali untuk otomatis"></span>`:""}</td>`;
       for(const col of cols){
-        if(col.type==="tgl"){if(ix===0)body+=`<td class="tgl ${fz(col.key)} ${isToday(d)?"today":""}" data-k="${col.key}" rowspan="${n2}" ${isToday(d)?'id="todayCell"':""}>${d}${isToday(d)?`<small>HARI INI</small>`:""}</td>`;continue}
-        if(col.type==="hari"){if(ix===0)body+=`<td class="hari ${fz(col.key)} ${isToday(d)?"today":""}" data-k="${col.key}" rowspan="${n2}">${HARI[wd]}</td>`;continue}
+        /* the date & day stick under the column titles while the rows of that day scroll by */
+        if(col.type==="tgl"){if(ix===0)body+=`<td class="tgl ${fz(col.key)} ${isToday(d)?"today":""} ${n2>1?"multi":""}" data-k="${col.key}" rowspan="${n2}" ${isToday(d)?'id="todayCell"':""}><div class="dstk">${d}${isToday(d)?`<small>HARI INI</small>`:""}</div></td>`;continue}
+        if(col.type==="hari"){if(ix===0)body+=`<td class="hari ${fz(col.key)} ${isToday(d)?"today":""} ${n2>1?"multi":""}" data-k="${col.key}" rowspan="${n2}"><div class="dstk">${HARI[wd]}</div></td>`;continue}
         const ck=r?r.id+"|"+col.key:"";if(ck&&cover.has(ck))continue;const sp=ck&&spans[ck];
         body+=cellHtml(col,v,Object.assign({},ctx,{num:x.num,d,tag:c?c.name:promo?"Promo":"",span:sp?`rowspan="${sp[0]}" colspan="${sp[1]}"`:""}));
       }
@@ -1762,6 +1786,63 @@ function settings(){  return `<div class="top"><h1>Pengaturan<small>Semua peruba
     <label class="btn sm press" style="align-self:flex-start">Upload logo${b.ig?"":" brand"}<input type="file" accept="image/*" data-uplogo="${bi}" hidden></label></article>`).join("")}</section>
   ${motifLibCard()}`;
 }
+/* ---- Google Drive links as chips (icon + real file name) or as plain links, chosen per cell like Google Sheets ---- */
+function driveIdOf(url){const m=/drive\.google\.com\/(?:file\/d\/|drive\/(?:u\/\d+\/)?folders\/|open\?id=|uc\?(?:.*&)?id=)([\w-]{10,})/.exec(url||"")||/docs\.google\.com\/(?:document|spreadsheets|presentation|forms)\/d\/([\w-]{10,})/.exec(url||"");return m?m[1]:""}
+function driveIcon(m,folder){m=String(m||"");const c=folder||/folder/.test(m)?["#8A8F98","M3 6h6l2 2h10v11H3z"]:/video/.test(m)?["#D93025","M4 5h16v14H4z M10 9v6l5-3z"]:/image/.test(m)?["#D93025","M4 5h16v14H4z M7 16l3-4 3 3 2-2 3 3"]:/spreadsheet/.test(m)?["#188038","M5 3h14v18H5z M8 8h8 M8 12h8 M8 16h8"]:/presentation/.test(m)?["#F29900","M5 3h14v18H5z M8 9h8v6H8z"]:/document|text/.test(m)?["#1A73E8","M5 3h14v18H5z M8 8h8 M8 12h8 M8 16h5"]:/pdf/.test(m)?["#D93025","M5 3h14v18H5z M8 12h8"]:["#5F6368","M6 3h9l4 4v14H6z"];
+  return `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="${c[1]}" fill="none" stroke="${c[0]}" stroke-width="2" stroke-linejoin="round"/></svg>`}
+const DINFO={};
+async function driveInfo(id){if(DINFO[id])return DINFO[id];let o=null;try{const c=JSON.parse(lsGet("cp-drv:"+id,"null"));if(c)o=c}catch(_){}
+  if(!o&&DB.team&&DB.team.drive){try{o=await DB.team.drive(id)}catch(_){o=null}}
+  o=o||{name:"",mime:"",folder:false};if(o.name)lsSet("cp-drv:"+id,JSON.stringify(o));return DINFO[id]=o}
+function chipMenu(){if(!S.cs||S.ro)return "";const col=colByKey(S.cs.f.ck),r=rowById(S.cs.f.rk);if(!col||!r||col.type!=="link"||!driveIdOf(linkUrl(r[col.key])))return "";
+  return r.chip&&r.chip[col.key]?MI("chipoff","Tampilkan sebagai link"):MI("chipon","Tampilkan sebagai chip Drive")}
+async function chipSet(r,key,on){if(!canWrite())return;const url=linkUrl(r[key]),id=driveIdOf(url);if(!id)return;
+  if(on){const info=await driveInfo(id);pushUndo(true);r.chip=r.chip||{};r.chip[key]={n:info.name||"File Google Drive",m:info.mime||"",f:!!info.folder};if(!info.name&&!info.noAccess&&!(DB.team&&DB.team.drive))toast("Nama file tidak bisa dibaca di versi ini, chip memakai nama umum")}
+  else{pushUndo(true);if(r.chip){delete r.chip[key];if(!Object.keys(r.chip).length)delete r.chip}}
+  touch();render()}
+/* offer the chip right after a Drive link is typed or pasted into a link cell */
+function offerChip(r,key){const url=linkUrl(r[key]);if(!driveIdOf(url)||(r.chip&&r.chip[key])||S.ro)return;toast("Link Google Drive","Jadikan chip",()=>chipSet(r,key,true))}
+/* ---- link preview card on hover, like Google Sheets: title, picture, site, and copy / edit / remove ---- */
+const PV={};
+async function previewOf(url){if(PV[url])return PV[url];let o=null;try{o=JSON.parse(sessionStorage.getItem("cp-pv:"+url)||"null")}catch(_){}
+  if(!o&&DB.team&&DB.team.preview){try{o=await DB.team.preview(url)}catch(_){o=null}}
+  if(!o&&/tiktok\.com/i.test(url)){try{const j=await (await fetch("https://www.tiktok.com/oembed?url="+encodeURIComponent(url))).json();o={title:j.title||"",image:j.thumbnail_url||"",author:j.author_name||""}}catch(_){}}
+  const did=driveIdOf(url);o=Object.assign({host:(()=>{try{return new URL(url).hostname.replace(/^www\./,"")}catch(_){return ""}})(),title:"",image:""},o||{});
+  if(did){o.driveId=did;if(!o.title){const i=await driveInfo(did);o.title=i.name;o.mime=i.mime;o.folder=i.folder}if(!o.image&&!o.folder)o.image="https://drive.google.com/thumbnail?id="+encodeURIComponent(did)+"&sz=w400"}
+  try{sessionStorage.setItem("cp-pv:"+url,JSON.stringify(o))}catch(_){}return PV[url]=o}
+let pvT=null,pvHide=null;
+function hidePv(){clearTimeout(pvT);const c=document.getElementById("lnkpv");if(c)c.remove()}
+document.addEventListener("mouseover",e=>{const a=e.target.closest&&e.target.closest(".sheet a.lnk,#lnkpv");if(!a)return;clearTimeout(pvHide);if(a.id==="lnkpv")return;
+  const cur=document.getElementById("lnkpv");if(cur&&cur.dataset.href===a.href)return;clearTimeout(pvT);pvT=setTimeout(()=>showPv(a),380)});
+document.addEventListener("mouseout",e=>{const a=e.target.closest&&e.target.closest(".sheet a.lnk,#lnkpv");if(!a)return;const to=e.relatedTarget;if(to&&to.closest&&to.closest(".sheet a.lnk,#lnkpv")===a)return;clearTimeout(pvT);clearTimeout(pvHide);pvHide=setTimeout(hidePv,260)});
+async function showPv(a){hidePv();const url=a.href,td=a.closest("td[data-col]");const card=document.createElement("div");card.id="lnkpv";card.className="lnkpv";card.dataset.href=url;card.setAttribute("role","dialog");
+  const place=()=>{const rr=a.getBoundingClientRect(),w=320;card.style.left=Math.max(8,Math.min(innerWidth-w-8,rr.left))+"px";const below=rr.bottom+6,h=card.offsetHeight||200;card.style.top=(below+h>innerHeight-8?Math.max(8,rr.top-h-6):below)+"px"};
+  const draw=o=>{const did=o&&o.driveId,k=td?keyOfTd(td):null,r=k?rowById(k.rk):null,col=k?colByKey(k.ck):null,isChip=!!(r&&col&&r.chip&&r.chip[col.key]);
+    card.innerHTML=`<div class="pvh"><span class="pvi">${did?driveIcon(o.mime,o.folder):`<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1 M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`}</span><a class="pvt" href="${esc(url)}" target="_blank" rel="noopener">${esc((o&&o.title)||shortUrl(url))}</a>
+      <span class="pvb"><button data-pv="copy" title="Salin link">⧉</button>${S.ro||!col?"":`<button data-pv="edit" title="Edit link">✎</button><button data-pv="del" title="Hapus link">⛓</button>`}</span></div>
+      <div class="pvu">${esc(o?o.host:"")}${o&&o.author?` · ${esc(o.author)}`:""}</div>
+      ${o&&o.image?`<a class="pvimg" href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(o.image)}" alt="" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></a>`:o?"":`<div class="pvl">Memuat pratinjau…</div>`}
+      ${did&&col&&col.type==="link"&&!S.ro?`<div class="pvc"><span>Tampilan:</span><button data-pv="chip" ${isChip?"":'class="on"'} data-v="0">Link</button><button data-pv="chip" ${isChip?'class="on"':""} data-v="1">Chip</button></div>`:""}`;place()};
+  draw(null);document.body.appendChild(card);place();
+  card.addEventListener("click",ev=>{const b=ev.target.closest("[data-pv]");if(!b)return;const k=td?keyOfTd(td):null,r=k?rowById(k.rk):null,col=k?colByKey(k.ck):null;
+    if(b.dataset.pv==="copy"){navigator.clipboard&&navigator.clipboard.writeText(url).then(()=>toast("Link disalin"),()=>toast("Link tidak bisa disalin"));return}
+    hidePv();if(!k)return;setSel(k,k);
+    if(b.dataset.pv==="edit"){if(col&&col.type==="link"){const c=ctrlOf(td);if(c)enterEdit(c)}else cellLink();return}
+    if(b.dataset.pv==="del"&&r&&col&&canWrite()){pushUndo(true);if(col.type==="link")r[col.key]="";if(r.lk)delete r.lk[col.key];if(r.chip){delete r.chip[col.key];if(!Object.keys(r.chip).length)delete r.chip}touch();render();toast("Link dihapus","Urungkan",undo);return}
+    if(b.dataset.pv==="chip"&&r&&col)chipSet(r,col.key,b.dataset.v==="1")});
+  const o=await previewOf(url);if(document.getElementById("lnkpv")===card)draw(o)}
+document.addEventListener("scroll",()=>hidePv(),true);
+/* ---- motif / product suggestions appear only once something is typed (not as soon as the cell is clicked) ---- */
+const motIn=t=>t&&t.matches&&t.matches("input.min[data-mlist]");
+document.addEventListener("keydown",e=>{const t=e.target;if(!motIn(t)||e.ctrlKey||e.metaKey||e.altKey)return;if(e.key.length===1||(e.key==="Backspace"&&t.value.length>1))t.setAttribute("list",t.dataset.mlist)},true);
+document.addEventListener("input",e=>{const t=e.target;if(!motIn(t))return;if(t.value.trim())t.setAttribute("list",t.dataset.mlist);else t.removeAttribute("list")},true);
+document.addEventListener("focusout",e=>{if(motIn(e.target))e.target.removeAttribute("list")},true);
+/* ---- history "melihat …": every signed-in person (viewers too) who opens a page is recorded once per page per 30 minutes ---- */
+function logView(){if(!S.loaded[S.ym]||!DB.team)return;const page=pageName(),k=S.view+"|"+S.ym;if(S.viewLogged===k)return;S.viewLogged=k;
+  const key="cp-view:"+page+"|"+S.ym,last=+lsGet(key,"0");if(Date.now()-last<1800000)return;lsSet(key,String(Date.now()));
+  const b=byCode(S.view),code=b?b.code:"",text="melihat "+page+(b?" · "+ymLabel(S.ym):"");
+  try{if(typeof DB.team.view==="function")DB.team.view(page,code,S.ym).catch(()=>{});
+    else if(!S.ro&&DB.team.log)DB.team.log([{text,code,ym:S.ym,d:0,rowId:"view",col:"view:"+page}]).catch(()=>{})}catch(_){}}
 /* ---- Sheet lama: the old content plan spreadsheet of a month, shown as it is (view only). One link per month, set by the owner ---- */
 S.oldSheets={};
 /* zoom of the old sheet (this device only): the frame is scaled inside a fixed box, so the page, sidebar and the sheet's own tabs stay put */
@@ -1782,6 +1863,9 @@ function oldPage(){const url=S.oldSheets[S.ym]||"",inf=oldSheetInfo(url),own=S.i
 document.addEventListener("click",e=>{
   if(e.target.closest("[data-oldsave]")){const v=(document.getElementById("oldIn")||{}).value||"";if(!oldSheetInfo(v)){toast("Link harus berupa link Google Sheets (docs.google.com/spreadsheets/d/…)");return}S.oldSheets[S.ym]=v.trim();render();toast("Sheet lama "+ymLabel(S.ym)+" disimpan");return}
   if(e.target.closest("[data-olddel]")){delete S.oldSheets[S.ym];render();toast("Link sheet lama "+ymLabel(S.ym)+" dihapus")}});
+/* height of the sticky column titles, so the sticky date/day sit right under them */
+function watchHead(){const w=document.querySelector(".sheet-wrap"),th=w&&w.querySelector("thead");if(!th)return;const set=()=>w.style.setProperty("--thh",th.offsetHeight+"px");set();
+  if(window.ResizeObserver&&!th._ro){th._ro=new ResizeObserver(set);th._ro.observe(th)}}
 function render(){
   renderNav();
   const m=document.getElementById("main"); const b=byCode(S.view);
@@ -1793,13 +1877,13 @@ function render(){
   if(S.ro&&S.view==="pengaturan")S.view="beranda";
   m.innerHTML=(S.ro?`<div class="robar" role="status"><b>Mode baca saja</b><span>Anda bisa melihat, menyalin dan memfilter. ${window.CP_CONFIG?"Untuk mengedit, masuk dengan akun Google yang terdaftar sebagai Editor di tab AKSES.":"Untuk mengubah content plan, minta pemilik menambahkan email Anda sebagai Editor."}</span>${window.CP_CONFIG&&!(window.CP_AUTH&&window.CP_AUTH.me)?`<div id="roLogin" class="rologin"></div>`:""}</div>`:"")+(S.view==="lama"&&S.settingsReady?oldPage():S.view==="pengaturan"&&S.settingsReady?settings():(S.err||!S.settingsReady||(DB.db&&!S.loaded[S.ym]))?waiting():S.view==="beranda"&&!hasData()?empty():S.view==="beranda"?beranda():b?(b.ig?igPage(b):brandPage(b)):beranda());
   if(S.ro)m.querySelectorAll(".sheet input.cin,.sheet textarea.cin").forEach(x=>x.readOnly=true);
-  S.lastView=S.view;
+  S.lastView=S.view;logView();
   if(keep&&keep[2]){const w=m.querySelector(".sheet-wrap");if(w){w.scrollTop=keep[0];w.scrollLeft=keep[1]}}
   scrollToToday(); syncFmtBar();
   if(S.jump){const tr=document.querySelector(`.sheet tr[data-id="${S.jump}"]`);if(tr){const w=tr.closest(".sheet-wrap"),th=w.querySelector("thead");w.scrollTop=Math.max(0,tr.offsetTop-(th?th.offsetHeight:0)-6);tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),2200);w.scrollIntoView({block:"start"})}S.jump=null}
   maybeSaveSettings();
   paintSel(); if(S.refocus){const rf=S.refocus;S.refocus=null;focusCell(rf.rk,rf.ck,true)}else if(hadF&&S.cs&&rect()){if(rect().n>1){const w=m.querySelector(".sheet-wrap");w&&w.focus({preventScroll:true})}else{const fr=S.fresh;focusCell(S.cs.f.rk,S.cs.f.ck,fr)}}
-  fitTables(); applyFreeze(); autoSize(); syncBell(); syncHbar(); renderOnline(); if(S.loaded[S.ym])setTimeout(maybeGreet,400);
+  fitTables(); applyFreeze(); autoSize(); syncBell(); syncHbar(); renderOnline(); watchHead(); syncRt(); requestAnimationFrame(syncRt); if(S.loaded[S.ym])setTimeout(maybeGreet,400);
   const rl=document.getElementById("roLogin");if(rl&&window.CP_AUTH&&window.CP_AUTH.mountButton&&!window.CP_AUTH.mountButton(rl))rl.innerHTML="<button class='btn dark' data-cplogin>Masuk dengan Google</button>"; if(document.querySelector(".findp")){if(curB())runFind(false);else closeFind()}
   m.querySelectorAll(".press[tabindex]").forEach(c=>c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();c.classList.add("pressed");setTimeout(()=>{c.classList.remove("pressed");go(c.dataset.go)},140)}}));
 }
@@ -1844,9 +1928,9 @@ function saveField(el){if(S.ro){canWrite();render();return}
   const f=el.dataset.f, v=el.type==="checkbox"?el.checked:el.value;
   if(el.dataset.raw!==undefined&&(el.value===el.dataset.disp||el.value===el.dataset.raw))return;
   if(el.dataset.list){const c=cellColor(el.dataset.list,v);el.classList.toggle("oc",!!c);el.classList.toggle("has",!!v);c?el.style.setProperty("--oc",c):el.style.removeProperty("--oc");const tdc=el.closest("td");if(tdc){tdc.classList.toggle("occ",!!c);c?tdc.style.setProperty("--oc",c):tdc.style.removeProperty("--oc")}}
-  if(tr.dataset.id){const r=rowById(tr.dataset.id);if(!r)return;if((r[f]??"")===v)return;pushUndo(true);r[f]=v;
+  if(tr.dataset.id){const r=rowById(tr.dataset.id);if(!r)return;if((r[f]??"")===v)return;pushUndo(true);const old=String(r[f]??"");r[f]=v;if(r.rt&&r.rt[f])setRt(r,f,rtFix(r.rt[f],old,String(v)));
     if(f==="st")el.className=el.className.replace(/st-\w+/,"st-"+stClass(v));
-    touch(); if(f==="pil"||f==="brand"||S.hasF||String(v)[0]==="="||el.closest("td.w-link"))render();else syncFx(); return}
+    touch(); if(f==="pil"||f==="brand"||S.hasF||String(v)[0]==="="||el.closest("td.w-link"))render();else syncFx(); if(el.closest("td.w-link"))offerChip(r,f); return}
   if(v===""||v===false)return;
   pushUndo(true); const nr={id:rid(),d:+tr.dataset.date,[f]:v}; rs.push(nr); remapGhost(nr.d,nr.id);
   toast("Konten baru ditambahkan di tanggal "+tr.dataset.date); render();
@@ -1986,7 +2070,100 @@ document.addEventListener("keydown",e=>{if(S.ro||!S.cs||!(e.key==="Enter"&&!e.sh
   const R=rect();if(!R||R.n!==1)return;const td=cellTd(S.cs.f.rk,S.cs.f.ck),c=td&&ctrlOf(td);if(!c||c.tagName!=="SELECT"||document.activeElement===c)return;
   const a=document.activeElement;if(a&&a!==document.body&&!(a.classList&&a.classList.contains("sheet-wrap")))return;
   e.preventDefault();e.stopPropagation();openDrop(c)},true);
-function enterEdit(c,txt){if(!c)return;if(txt!==undefined)c.value=txt;else if(c.dataset.raw!==undefined&&c.value===c.dataset.disp)c.value=c.dataset.raw;c.focus({preventScroll:true});const n=c.value.length;try{c.setSelectionRange(n,n)}catch(_){}S.fresh=false;if(txt!==undefined)c.dispatchEvent(new Event("input",{bubbles:true}));syncFx()}
+/* ===== rich text inside one cell (like Google Sheets): select some words while editing and make them bold, italic,
+   underlined, struck or colored. The plain text stays in r[key] (search, formulas, PDF, export); the styled pieces are
+   kept in r.rt[key] = [[text, {b,i,u,s,fc}], …] and are used only while they still add up to exactly that text. ===== */
+const RTK=["b","i","u","s","fc"];
+const rtText=runs=>(runs||[]).map(x=>x[0]).join("");
+function rtOf(r,key){const runs=r&&r.rt&&r.rt[key];return runs&&rtText(runs)===String(r[key]??"")&&!isFml(String(r[key]??""))?runs:null}
+function rtClean(runs){const out=[];(runs||[]).forEach(([t,s])=>{if(!t)return;const st={};RTK.forEach(k=>{if(s&&s[k])st[k]=s[k]});const p=out[out.length-1];if(p&&JSON.stringify(p[1])===JSON.stringify(st))p[0]+=t;else out.push([t,st])});
+  return out.some(x=>Object.keys(x[1]).length)?out:null}
+function rtStyle(s){const c=[];if(s.b)c.push("font-weight:700");if(s.i)c.push("font-style:italic");const d=[s.u&&"underline",s.s&&"line-through"].filter(Boolean);if(d.length)c.push("text-decoration:"+d.join(" "));if(s.fc&&/^#[0-9a-f]{3,8}$/i.test(s.fc))c.push("color:"+s.fc);return c.join(";")}
+function rtHtml(runs){return runs.map(([t,s])=>{const st=rtStyle(s||{});return st?`<span style="${st}">${esc(t)}</span>`:esc(t)}).join("")}
+/* keep the styles of the unchanged start and end when the text was edited as plain text */
+function rtFix(runs,oldT,newT){if(!runs||oldT===newT)return runs;let p=0;while(p<oldT.length&&p<newT.length&&oldT[p]===newT[p])p++;let q=0;while(q<oldT.length-p&&q<newT.length-p&&oldT[oldT.length-1-q]===newT[newT.length-1-q])q++;
+  const cut=(a,b)=>{const out=[];let i=0;runs.forEach(([t,s])=>{const s0=i,e0=i+t.length;i=e0;const x=Math.max(s0,a),y=Math.min(e0,b);if(y>x)out.push([t.slice(x-s0,y-s0),s])});return out};
+  const mid=newT.slice(p,newT.length-q),before=cut(0,p),after=cut(oldT.length-q,oldT.length),st=before.length?before[before.length-1][1]:{};
+  return rtClean([...before,[mid,st],...after])}
+function setRt(r,key,runs){const c=rtClean(runs);if(c&&!isFml(String(r[key]??""))){r.rt=r.rt||{};r.rt[key]=c}else if(r.rt){delete r.rt[key];if(!Object.keys(r.rt).length)delete r.rt}}
+/* runs from the editor's DOM (b/i/u/strike/font from execCommand, or inline styles) */
+function rtFromDom(root){const out=[];
+  const walk=(n,st)=>{if(n.nodeType===3){if(n.nodeValue)out.push([n.nodeValue,st]);return}if(n.nodeType!==1)return;const tg=n.tagName,s=Object.assign({},st);
+    if(tg==="BR"){out.push(["\n",st]);return}
+    if(/^(B|STRONG)$/.test(tg))s.b=1;if(/^(I|EM)$/.test(tg))s.i=1;if(tg==="U")s.u=1;if(/^(S|STRIKE|DEL)$/.test(tg))s.s=1;if(tg==="FONT"&&n.getAttribute("color"))s.fc=toHex(n.getAttribute("color"));
+    const cs=n.style;if(cs){if(/bold|[6-9]00/.test(cs.fontWeight))s.b=1;else if(/normal|[1-4]00/.test(cs.fontWeight))delete s.b;if(cs.fontStyle==="italic")s.i=1;const td=cs.textDecorationLine||cs.textDecoration||"";if(/underline/.test(td))s.u=1;if(/line-through/.test(td))s.s=1;if(cs.color)s.fc=toHex(cs.color)}
+    if((tg==="DIV"||tg==="P")&&out.length&&!/\n$/.test(rtText(out)))out.push(["\n",st]);
+    n.childNodes.forEach(c=>walk(c,s))};
+  root.childNodes.forEach(c=>walk(c,{}));const t=rtText(out);if(/\n$/.test(t)&&root.lastChild&&root.lastChild.nodeName==="BR"){const l=out[out.length-1];l[0]=l[0].slice(0,-1)}return out}
+function toHex(c){c=String(c||"").trim();if(/^#[0-9a-f]{6}$/i.test(c))return c;const m=c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);return m?"#"+[m[1],m[2],m[3]].map(x=>(+x).toString(16).padStart(2,"0")).join(""):""}
+/* the editor: a contenteditable box that takes the place of the cell's textarea while editing */
+function richOk(c){if(!c||c.tagName!=="TEXTAREA"||S.ro)return false;const td=c.closest("td[data-col]"),col=td&&colByKey(td.dataset.col);if(!col||!["text","long"].includes(col.type))return false;
+  const raw=c.dataset.raw!==undefined?c.dataset.raw:c.value;return !isFml(String(raw))&&!(fmtOf(rowById(keyOfTd(td).rk)||{},col.key).nf)}
+function richEd(){return document.querySelector(".sheet .rted")}
+function openRich(c,selA,selB,plain){const td=c.closest("td[data-col]");if(!td||richEd())return false;const k=keyOfTd(td),r=rowById(k.rk),col=colByKey(k.ck);if(!col)return false;
+  const text=plain!=null?plain:String(r?r[col.key]??"":c.value),runs=r&&(plain==null||plain===String(r[col.key]??""))?rtOf(r,col.key):null;
+  const ed=document.createElement("div");ed.className="rted";ed.contentEditable="true";ed.spellcheck=false;ed.dataset.rk=k.rk;ed.dataset.ck=k.ck;ed.dataset.orig=JSON.stringify([text,runs]);
+  const cs=getComputedStyle(c);["paddingTop","paddingRight","paddingBottom","paddingLeft","fontSize","fontFamily","fontWeight","lineHeight","textAlign","color","fontStyle","textDecoration"].forEach(p=>ed.style[p]=cs[p]);
+  ed.style.minHeight=c.offsetHeight+"px";ed.innerHTML=runs?rtHtml(runs):esc(text);c.style.display="none";td.querySelectorAll(".rtv").forEach(x=>x.style.display="none");c.after(ed);td.classList.add("rtediting");
+  ed.focus({preventScroll:true});S.fresh=false;
+  /* caret / selection by character offsets (end of the text by default) */
+  const n=rtText(rtFromDom(ed)).length;rtSelect(ed,selA==null?n:selA,selB==null?(selA==null?n:selA):selB);syncFmtBar&&syncFmtBar();return true}
+function rtSelect(ed,a,b){const pos=off=>{let left=off;const w=document.createTreeWalker(ed,NodeFilter.SHOW_TEXT);let nd;while((nd=w.nextNode())){if(left<=nd.nodeValue.length)return [nd,left];left-=nd.nodeValue.length}return [ed,ed.childNodes.length]};
+  try{const s=window.getSelection(),rg=document.createRange(),[n1,o1]=pos(a),[n2,o2]=pos(b);rg.setStart(n1,o1);rg.setEnd(n2,o2);s.removeAllRanges();s.addRange(rg)}catch(_){}}
+function rtSelText(ed){const s=window.getSelection();if(!s.rangeCount||!ed.contains(s.anchorNode))return null;const rg=s.getRangeAt(0);if(rg.collapsed)return null;
+  const box=document.createElement("div");box.appendChild(rg.cloneContents());return {t:s.toString(),runs:rtClean(rtFromDom(box))}}
+function closeRich(save,move){const ed=richEd();if(!ed)return;const rk=ed.dataset.rk,ck=ed.dataset.ck,td=ed.closest("td"),col=colByKey(ck),b=curB();
+  const runs=rtFromDom(ed),text=rtText(runs),[t0,r0]=JSON.parse(ed.dataset.orig||'["",null]');ed.remove();if(td)td.classList.remove("rtediting");
+  if(save&&col&&!S.ro&&(text!==t0||JSON.stringify(rtClean(runs))!==JSON.stringify(rtClean(r0)))){
+    let r=rowById(rk);pushUndo(true);
+    if(!r){if(!text){render();return}const rs=curRows(),d=+rk.slice(1);r={id:rid(),d};const li=rs.map(x=>x.d).lastIndexOf(d);rs.splice(li<0?rs.length:li+1,0,r);remapGhost(d,r.id)}
+    setCellText(r,col,text,b);setRt(r,col.key,runs);touch()}
+  render();if(move)moveSel(move[0],move[1]);else if(S.cs){const td2=cellTd(S.cs.f.rk,S.cs.f.ck);if(td2)td2.closest(".sheet-wrap").focus({preventScroll:true})}}
+document.addEventListener("keydown",e=>{const ed=e.target.closest&&e.target.closest(".rted");if(!ed)return;e.stopImmediatePropagation();
+  const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+  if(e.key==="Enter"&&(e.altKey||e.ctrlKey)){e.preventDefault();richBreak(ed);return}
+  if(e.key==="Enter"){e.preventDefault();closeRich(true,[e.shiftKey?-1:1,0]);return}
+  if(e.key==="Tab"){e.preventDefault();closeRich(true,[0,e.shiftKey?-1:1]);return}
+  if(e.key==="Escape"){e.preventDefault();closeRich(false);return}
+  if(mod&&["b","i","u"].includes(k)){e.preventDefault();richCmd(ed,k);return}
+  if(e.altKey&&e.shiftKey&&e.code==="Digit5"){e.preventDefault();richCmd(ed,"s");return}
+  if(mod&&k==="z"){e.preventDefault();document.execCommand(e.shiftKey?"redo":"undo");return}
+  if(mod&&k==="y"){e.preventDefault();document.execCommand("redo");return}},true);
+document.addEventListener("focusout",e=>{const ed=e.target.closest&&e.target.closest(".rted");if(!ed)return;setTimeout(()=>{if(richEd()===ed&&!ed.contains(document.activeElement)&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest(".fmtbar,.cpal,.fpop")))closeRich(true)},0)});
+/* pasting inside the editor: plain text only (no outside formatting or HTML) */
+document.addEventListener("paste",e=>{const ed=e.target.closest&&e.target.closest(".rted");if(!ed)return;e.preventDefault();e.stopImmediatePropagation();
+  const t=(e.clipboardData&&e.clipboardData.getData("text/plain")||"").replace(/\r\n?/g,"\n");if(S.textClip&&S.textClip.t===t&&S.textClip.runs){const h=rtHtml(S.textClip.runs);document.execCommand("insertHTML",false,h)}else document.execCommand("insertText",false,t)},true);
+/* copying words from inside a cell: remembered so pasting them on another cell puts them in that ONE cell (not split over cells) */
+document.addEventListener("copy",e=>{const a=document.activeElement;const ed=a&&a.closest&&a.closest(".rted");
+  if(ed){e.stopImmediatePropagation();const s=rtSelText(ed);if(s)S.textClip=Object.assign(s,{at:Date.now()});return}
+  if(a&&a.tagName==="TEXTAREA"&&a.closest(".sheet td")&&!S.fresh&&a.selectionStart!==a.selectionEnd)S.textClip={t:a.value.slice(a.selectionStart,a.selectionEnd),runs:null,at:Date.now()}},true);
+document.addEventListener("cut",e=>{const a=document.activeElement;if(a&&a.closest&&a.closest(".rted")){e.stopImmediatePropagation();const s=rtSelText(a.closest(".rted"));if(s)S.textClip=Object.assign(s,{at:Date.now()})}},true);
+document.addEventListener("mousedown",e=>{if(e.target.closest&&e.target.closest(".rted")){e.stopImmediatePropagation();return}
+  /* format buttons keep the editor's word selection */
+  if(richEd()&&e.target.closest&&e.target.closest(".fmtbar button,.cpal button")){e.preventDefault();e.stopImmediatePropagation()}},true);
+document.addEventListener("selectionchange",()=>{const ed=richEd(),s=window.getSelection();if(ed&&s.rangeCount&&ed.contains(s.anchorNode))S.rtRange=s.getRangeAt(0).cloneRange()});
+/* character offsets of the editor's selection, counted the same way rtFromDom counts text */
+function rtOffsets(ed){const s=window.getSelection();let rg=null;if(s.rangeCount&&ed.contains(s.getRangeAt(0).startContainer))rg=s.getRangeAt(0);else if(S.rtRange&&ed.contains(S.rtRange.startContainer))rg=S.rtRange;if(!rg)return null;
+  const at=(n,o)=>{const r=document.createRange();r.setStart(ed,0);r.setEnd(n,o);const box=document.createElement("div");box.appendChild(r.cloneContents());return rtText(rtFromDom(box)).length};
+  return [at(rg.startContainer,rg.startOffset),at(rg.endContainer,rg.endOffset)]}
+/* apply a style to the selected characters directly on the runs (no reliance on execCommand) */
+function rtApply(runs,a,b,prop,val){const chars=[];runs.forEach(([t,s])=>{for(const ch of t)chars.push([ch,Object.assign({},s)])});
+  if(b<=a)return runs;const seg=chars.slice(a,b),on=prop==="fc"?true:!seg.every(c=>c[1][prop]);
+  seg.forEach(c=>{if(prop==="fc"){if(val)c[1].fc=val;else delete c[1].fc}else if(on)c[1][prop]=1;else delete c[1][prop]});
+  return chars.map(c=>[c[0],c[1]])}
+function rtRender(ed,runs,a,b){ed.innerHTML=rtHtml(rtClean(runs)||[[rtText(runs),{}]]);rtSelect(ed,a,b);S.rtRange=null}
+function richCmd(ed,prop,val){ed.focus({preventScroll:true});const o=rtOffsets(ed);if(!o)return;let [a,b]=o;if(a>b)[a,b]=[b,a];
+  if(a===b){toast("Pilih (blok) kata di dalam sel dulu, lalu pilih format");return}
+  const runs=rtApply(rtFromDom(ed),a,b,prop,val);rtRender(ed,runs,a,b)}
+/* line break inside the editor (Alt+Enter / Ctrl+Enter) */
+function richBreak(ed){const o=rtOffsets(ed);if(!o)return;const [a,b]=o[0]<=o[1]?o:[o[1],o[0]];const runs=rtFromDom(ed),chars=[];runs.forEach(([t,s])=>{for(const ch of t)chars.push([ch,s])});
+  const st=(chars[a-1]||chars[a]||["",{}])[1];chars.splice(a,b-a,["\n",st]);rtRender(ed,chars,a+1,a+1)}
+function pasteText(clip){if(!canWrite())return;const R=rect(),b=curB(),rs=curRows();if(!R||!rs)return;pushUndo(true);let n=0;
+  R.rows.forEach(rk=>{let r=rowById(rk);R.cols.forEach(col=>{if(["tgl","hari","shot","check"].includes(col.type))return;
+      if(!r){const d=+String(rk).slice(1);if(!d)return;r={id:rid(),d};const li=rs.map(x=>x.d).lastIndexOf(d);rs.splice(li<0?rs.length:li+1,0,r);remapGhost(d,r.id)}
+      setCellText(r,col,clip.t,b);if(["text","long"].includes(col.type))setRt(r,col.key,clip.runs);else setRt(r,col.key,null);n++})});
+  touch();render();toast(`Teks ditempel ke ${n} sel`,"Urungkan",undo)}
+function enterEdit(c,txt){if(!c)return;if(txt===undefined&&richOk(c)&&openRich(c))return;if(txt!==undefined)c.value=txt;else if(c.dataset.raw!==undefined&&c.value===c.dataset.disp)c.value=c.dataset.raw;c.focus({preventScroll:true});const n=c.value.length;try{c.setSelectionRange(n,n)}catch(_){}S.fresh=false;if(txt!==undefined)c.dispatchEvent(new Event("input",{bubbles:true}));syncFx()}
 /* row height: drag the line under a row number */
 function startRowResize(e,tr){e.preventDefault();e.stopPropagation();if(!canWrite())return;const r=rowById(tr.dataset.id);if(!r)return;const bar=e.target.closest(".rrz");bar.classList.add("on");
   const y0=e.clientY,h0=tr.getBoundingClientRect().height,sc=h0/(tr.offsetHeight||h0)||1;let h=null;
@@ -2060,7 +2237,7 @@ function buildClip(){const R=rect();if(!R)return null;const b=curB(),full=colsOf
   const cells=R.rows.map(rk=>{const r=rowById(rk),rn=slotNum(rk);return R.cols.map(col=>{const v=r?(col.type==="motif"?(r.motifs||[]).slice():r[col.key]):"";const t=cellText(r,col),fm=r&&r.fmt&&r.fmt[col.key]?Object.assign({},r.fmt[col.key]):null;
     const disp=TEXTY.includes(col.type)&&col.type!=="date"&&(isFml(t)||(fm&&fm.nf))?cellDisplay(t,fm||{}):col.type==="check"?(r&&r[col.key]?"TRUE":"FALSE"):t;
     const dd=col.type==="dropdown"?{label:col.label,opts:getList(colList(col,b)).slice(),oc:Object.assign({},S.optColor[colList(col,b)]||{})}:null;
-    return {t,disp,dd,v:v==null?"":JSON.parse(JSON.stringify(v)),type:col.type,fmt:fm,note:r&&r.notes&&r.notes[col.key]||"",lk:r&&r.lk&&r.lk[col.key]||"",rn,ci:full.indexOf(col)}})});
+    return {t,disp,dd,rt:r?rtOf(r,col.key):null,v:v==null?"":JSON.parse(JSON.stringify(v)),type:col.type,fmt:fm,note:r&&r.notes&&r.notes[col.key]||"",lk:r&&r.lk&&r.lk[col.key]||"",rn,ci:full.indexOf(col)}})});
   return {code:b.code,cells,tsv:cells.map(row=>row.map(c=>tsvCell(String(c.disp))).join("\t")).join("\n"),html:clipHtml(cells)}}
 function copyRange(cut){const c=buildClip();if(!c)return null;S.gclip=c;
   document.querySelectorAll(".sheet .cclip").forEach(x=>x.classList.remove("cclip"));const R=rect();for(const rk of R.rows)for(const col of R.cols){const td=cellTd(rk,col.key);if(td)td.classList.add("cclip")}
@@ -2072,6 +2249,7 @@ function clearRange(quiet){if(!canWrite())return;const R=rect();if(!R)return;con
   touch();render();if(!quiet)toast(`Isi ${n} sel dihapus`,"Urungkan",undo)}
 function applyCell(r,col,c,mode,b){if(!col||col.type==="tgl"||col.type==="hari"||col.type==="shot")return;
   if(mode!=="format"){if(c.type&&c.type===col.type&&c.v!==undefined){if(col.type==="motif")r.motifs=(c.v||[]).slice(0,3);else r[col.key]=JSON.parse(JSON.stringify(c.v))}else setCellText(r,col,c.t,b);
+    setRt(r,col.key,mode!=="values"&&c.rt&&["text","long"].includes(col.type)?JSON.parse(JSON.stringify(c.rt)):null);
     if(mode==="all"&&c.type!==undefined){r.notes=r.notes||{};r.lk=r.lk||{};c.note?r.notes[col.key]=c.note:delete r.notes[col.key];c.lk?r.lk[col.key]=c.lk:delete r.lk[col.key]}}
   if(mode!=="values"&&(c.type!==undefined||c.ext)){r.fmt=r.fmt||{};c.fmt?r.fmt[col.key]=Object.assign({},c.fmt):delete r.fmt[col.key];if(!Object.keys(r.fmt).length)delete r.fmt}}
 function pasteGrid(cells,mode){if(!canWrite())return;
@@ -2111,6 +2289,8 @@ function clipOwner(){if(!gridActive()&&!(document.activeElement&&document.active
 document.addEventListener("copy",e=>{if(!clipOwner())return;const R=rect();const a=document.activeElement;if(R.n===1&&isText(a)&&!S.fresh&&a.selectionStart!==a.selectionEnd)return;e.preventDefault();const c=copyRange(false);if(c){e.clipboardData.setData("text/plain",c.tsv);e.clipboardData.setData("text/html",c.html)}});
 document.addEventListener("cut",e=>{if(!clipOwner())return;if(S.ro){e.preventDefault();canWrite();return}const a=document.activeElement,R=rect();if(R.n===1&&isText(a)&&!S.fresh&&a.selectionStart!==a.selectionEnd)return;e.preventDefault();const c=buildClip();if(!c)return;e.clipboardData.setData("text/plain",c.tsv);e.clipboardData.setData("text/html",c.html);copyRange(true)});
 document.addEventListener("paste",e=>{if(!clipOwner())return;if(S.ro){e.preventDefault();canWrite();return}const txt=(e.clipboardData&&e.clipboardData.getData("text/plain"))||"",html=(e.clipboardData&&e.clipboardData.getData("text/html"))||"";const a=document.activeElement,R=rect();
+  /* words copied from inside a cell go into each selected cell whole (with their bold/italic…), never split over cells */
+  if(S.textClip&&R&&S.textClip.t===txt.replace(/\r\n?/g,"\n")&&!(isText(a)&&!S.fresh)){e.preventDefault();pasteText(S.textClip);return}
   const own=S.gclip&&S.gclip.tsv===txt.replace(/\r\n?/g,"\n").replace(/\n$/,"");
   const hc=!own&&html?parseHtmlClip(html):null,multi=/[\t\n]/.test(txt.replace(/\r?\n$/,""))||(hc&&(hc.length>1||hc[0].length>1));
   if(!multi&&R.n===1&&isText(a)&&!S.fresh&&!own)return; /* typing inside one cell: normal text paste */
@@ -2331,7 +2511,7 @@ function cellMenu(x,y){const R=rect();if(!R)return;const b=curB(),col=colByKey(S
   if(S.ro){m.innerHTML=`<div class="mhead">Mode baca saja</div>`+MI("copy","Salin","Ctrl+C")+MS+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter");placeMenu(m,x,y);return}
   m.innerHTML=MI("cut","Potong","Ctrl+X")+MI("copy","Salin","Ctrl+C")+MI("paste","Tempel","Ctrl+V")+
     `<div class="msub"><span>Tempel khusus</span>${MI("pv","Hanya nilai","Ctrl+Shift+V",!S.gclip)}${MI("pf","Hanya format","",!S.gclip)}${MI("pdd","Dropdown (jadikan kolom dropdown)","",!(S.gclip&&S.gclip.cells.some(l=>l.some(c=>c.dd))))}</div>`+MS+
-    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+(S.ro?"":MI("pdfsel","Export PDF (sel terpilih)"))+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MI("colleft0","Sisipkan kolom kosong di kiri")+MI("colright0","Sisipkan kolom kosong di kanan")+MS+
+    MI("rowabove","Sisipkan 1 baris di atas")+MI("rowbelow","Sisipkan 1 baris di bawah")+(S.isOwner&&!S.ro?MI("adddate","Tambah tanggal…"):"")+(S.ro?"":MI("pdfsel","Export PDF (sel terpilih)"))+chipMenu()+MI("colleft","Sisipkan 1 kolom di kiri")+MI("colright","Sisipkan 1 kolom di kanan")+MI("colleft0","Sisipkan kolom kosong di kiri")+MI("colright0","Sisipkan kolom kosong di kanan")+MS+
     (fullCols&&!fullRows?"":MI("delrows",R.rows.length>1?`Hapus ${R.rows.length} baris`:"Hapus baris"))+(fullRows&&!fullCols?"":MI("delcols",R.cols.length>1?`Hapus ${R.cols.length} kolom`:"Hapus kolom"))+MI("clear","Hapus isi sel","Delete")+MS+
     MI("dup",rows.length>1?`Duplikat ${rows.length} baris`:"Duplikat baris","",!rows.length)+MI("move","Pindahkan baris ke tanggal…","",!rows.length)+MS+
     MI("asc",`Urutkan A → Z <small>(${esc(col?col.label:"")})</small>`)+MI("desc",`Urutkan Z → A <small>(${esc(col?col.label:"")})</small>`)+MI(flt?"filteroff":"filteron",flt?"Hapus filter":"Buat filter")+MS+
@@ -2407,6 +2587,8 @@ document.addEventListener("click",async e=>{
     case "delrows":deleteRows();break;
     case "adddate":openAddDate();break;
     case "pdfsel":exportPdf(true);break;
+    case "chipon":{const r=rowById(S.cs.f.rk);if(r)chipSet(r,S.cs.f.ck,true);break}
+    case "chipoff":{const r=rowById(S.cs.f.rk);if(r)chipSet(r,S.cs.f.ck,false);break}
     case "delsun":if(canWrite()){pushUndo(true);hideDates(b.code,[+m.dataset.sund]);touch();render();toast("1 baris dihapus","Urungkan",undo)}break;
     case "opensun":S.openSun.add(b.code+"|"+S.ym+"|"+m.dataset.sund);render();break;
     case "delcols":deleteCol(rect().cols.map(c=>c.key));break;
@@ -2544,6 +2726,9 @@ function syncSelCount(){let el=document.getElementById("selCount");const R=curB(
   R.rows.forEach(rk=>{const r=rowById(rk);if(!r)return;R.cols.forEach(c=>{const t=cellText(r,c);if(c.type==="check"?t==="TRUE":String(t).trim()!==""){cells++;rows.add(rk)}})});
   el.innerHTML=`<b>${cells}</b> terisi <span>·</span> <b>${rows.size}</b> baris`;el.title=`${cells} sel terisi dari ${R.n} sel terpilih, di ${rows.size} baris konten`;el.hidden=false}
 function applyFmt(prop,val){if(!canWrite())return;
+  /* while editing a cell: bold/italic/underline/strike/text color go to the selected words only */
+  if(["b","i","u","s","fc"].includes(prop)){const ed=richEd();if(ed){richCmd(ed,prop,val);return}
+    const a=document.activeElement;if(a&&a.tagName==="TEXTAREA"&&!S.fresh&&a.selectionStart!==a.selectionEnd&&richOk(a)){const s0=a.selectionStart,s1=a.selectionEnd;if(openRich(a,s0,s1,a.value)){richCmd(richEd(),prop,val);return}}}
   const t=fmtTargets();if(!t.length){toast("Pilih sel yang berisi konten dulu, lalu pilih format");return}
   pushUndo(true);const first=fmtOf(t[0].r,t[0].key);
   t.forEach(({r,key})=>{r.fmt=r.fmt||{};if(r.fmt._row){Object.keys(r.fmt._row).forEach(k=>{colsOf(curB()).forEach(c=>{r.fmt[c.key]=r.fmt[c.key]||{};if(r.fmt[c.key][k]===undefined)r.fmt[c.key][k]=r.fmt._row[k]})});delete r.fmt._row}
@@ -2613,7 +2798,12 @@ function applyFreeze(){const w=document.querySelector(".sheet-wrap[data-code]");
 /* wrapping cells grow with their text; browsers without field-sizing get the height set here */
 const FS=!!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content"));
 function autoSizeOne(t){if(FS||!t||t.closest('[data-wr="clip"]'))return;t.style.height="auto";t.style.height=t.scrollHeight+"px"}
-function autoSize(){if(FS)return;const tas=[...document.querySelectorAll(".sheet textarea.cin")].filter(t=>!t.closest('[data-wr="clip"]'));tas.forEach(t=>t.style.height="auto");const hs=tas.map(t=>t.scrollHeight);tas.forEach((t,i)=>t.style.height=hs[i]+"px")}
+function autoSize(){if(FS)return;const tas=[...document.querySelectorAll(".sheet textarea.cin")].filter(t=>!t.closest('[data-wr="clip"]'));tas.forEach(t=>t.style.height="auto");const hs=tas.map(t=>t.scrollHeight);tas.forEach((t,i)=>t.style.height=hs[i]+"px");syncRt()}
+/* the styled text layer sits exactly over its (transparent) textarea */
+function syncRt(){document.querySelectorAll(".sheet .rtv").forEach(v=>{const t=v.previousElementSibling;if(!t||t.tagName!=="TEXTAREA")return;const cs=getComputedStyle(t);
+  Object.assign(v.style,{left:t.offsetLeft+"px",top:t.offsetTop+"px",width:t.offsetWidth+"px",minHeight:t.offsetHeight+"px",paddingTop:cs.paddingTop,paddingRight:cs.paddingRight,paddingBottom:cs.paddingBottom,paddingLeft:cs.paddingLeft,fontSize:cs.fontSize,fontFamily:cs.fontFamily,lineHeight:cs.lineHeight,textAlign:cs.textAlign,color:cs.color,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,textDecoration:cs.textDecorationLine})})}
+/* typing over a styled cell (type-to-replace) shows the plain text being typed */
+document.addEventListener("input",e=>{const t=e.target;if(t.classList&&t.classList.contains("hasrt")){t.classList.remove("hasrt");const v=t.nextElementSibling;if(v&&v.classList.contains("rtv"))v.remove()}},true);
 /* toolbar drop-down menus */
 function toolPop(kind,x,y){closeMenus();const b=curB();if(!b)return;const t=fmtTargets(),f=t.length?fmtOf(t[0].r,t[0].key):{};
   const m=document.createElement("div");m.className="cmenu";m.setAttribute("role","menu");const chk=on=>on?"✓ ":"";let h="";

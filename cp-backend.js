@@ -21,22 +21,37 @@
   const isSess = a => !!(a && String(a.token || "").indexOf("s1.") === 0);
   try {
     auth = JSON.parse(localStorage.getItem(KEY) || sessionStorage.getItem(KEY) || "null");
-    if (auth && !isSess(auth) && auth.exp * 1000 < Date.now() + 60000) auth = null;
+    /* login lama (token Google) yang sudah habis: tetap dikenali (peran tetap), lalu diperbarui lewat login diam-diam */
+    if (auth && !isSess(auth) && auth.exp * 1000 < Date.now() + 60000) auth.stale = true;
   } catch (_) { auth = null; }
   function setAuth(a) { auth = a; try { if (a) localStorage.setItem(KEY, JSON.stringify(a)); else localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch (_) {} renderAuth(); window.dispatchEvent(new Event("cp-auth")); }
-  /* login dari tab lain di browser yang sama ikut terbaca */
-  window.addEventListener("storage", e => { if (e.key !== KEY) return; try { auth = JSON.parse(e.newValue || "null"); } catch (_) { auth = null; } renderAuth(); window.dispatchEvent(new Event("cp-auth")); });
+  /* login dari tab lain di browser yang sama ikut terbaca. Tab lain hanya bisa mengeluarkan tab ini lewat tombol Keluar
+     (bukan karena tab itu gagal login atau sesinya bermasalah) */
+  window.addEventListener("storage", e => {
+    if (e.key !== KEY) return; let a = null; try { a = JSON.parse(e.newValue || "null"); } catch (_) { a = null; }
+    if (!a) { let out = 0; try { out = Number(localStorage.getItem("cp-auth-out") || 0); } catch (_) {} if (Date.now() - out > 8000) { if (auth) { try { localStorage.setItem(KEY, JSON.stringify(auth)); } catch (_) {} } return; } }
+    auth = a; renderAuth(); window.dispatchEvent(new Event("cp-auth"));
+  });
   function jwtPayload(t) { try { const p = t.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"); return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (_) { return {}; } }
 
-  async function api(action, body) {
+  /* sesi bermasalah TIDAK langsung membuat keluar (tidak tiba-tiba jadi Viewer): peran tetap, perubahan tetap disimpan
+     di perangkat, dashboard mencoba login ulang diam-diam, dan semua perubahan terkirim begitu login berhasil */
+  let staleWarned = false;
+  function markStale() {
+    if (!auth) return;
+    if (!auth.stale) { auth = Object.assign({}, auth, { stale: true }); try { localStorage.setItem(KEY, JSON.stringify(auth)); } catch (_) {} renderAuth(); }
+    promptLogin();
+    if (!staleWarned) { staleWarned = true; toastMsg("Sesi login perlu diperbarui. Perubahanmu aman di perangkat ini dan terkirim setelah kamu klik Masuk dengan Google.", 9000); }
+  }
+  async function api(action, body, token) {
     if (!API) throw mkErr("not_configured", "Alamat server (API_URL) belum diisi di config.js");
     let r, j;
     try {
-      r = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(Object.assign({ action, token: auth && auth.token }, body || {})) });
+      r = await fetch(API, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(Object.assign({ action, token: token || (auth && auth.token) }, body || {})) });
     } catch (e) { throw mkErr("unavailable", "Server Google Apps Script tidak bisa dihubungi"); }
     try { j = await r.json(); } catch (e) { throw mkErr("unavailable", "Jawaban server tidak terbaca. Cek API_URL dan akses web app (Anyone)."); }
     if (!j.ok) {
-      if (j.code === "auth_expired" || j.code === "auth_required") { if (auth) setAuth(null); promptLogin(); }
+      if (!token && (j.code === "auth_expired" || j.code === "auth_required") && auth) markStale();
       throw mkErr(j.code || "error", j.message);
     }
     return j;
@@ -44,27 +59,28 @@
 
   async function onCredential(resp) {
     const token = resp && resp.credential; if (!token) return;
-    const p = jwtPayload(token);
-    const tmp = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: p.email || "", role: "Viewer", canEdit: false, picture: p.picture || "" };
-    auth = tmp;
+    const p = jwtPayload(token), prev = auth;
     try {
-      const me = await api("me");
-      const a = Object.assign(tmp, { email: me.email, role: me.role, canEdit: !!me.canEdit, nick: me.nick || "" });
-      if (me.session) { a.token = me.session; a.exp = 0; }   // server baru: sesi sampai klik Keluar
-      setAuth(a); toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)");
+      /* token Google baru hanya dipakai untuk memeriksa diri; login yang sedang berjalan tetap dipakai sampai ini berhasil */
+      const me = await api("me", { pic: p.picture || "" }, token);
+      const a = { token, exp: Number(p.exp) || Math.floor(Date.now() / 1000) + 3000, email: me.email || p.email || "", role: me.role, canEdit: !!me.canEdit, nick: me.nick || "", picture: me.picture || p.picture || "" };
+      if (me.session) { a.token = me.session; a.exp = 0; if (isSess(prev) && prev.token !== me.session) api("logout", {}, prev.token).catch(() => {}); }   // sesi sampai klik Keluar; sesi lama dibuang
+      const quiet = prev && prev.email === a.email && prev.role === a.role;
+      staleWarned = false; setAuth(a);
+      if (!quiet) toastMsg(me.canEdit ? "Masuk sebagai " + me.role + ": " + me.email : "Masuk sebagai " + me.email + " (hanya melihat)");
     }
-    catch (e) { setAuth(null); toastMsg("Gagal masuk: " + (e.message || e.code), 9000); }
+    catch (e) { if (!prev) toastMsg("Gagal masuk: " + (e.message || e.code), 9000); }   // gagal login ulang: tetap pakai login sebelumnya
   }
   function promptLogin() { try { if (window.google && google.accounts && google.accounts.id) google.accounts.id.prompt(); } catch (_) {} }
-  async function logout() { const tk = auth && auth.token; try { google.accounts.id.disableAutoSelect(); } catch (_) {} if (isSess(auth)) { try { await api("logout"); } catch (_) {} } if (auth && auth.token === tk) setAuth(null); toastMsg("Anda sudah keluar"); }
-  /* peran diperbarui diam-diam saat dashboard dibuka (mis. baru dijadikan Editor di tab AKSES) */
-  setTimeout(async () => { if (!isSess(auth)) return; try { const me = await api("me"); if (me.role !== auth.role || !!me.canEdit !== auth.canEdit || (me.nick || "") !== (auth.nick || "")) setAuth(Object.assign({}, auth, { role: me.role, canEdit: !!me.canEdit, nick: me.nick || "" })); } catch (_) {} }, 1500);
+  async function logout() { const tk = auth && auth.token; try { google.accounts.id.disableAutoSelect(); } catch (_) {} try { localStorage.setItem("cp-auth-out", String(Date.now())); } catch (_) {} if (isSess(auth)) { try { await api("logout"); } catch (_) {} } if (auth && auth.token === tk) setAuth(null); toastMsg("Anda sudah keluar"); }
+  /* peran, nama & foto diperbarui diam-diam saat dashboard dibuka (mis. baru dijadikan Editor di tab AKSES) */
+  setTimeout(async () => { if (!isSess(auth)) return; try { const me = await api("me", { pic: auth.picture || "" }); const pic = me.picture || auth.picture || ""; if (me.role !== auth.role || !!me.canEdit !== auth.canEdit || (me.nick || "") !== (auth.nick || "") || pic !== (auth.picture || "") || auth.stale) setAuth(Object.assign({}, auth, { role: me.role, canEdit: !!me.canEdit, nick: me.nick || "", picture: pic, stale: false })); } catch (_) {} }, 1500);
   function toastMsg(m, ms) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = m; t.style.maxWidth = "min(560px, calc(100vw - 32px))"; t.style.borderRadius = "14px"; document.querySelectorAll(".toast").forEach(x => x.remove()); document.body.appendChild(t); setTimeout(() => t.remove(), ms || 3200); }
   /* tombol login Google di tempat lain (misalnya banner "Mode baca saja") */
   function mountButton(el) { if (!el || !gisReady || !CFG.CLIENT_ID) return false; try { el.innerHTML = ""; google.accounts.id.renderButton(el, { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "id" }); return true; } catch (_) { return false; } }
   /* sesi login Google berlaku ±1 jam: minta masuk ulang sebelum habis, dan beri tahu saat habis */
   /* hanya untuk login lama (token Google): minta perpanjang sebelum habis; sesi "s1." tidak kedaluwarsa */
-  setInterval(() => { if (!auth || isSess(auth)) return; const left = auth.exp * 1000 - Date.now(); if (left < 0) { setAuth(null); toastMsg("Sesi login berakhir. Klik Masuk dengan Google untuk lanjut mengedit.", 7000); } else if (left < 150000) promptLogin(); }, 60000);
+  setInterval(() => { if (!auth || isSess(auth)) return; const left = auth.exp * 1000 - Date.now(); if (left < 0) markStale(); else if (left < 150000) promptLogin(); }, 60000);
 
   let gisReady = false;
   function initGis() {
@@ -73,7 +89,7 @@
     google.accounts.id.initialize({ client_id: CFG.CLIENT_ID, callback: onCredential, auto_select: true, cancel_on_tap_outside: true, use_fedcm_for_prompt: true });
     gisReady = true; renderAuth(); window.dispatchEvent(new Event("cp-gis"));
     /* belum login → minta login; login lama tanpa foto profil → login ulang diam-diam sekali supaya fotonya ikut tampil */
-    if (!auth) promptLogin();
+    if (!auth || auth.stale) promptLogin();
     else if (isSess(auth) && !auth.picture && !sessionStorage.getItem("cp-picask")) { try { sessionStorage.setItem("cp-picask", "1"); } catch (_) {} promptLogin(); }
     return true;
   }
@@ -82,7 +98,8 @@
   function renderAuth() {
     const box = document.getElementById("authBox"); if (!box) return;
     if (auth) {
-      box.innerHTML = `<div class="authme" title="${esc(auth.email)}"><span class="authav">${/^https:\/\/[a-z0-9.-]*googleusercontent\.com\//i.test(auth.picture || "") ? `<img src="${esc(auth.picture)}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : esc((auth.email || "?")[0].toUpperCase())}</span><span class="authtx"><b>${esc(auth.email)}</b><small>${esc(auth.canEdit ? auth.role : "Viewer · baca saja")}</small></span><button type="button" data-cplogout title="Keluar" aria-label="Keluar">⎋</button></div>`;
+      box.innerHTML = `<div class="authme" title="${esc(auth.email)}"><span class="authav">${/^https:\/\/[a-z0-9.-]*googleusercontent\.com\//i.test(auth.picture || "") ? `<img src="${esc(auth.picture)}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : esc((auth.email || "?")[0].toUpperCase())}</span><span class="authtx"><b>${esc(auth.email)}</b><small>${esc(auth.canEdit ? auth.role : "Viewer · baca saja")}${auth.stale ? " · sesi perlu diperbarui" : ""}</small></span><button type="button" data-cplogout title="Keluar" aria-label="Keluar">⎋</button></div>${auth.stale ? `<div id="gisBtn" class="gisbtn" style="margin-top:6px"></div>` : ""}`;
+      if (auth.stale && gisReady) try { google.accounts.id.renderButton(document.getElementById("gisBtn"), { theme: "outline", size: "medium", shape: "pill", text: "signin_with", width: 196, locale: "id" }); } catch (_) {}
     } else if (!CFG.CLIENT_ID) {
       box.innerHTML = `<small class="authnote">Login belum diatur (CLIENT_ID di config.js)</small>`;
     } else {
@@ -231,7 +248,12 @@
     me: () => auth,
     ping: (page, since) => api("ping", { gid, page, since, pic: (auth && auth.picture) || "" }),
     setNick: async nick => { const j = await api("nick", { nick }); if (auth) { auth.nick = j.nick; setAuth(auth); } return j.nick; },
-    log: items => api("log", { items })
+    log: items => api("log", { items }),
+    /* riwayat "melihat …" (semua yang login, termasuk Viewer) */
+    view: (page, code, ym) => auth ? api("view", { page, code, ym }) : Promise.resolve(null),
+    /* judul + gambar mini untuk kotak pratinjau link, dan nama file/folder Drive untuk chip */
+    preview: url => api("preview", { url }),
+    drive: id => api("drive", { id })
   };
 
   const NS = { db, user, assets, mcp, ai, team };
