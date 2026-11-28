@@ -946,7 +946,10 @@ body.ro [data-go="pengaturan"],body.ro [data-newc]{display:none!important}/* ===
 .sheet td.haslink .lnk:hover{text-decoration-thickness:2px}
 .sheet td.haslink textarea.cin{position:absolute;inset:0;opacity:0;pointer-events:none;height:100%!important}
 .sheet-wrap:not(.fresh) td.haslink.cfocus textarea.cin{position:static;opacity:1;pointer-events:auto;height:auto!important}
-.sheet-wrap:not(.fresh) td.haslink.cfocus .lnk{display:none}
+.sheet-wrap:not(.fresh) td.haslink.cfocus .lnk,.sheet-wrap:not(.fresh) td.haslink.cfocus .lnks{display:none}
+.sheet td.haslink .lnks{display:flex;flex-direction:column;align-items:flex-start;min-width:0;max-width:100%;padding:2px 0}
+.sheet td.haslink .lnks .lnk:not(.dchip){max-width:100%;padding-block:2px}.sheet td.haslink .lnks .dchip{margin-block:2px}
+.sheet td.haslink .lnks .lnt{padding:2px 8px;font-size:12px;color:var(--muted);white-space:normal}
 .sheet td.w-link .cin{padding-right:8px}/* ==== team: who is online, activity, greeting pop-up, bell alert ==== */
 .online{display:flex;align-items:center;padding-left:6px}
 .oav{width:32px;height:32px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:12.5px;font-weight:600;margin-left:-8px;border:2px solid var(--bg);cursor:default}
@@ -1455,6 +1458,9 @@ const optColor=(key,v)=>v&&S.optColor[key]&&S.optColor[key][v]||"";
 function colorStyle(key,v){const c=optColor(key,v);return c?`style="--oc:${c}"`:""}
 /* links: a full web address shows as a blue, clickable, shortened link */
 function linkUrl(v){const s=String(v||"").trim();if(!/^(https?:\/\/|www\.)\S+$/i.test(s))return "";return /^www\./i.test(s)?"https://"+s:s}
+/* a link cell can hold many links: one per line (or separated by spaces / commas); every link is live */
+function linkUrls(v){const out=[];String(v||"").split(/[\s,]+/).forEach(t=>{const u=linkUrl(t);if(u&&!out.includes(u))out.push(u)});return out}
+function linkLines(v){return String(v||"").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{const parts=[];let txt=[];l.split(/\s+/).forEach(t=>{const u=linkUrl(t.replace(/,$/,""));if(u){if(txt.length)parts.push({t:txt.join(" ")});txt=[];parts.push({u})}else txt.push(t)});if(txt.length)parts.push({t:txt.join(" ")});return parts})}
 function shortUrl(u){let s=u;try{const x=new URL(u);s=x.hostname.replace(/^www\./,"")+(x.pathname!=="/"?x.pathname:"")+(x.search?"?…":"")}catch(_){s=u.replace(/^https?:\/\//,"")}return s.length>38?s.slice(0,36)+"…":s}
 const AUTO_COL=["#5B6BD6","#2D8A6E","#C4507A","#C9961E","#2A8FC4","#8A6FB8","#E08A2E","#3D8B8B","#B5523B","#6E8B3D","#7C6A55","#A33B6B"];
 function cellColor(key,v){if(!v)return "";if(key==="brand"){const b=byCode(v);return b?b.color:""}const c=optColor(key,v);if(c)return c;let h=0;for(const ch of String(v))h=(h*31+ch.charCodeAt(0))>>>0;return AUTO_COL[h%AUTO_COL.length]}
@@ -1525,8 +1531,9 @@ function cellHtml(col,v,ctx){
     case "brand":{const br=byCode(val);inner=`<span class="bdot" style="--bc:${br?br.color:"var(--line)"}"><i></i>${selHtml("brand",val,"",key)}</span>`;break}
     case "motif":cls+=" w-mot";inner=motifCell(v,byCode(v.brand)||(b.ig?null:b),b.ig);break;
     case "shot":cls+=" shot";inner=v.shot?`<a class="thumb" href="${esc(blobUrl(v.shot))}" target="_blank" rel="noopener" title="Buka screenshot"><img src="${esc(blobUrl(v.shot))}" alt="Screenshot"></a><button class="shotx" data-shotdel title="Hapus screenshot" aria-label="Hapus screenshot">✕</button>`:v.id?`<label class="btn sm press">Upload<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-shot hidden></label>`:"";break;
-    case "link":{cls+=" w-link";const url=linkUrl(val);if(url)cls+=" haslink";const ch=url&&driveIdOf(url)&&v.chip&&v.chip[key];if(ch)cls+=" haschip";
-      inner=TA()+(url?(ch?`<a class="lnk dchip" href="${esc(url)}" target="_blank" rel="noopener"><span class="dico">${driveIcon(ch.m,ch.f)}</span><span class="dnm">${esc(ch.n||"File Google Drive")}</span></a>`:`<a class="lnk" href="${esc(url)}" target="_blank" rel="noopener">${esc(shortUrl(url))}</a>`):"");break}
+    case "link":{cls+=" w-link";const urls=linkUrls(val);if(urls.length)cls+=" haslink";if(urls.some(u=>chipOf(v,key,u)))cls+=" haschip";
+      const one=url=>{const ch=chipOf(v,key,url);return ch?`<a class="lnk dchip" href="${esc(url)}" data-u="${esc(url)}" target="_blank" rel="noopener"><span class="dico">${driveIcon(ch.m,ch.f)}</span><span class="dnm">${esc(ch.n||"File Google Drive")}</span></a>`:`<a class="lnk" href="${esc(url)}" data-u="${esc(url)}" target="_blank" rel="noopener">${esc(shortUrl(url))}</a>`};
+      inner=TA()+(urls.length?`<div class="lnks">${linkLines(val).map(ps=>ps.map(p=>p.u?one(p.u):`<span class="lnt">${esc(p.t)}</span>`).join("")).join("")}</div>`:"");break}
     case "long":cls+=key==="scr"?" w-scr":" w-txt";inner=key==="scr"?TA(`placeholder="Hook · Body · CTA"`)+(v.id?`<button class="aibtn" data-ai title="Buat script dari Ide/Brief dengan AI" aria-label="Buat script dengan AI">✨</button>`:""):TA(key==="brief"||key==="ide"?`placeholder="Tulis ide / brief konten…"`:"");break;
     case "number":inner=TA('inputmode="decimal"',"num");break;
     case "date":inner=`<input class="cin" type="date" ${F} value="${esc(val)}" aria-label="${esc(col.label)}">`;break;
@@ -1794,14 +1801,22 @@ const DINFO={};
 async function driveInfo(id){if(DINFO[id])return DINFO[id];let o=null;try{const c=JSON.parse(lsGet("cp-drv:"+id,"null"));if(c)o=c}catch(_){}
   if(!o&&DB.team&&DB.team.drive){try{o=await DB.team.drive(id)}catch(_){o=null}}
   o=o||{name:"",mime:"",folder:false};if(o.name)lsSet("cp-drv:"+id,JSON.stringify(o));return DINFO[id]=o}
-function chipMenu(){if(!S.cs||S.ro)return "";const col=colByKey(S.cs.f.ck),r=rowById(S.cs.f.rk);if(!col||!r||col.type!=="link"||!driveIdOf(linkUrl(r[col.key])))return "";
-  return r.chip&&r.chip[col.key]?MI("chipoff","Tampilkan sebagai link"):MI("chipon","Tampilkan sebagai chip Drive")}
-async function chipSet(r,key,on){if(!canWrite())return;const url=linkUrl(r[key]),id=driveIdOf(url);if(!id)return;
-  if(on){const info=await driveInfo(id);pushUndo(true);r.chip=r.chip||{};r.chip[key]={n:info.name||"File Google Drive",m:info.mime||"",f:!!info.folder};if(!info.name&&!info.noAccess&&!(DB.team&&DB.team.drive))toast("Nama file tidak bisa dibaca di versi ini, chip memakai nama umum")}
-  else{pushUndo(true);if(r.chip){delete r.chip[key];if(!Object.keys(r.chip).length)delete r.chip}}
+/* chips are kept per Drive file: r.chip[key] = {driveId:{n,m,f}}; an older single chip {n,m,f} belongs to the cell's first Drive link */
+const isOldChip=c=>c&&("n" in c||"m" in c||"f" in c);
+function driveUrls(v){return linkUrls(v).filter(driveIdOf)}
+function chipOf(r,key,url){const c=r&&r.chip&&r.chip[key],id=driveIdOf(url);if(!c||!id)return null;if(isOldChip(c)){const f=driveUrls(r[key])[0];return f&&driveIdOf(f)===id?c:null}return c[id]||null}
+function chipMenu(){if(!S.cs||S.ro)return "";const col=colByKey(S.cs.f.ck),r=rowById(S.cs.f.rk);if(!col||!r||col.type!=="link")return "";const ds=driveUrls(r[col.key]);if(!ds.length)return "";
+  return ds.some(u=>chipOf(r,col.key,u))?MI("chipoff",ds.length>1?"Tampilkan semua sebagai link":"Tampilkan sebagai link"):MI("chipon",ds.length>1?"Jadikan semua link Drive chip":"Tampilkan sebagai chip Drive")}
+/* url: one Drive link of the cell; without it, every Drive link in the cell */
+async function chipSet(r,key,on,url){if(!canWrite())return;const urls=url?[url]:driveUrls(r[key]);const ids=urls.map(driveIdOf).filter(Boolean);if(!ids.length)return;
+  const infos=on?await Promise.all(ids.map(driveInfo)):[];pushUndo(true);
+  let m={};const c=r.chip&&r.chip[key];if(isOldChip(c)){const f=driveUrls(r[key])[0];if(f)m[driveIdOf(f)]=c}else if(c)m=Object.assign({},c);
+  ids.forEach((id,i)=>{if(on){const info=infos[i];m[id]={n:info.name||"File Google Drive",m:info.mime||"",f:!!info.folder}}else delete m[id]});
+  if(on&&infos.some(i=>!i.name&&!i.noAccess)&&!(DB.team&&DB.team.drive))toast("Nama file tidak bisa dibaca di versi ini, chip memakai nama umum");
+  if(Object.keys(m).length){r.chip=r.chip||{};r.chip[key]=m}else if(r.chip){delete r.chip[key];if(!Object.keys(r.chip).length)delete r.chip}
   touch();render()}
 /* offer the chip right after a Drive link is typed or pasted into a link cell */
-function offerChip(r,key){const url=linkUrl(r[key]);if(!driveIdOf(url)||(r.chip&&r.chip[key])||S.ro)return;toast("Link Google Drive","Jadikan chip",()=>chipSet(r,key,true))}
+function offerChip(r,key){if(S.ro)return;const ds=driveUrls(r[key]);if(!ds.length||ds.some(u=>chipOf(r,key,u)))return;toast(ds.length>1?ds.length+" link Google Drive":"Link Google Drive",ds.length>1?"Jadikan chip semua":"Jadikan chip",()=>chipSet(r,key,true))}
 /* ---- link preview card on hover, like Google Sheets: title, picture, site, and copy / edit / remove ---- */
 const PV={};
 async function previewOf(url){if(PV[url])return PV[url];let o=null;try{o=JSON.parse(sessionStorage.getItem("cp-pv:"+url)||"null")}catch(_){}
@@ -1815,9 +1830,9 @@ function hidePv(){clearTimeout(pvT);const c=document.getElementById("lnkpv");if(
 document.addEventListener("mouseover",e=>{const a=e.target.closest&&e.target.closest(".sheet a.lnk,#lnkpv");if(!a)return;clearTimeout(pvHide);if(a.id==="lnkpv")return;
   const cur=document.getElementById("lnkpv");if(cur&&cur.dataset.href===a.href)return;clearTimeout(pvT);pvT=setTimeout(()=>showPv(a),380)});
 document.addEventListener("mouseout",e=>{const a=e.target.closest&&e.target.closest(".sheet a.lnk,#lnkpv");if(!a)return;const to=e.relatedTarget;if(to&&to.closest&&to.closest(".sheet a.lnk,#lnkpv")===a)return;clearTimeout(pvT);clearTimeout(pvHide);pvHide=setTimeout(hidePv,260)});
-async function showPv(a){hidePv();const url=a.href,td=a.closest("td[data-col]");const card=document.createElement("div");card.id="lnkpv";card.className="lnkpv";card.dataset.href=url;card.setAttribute("role","dialog");
+async function showPv(a){hidePv();const url=a.dataset.u||a.href,td=a.closest("td[data-col]");const card=document.createElement("div");card.id="lnkpv";card.className="lnkpv";card.dataset.href=url;card.setAttribute("role","dialog");
   const place=()=>{const rr=a.getBoundingClientRect(),w=320;card.style.left=Math.max(8,Math.min(innerWidth-w-8,rr.left))+"px";const below=rr.bottom+6,h=card.offsetHeight||200;card.style.top=(below+h>innerHeight-8?Math.max(8,rr.top-h-6):below)+"px"};
-  const draw=o=>{const did=o&&o.driveId,k=td?keyOfTd(td):null,r=k?rowById(k.rk):null,col=k?colByKey(k.ck):null,isChip=!!(r&&col&&r.chip&&r.chip[col.key]);
+  const draw=o=>{const did=o&&o.driveId,k=td?keyOfTd(td):null,r=k?rowById(k.rk):null,col=k?colByKey(k.ck):null,isChip=!!(r&&col&&chipOf(r,col.key,url));
     card.innerHTML=`<div class="pvh"><span class="pvi">${did?driveIcon(o.mime,o.folder):`<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1 M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`}</span><a class="pvt" href="${esc(url)}" target="_blank" rel="noopener">${esc((o&&o.title)||shortUrl(url))}</a>
       <span class="pvb"><button data-pv="copy" title="Salin link">⧉</button>${S.ro||!col?"":`<button data-pv="edit" title="Edit link">✎</button><button data-pv="del" title="Hapus link">⛓</button>`}</span></div>
       <div class="pvu">${esc(o?o.host:"")}${o&&o.author?` · ${esc(o.author)}`:""}</div>
@@ -1828,8 +1843,13 @@ async function showPv(a){hidePv();const url=a.href,td=a.closest("td[data-col]");
     if(b.dataset.pv==="copy"){navigator.clipboard&&navigator.clipboard.writeText(url).then(()=>toast("Link disalin"),()=>toast("Link tidak bisa disalin"));return}
     hidePv();if(!k)return;setSel(k,k);
     if(b.dataset.pv==="edit"){if(col&&col.type==="link"){const c=ctrlOf(td);if(c)enterEdit(c)}else cellLink();return}
-    if(b.dataset.pv==="del"&&r&&col&&canWrite()){pushUndo(true);if(col.type==="link")r[col.key]="";if(r.lk)delete r.lk[col.key];if(r.chip){delete r.chip[col.key];if(!Object.keys(r.chip).length)delete r.chip}touch();render();toast("Link dihapus","Urungkan",undo);return}
-    if(b.dataset.pv==="chip"&&r&&col)chipSet(r,col.key,b.dataset.v==="1")});
+    if(b.dataset.pv==="del"&&r&&col&&canWrite()){pushUndo(true);
+      if(col.type==="link"&&linkUrls(r[col.key]).length>1){const id=driveIdOf(url);
+        r[col.key]=String(r[col.key]).split("\n").map(l=>l.split(/\s+/).filter(t=>linkUrl(t.replace(/,$/,""))!==url).join(" ").trim()).filter(Boolean).join("\n");
+        const c=r.chip&&r.chip[col.key];if(id&&c&&!isOldChip(c)){delete c[id];if(!Object.keys(c).length)delete r.chip[col.key];if(!Object.keys(r.chip).length)delete r.chip}
+        touch();render();toast("1 link dihapus","Urungkan",undo);return}
+      if(col.type==="link")r[col.key]="";if(r.lk)delete r.lk[col.key];if(r.chip){delete r.chip[col.key];if(!Object.keys(r.chip).length)delete r.chip}touch();render();toast("Link dihapus","Urungkan",undo);return}
+    if(b.dataset.pv==="chip"&&r&&col)chipSet(r,col.key,b.dataset.v==="1",url)});
   const o=await previewOf(url);if(document.getElementById("lnkpv")===card)draw(o)}
 document.addEventListener("scroll",()=>hidePv(),true);
 /* ---- motif / product suggestions appear only once something is typed (not as soon as the cell is clicked) ---- */
@@ -2197,6 +2217,7 @@ document.addEventListener("keydown",e=>{
   if(e.altKey&&e.shiftKey&&e.code==="Digit5"){e.preventDefault();applyFmt("s");return}
   if(mod&&e.shiftKey&&k.toLowerCase()==="v"){S.pvOnly=true;setTimeout(()=>S.pvOnly=false,600);return}
   if(mod&&k.toLowerCase()==="a"&&!inCell){e.preventDefault();const sl=slotKeys(),cs=selCols();if(sl.length&&cs.length){S.cs.a={rk:sl[0],ck:cs[0].key};S.cs.f={rk:sl[sl.length-1],ck:cs[cs.length-1].key};paintSel()}return}
+  if(mod&&k==="Enter"&&isText(a)&&inCell&&!S.fresh&&a.closest("td.w-link")){e.preventDefault();moveSel(1,0);return}
   if(mod)return;
   const text=isText(a)&&inCell,ta=text&&a.tagName==="TEXTAREA",sel=a&&a.tagName==="SELECT"&&inCell;
   const caretStart=text&&a.selectionStart===0&&a.selectionEnd===0,caretEnd=text&&a.selectionStart===a.value.length&&a.selectionEnd===a.value.length;
@@ -2204,6 +2225,8 @@ document.addEventListener("keydown",e=>{
   if(a&&a.classList&&a.classList.contains("min")&&(k==="ArrowUp"||k==="ArrowDown")&&!S.fresh)return; // motif suggestions list
   if(k==="Tab"){e.preventDefault();moveSel(0,e.shiftKey?-1:1);return}
   if(k==="Enter"){
+    /* link cells: Enter adds a new line for the next link; Ctrl+Enter / Tab / clicking elsewhere finishes */
+    if(ta&&!S.fresh&&!e.shiftKey&&!e.altKey&&a.closest("td.w-link")){e.preventDefault();const s=a.selectionStart;a.setRangeText("\n",s,a.selectionEnd,"end");a.dispatchEvent(new Event("input",{bubbles:true}));return}
     if(ta&&e.altKey){e.preventDefault();if(S.fresh)enterEdit(a);const s=a.selectionStart;a.setRangeText("\n",s,a.selectionEnd,"end");a.dispatchEvent(new Event("input",{bubbles:true}));S.fresh=false;return}
     if(sel&&e.altKey)return;
     if(text&&S.fresh&&!e.shiftKey&&rect()&&rect().n===1){e.preventDefault();enterEdit(a);return}
